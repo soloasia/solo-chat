@@ -5,7 +5,6 @@ import ImagePicker from 'react-native-image-crop-picker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { textColor } from '../config/colors';
 import { deviceWidth } from '../styles';
-import reactotron from 'reactotron-react-native';
 
 
 const SelectImagePicker = ({ visible, onChange, onClose,photo }:any) => {
@@ -13,9 +12,7 @@ const SelectImagePicker = ({ visible, onChange, onClose,photo }:any) => {
         ImagePicker.openPicker(
             {
                 mediaType: 'photo',
-                includeBase64: true,
-                width: 300,
-                height: 400,
+                includeBase64: true
             }).then(async images =>{
                     onClose()
                 }
@@ -25,9 +22,7 @@ const SelectImagePicker = ({ visible, onChange, onClose,photo }:any) => {
         ImagePicker.openCamera(
             {
                 mediaType: 'photo',
-                includeBase64: true,
-                maxHeight: 512,
-                maxWidth: 512,
+                includeBase64: true
             }).then(images =>{
                 onClose()
                 }
