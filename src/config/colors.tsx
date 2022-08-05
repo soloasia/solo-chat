@@ -29,6 +29,8 @@ export const onlineColor = '#33BA1E'
 export const offlineColor = '#FD5640'
 export const newMessageColor = '#0091EE'
 export const chatText = '#B3BAC4'
+export const startBtn = '#598DC7'
+export const inputColor = '#F9F9F9'
 
 
 
@@ -61,5 +63,7 @@ export default {
     onlineColor,
     offlineColor,
     newMessageColor,
-    chatText
+    chatText,
+    startBtn,
+    inputColor
 }

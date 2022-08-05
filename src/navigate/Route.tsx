@@ -1,4 +1,4 @@
-import { SafeAreaView, View } from "react-native";
+import { Platform, SafeAreaView, View } from "react-native";
 import React from 'react'
 import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -12,6 +12,9 @@ import ContactScreen from "../components/ContactScreen";
 import SettingScreen from "../components/SettingScreen";
 import ChatListScreen from "../containers/chat/ChatListScreen";
 import AuthOptionScreen from "../components/AuthOptionScreen";
+import LoginScreen from '../containers/auth/LoginScreen';
+import SignupScreen from "../containers/auth/SignupScreen";
+import messaging from '@react-native-firebase/messaging';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +23,34 @@ const Tab = createBottomTabNavigator();
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
+
+  React.useEffect(() => {
+    checkPermissionNotification()
+  }, [])
+
+
+  const checkPermissionNotification = async () => {
+    const check = await messaging().isDeviceRegisteredForRemoteMessages;
+    if (Platform.OS === 'ios' || !check) {
+        await registerForNotification();
+    }
+    await requestForNotificationPermission();
+  }
+  const registerForNotification = async () => {
+      // await requestNotifications(['alert', 'badge', 'sound']);
+      await messaging().registerDeviceForRemoteMessages();
+  };
+  const requestForNotificationPermission = async () => {
+      const granted = await messaging().requestPermission();
+      if (granted) {
+          console.log('User granted messaging permissions!');
+      } else {
+          console.log('User declined messaging permissions :(');
+      }
+  };
+
+
+
     function MainStack() {
         return (  
           <Stack.Navigator
@@ -28,9 +59,13 @@ const Route = () => {
               // cardStyleInterpolator:
               //   CardStyleInterpolators.forFadeFromBottomAndroid,
             }}>
+              
+            <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
             <Stack.Screen name="Main" component={MainTab} />
             <Stack.Screen name="ChatList" component={ChatListScreen} />
-            <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="Signup" component={SignupScreen} />
+
           </Stack.Navigator>
         );
     }

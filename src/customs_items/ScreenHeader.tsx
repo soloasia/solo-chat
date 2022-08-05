@@ -26,25 +26,26 @@ const ScreenHeader: React.FC<propsType> = (props) => {
     const navigate:any = useNavigation();
     return (
         <View style={[styles.header, {flexDirection:'row',alignItems:'center'}]}>
-            {is_main ?
+            {is_main  ?
                 <View style={[style.buttonHeader]}>
                     <Text style={[style.pBold,{fontSize:25}]}>{title}</Text>
                 </View>
-                :
+            :  title !='Log In' && title !='Sign Up'?
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={()=>navigate.goBack()}
                     style={[style.buttonHeader]}>
                     <Ionicons name='chevron-back' size={25} color={colors.textColor} />
                 </TouchableOpacity>
-            }
+            :<View style={{width: 50 }}/>}
             <TextItem style={[style.pBold, styles.title, {textAlign: 'center'}]} numberOfLines={1}>{is_main? '':title}</TextItem>
             {rightIcon ? rightIcon() :
                 <Box
                     style={{
                         width: 50
                     }}
-                />}
+                />
+            }
         </View>
     )
 }
