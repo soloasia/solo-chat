@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, View, TouchableOpacity } from 'react-native';
-import {  HStack, VStack } from 'native-base'
-import { baseColor, boxColor, offlineColor, onlineColor } from '../config/colors';
+import {  Divider, HStack, VStack } from 'native-base'
+import { baseColor, boxColor, offlineColor, onlineColor, whiteColor } from '../config/colors';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SearchBox from '../customs_items/SearchBox';
@@ -23,7 +23,7 @@ const ContactScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}>
-				<Ionicons name="person-add-sharp" size={25} color={baseColor}/>
+				<Ionicons name="person-add-outline" size={25} color={baseColor}/>
 			</TouchableOpacity>
 		)
 	}
@@ -34,21 +34,19 @@ const ContactScreen = () => {
 	}
 	const _renderContactView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,backgroundColor:boxColor,borderRadius:10}}>
-				<HStack  alignItems="center" justifyContent={'space-between'}>
-					<HStack space={3} alignItems="center">
-						<UserAvatar>
-							<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
-						</UserAvatar>
-						<VStack space={1}>
-							<TextItem style={{textAlign:'center',fontSize:16}}>{item.name}</TextItem>
-							<HStack alignItems={'center'}>
-								<View style={{width:12,height:12,borderRadius:10,backgroundColor:item.status =='online'? onlineColor:offlineColor}}/>
-								<TextItem style={{textAlign:'center',fontSize:13,color:item.status =='online'? onlineColor:offlineColor,paddingLeft: 5,}}>{item.status}</TextItem>
-							</HStack>
-						</VStack>
-					</HStack>
-                    <Ionicons name="chatbubble-ellipses-outline" size={25} style={{color: '#ADB9C6'}}/>
+			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+				<HStack  alignItems="center" space={4}>
+					<UserAvatar>
+						<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+					</UserAvatar>
+					<VStack space={1} flex={1}>
+						<TextItem style={{fontSize:16}}>{item.name}</TextItem>
+						<HStack alignItems={'center'}>
+							<View style={{width:12,height:12,borderRadius:10,backgroundColor:item.status =='online'? onlineColor:offlineColor}}/>
+							<TextItem style={{textAlign:'center',fontSize:13,color:item.status =='online'? onlineColor:offlineColor,paddingLeft: 5,}}>{item.status}</TextItem>
+						</HStack>
+						<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+					</VStack>
 				</HStack>
 			</TouchableOpacity>
 		)

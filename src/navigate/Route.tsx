@@ -1,4 +1,4 @@
-import { SafeAreaView, View } from "react-native";
+import { SafeAreaView, useColorScheme, View } from "react-native";
 import React from 'react'
 import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import ContactScreen from "../components/ContactScreen";
 import SettingScreen from "../components/SettingScreen";
 import ChatListScreen from "../containers/chat/ChatListScreen";
 import AuthOptionScreen from "../components/AuthOptionScreen";
+import reactotron from "reactotron-react-native";
 
 const Stack = createStackNavigator();
 
@@ -20,6 +21,7 @@ const Tab = createBottomTabNavigator();
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
+    const colorScheme = useColorScheme();
     function MainStack() {
         return (  
           <Stack.Navigator
