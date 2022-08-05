@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View,Image } from 'react-native';
 import { HStack,VStack } from 'native-base';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { boxColor, chatText, whiteColor, whiteSmoke } from '../config/colors';
+import { bageColor, baseColor, boxColor, chatText, whiteColor } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import SearchBox from '../customs_items/SearchBox';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
+import style from '../styles';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 const ChatScreen = () => {
     const navigate:any = useNavigation();
@@ -28,10 +29,16 @@ const ChatScreen = () => {
 	const onSelectChat = (item:any) =>{
         navigate.navigate('ChatList',{chatItem:item});
 	}
-
+	const rightIcon = () =>{
+		return(
+			<TouchableOpacity style={style.containerCenter}>
+				<FontAwesome name="edit" size={25} color={baseColor}/>
+			</TouchableOpacity>
+		)
+	}
 	const _renderChatView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor:item.status ==1? boxColor:whiteColor,borderBottomWidth:1,borderBottomColor:whiteSmoke}}>
+			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor:whiteColor,borderBottomWidth:1,borderBottomColor:boxColor}}>
 				<HStack   justifyContent={'space-between'}>
 					<HStack space={3} alignItems="center">
 						<UserAvatar>
@@ -42,14 +49,24 @@ const ChatScreen = () => {
 							<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>{item.text}</TextItem>
 						</VStack>
 					</HStack>
-					<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>Now</TextItem>
+					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
+						<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>Now</TextItem>
+						{item.status ==1?
+							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
+								<TextItem style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</TextItem>
+							</View>
+							:
+							<></>
+						}
+						
+					</VStack>
 				</HStack>
 			</TouchableOpacity>
 		)
 	}
 	
 	return (
-		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true}>
+		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
 				onChangeText={(text:any)=> onChangeText(text)}
 				onSearch={onConfirmSearch}

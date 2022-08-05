@@ -1,15 +1,14 @@
-export const whiteColor = '#ffffff'
-export const baseColor = '#1873F5'
-export const BG_COLOR = '#f6f6f6';
-export const secondColor = '#4DA57F'
-export const backColor = 'rgba(164, 191, 235,0.4)'
-export const backSecondColor = '#E9EBED'
+export const whiteColor = '#FFFFFF'
+export const baseColor = '#478DCC'
+export const bgChat = '#ECF1FD'
+export const secondColor = '#707070'
+export const bageColor = '#478DCC'
 export const textColor = '#000000'
-export const textSecondColor = '#515154'
+export const textSecondColor = '#8D8C8C'
 export const textTitleColor = '#606060'
 export const textDesColor = '#626870'
 export const buttonColor = '#49A06F'
-export const boxColor = '#EFF3F6'
+export const boxColor = '#F9F9F9'
 export const buttonSecondColor = '#438861'
 export const buttonActiveColor = '#F1F1FC'
 export const backPriceColor = '#EDEDFA'
@@ -28,9 +27,9 @@ export const titleHeaderColor = '#DCFF7D'
 export const onlineColor = '#33BA1E'
 export const offlineColor = '#FD5640'
 export const newMessageColor = '#0091EE'
-export const chatText = '#B3BAC4'
 export const startBtn = '#598DC7'
 export const inputColor = '#F9F9F9'
+export const chatText = '#BDBCBC'
 
 
 
@@ -38,8 +37,7 @@ export default {
     whiteColor,
     baseColor,
     secondColor,
-    backColor,
-    backSecondColor,
+    bageColor,
     textColor,
     textSecondColor,
     textTitleColor,
@@ -65,5 +63,6 @@ export default {
     newMessageColor,
     chatText,
     startBtn,
-    inputColor
+    inputColor,
+    bgChat
 }

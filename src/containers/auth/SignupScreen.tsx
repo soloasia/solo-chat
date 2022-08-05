@@ -51,6 +51,7 @@ const SignupScreen = (props: any) => {
             "password": state.password,
             "profile_photo": 'data:image/png;base64,'+profileAvatar
         }
+        navigate.navigate('Main')
     }
     const onChange = (data:any) =>{
         setProfile(data.data)

@@ -1,5 +1,5 @@
 import { Dimensions, StyleSheet } from "react-native";
-import { baseColor, BG_COLOR, labelColor, placeholderTextColor, textColor, textSecondColor, whiteColor, whiteSmoke } from "../config/colors";
+import { baseColor, labelColor, placeholderTextColor, textColor, textSecondColor, whiteColor, whiteSmoke } from "../config/colors";
 import { Battambang, BattambangBold, Moul } from "../config/fonts";
 
 export const deviceWidth = Dimensions.get('window').width;
@@ -13,7 +13,6 @@ export const shadowWidth = 2;
 export const style = StyleSheet.create({
   safeAreaContainer: {
     flex: 1,
-    backgroundColor: BG_COLOR,
   },
   flexTop: {
     flex: 0,

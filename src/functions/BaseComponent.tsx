@@ -4,8 +4,7 @@ import React, { useState } from 'react'
 import { ReactNode } from 'react'
 import { BackHandler, InteractionManager, KeyboardAvoidingView, Platform, StyleSheet, View,Text, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Ionicons from 'react-native-vector-icons/Ionicons'
-import { backColor, baseColor, whiteColor, whiteSmoke } from '../config/colors'
+import {  baseColor, whiteColor, whiteSmoke } from '../config/colors'
 import ScreenHeader, { headerData } from '../customs_items/ScreenHeader'
 import { style } from '../styles'
 
@@ -93,7 +92,7 @@ export default React.memo(BaseComponent)
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex: 1
     },
     mainContainer: {
         flex: 1,
