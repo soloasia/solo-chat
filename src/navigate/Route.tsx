@@ -1,4 +1,4 @@
-import { SafeAreaView, useColorScheme, View, Platform, } from "react-native";
+import { SafeAreaView, useColorScheme, View, Platform, LogBox } from "react-native";
 import React from 'react'
 import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -16,6 +16,7 @@ import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
 import reactotron from "reactotron-react-native";
+import AppearanceScreen from '../containers/appearance/AppearanceScreen'
 
 const Stack = createStackNavigator();
 
@@ -67,6 +68,7 @@ const Route = () => {
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Appearance" component={AppearanceScreen} />
 
       </Stack.Navigator>
     );
@@ -147,7 +149,7 @@ const Route = () => {
       </Tab.Navigator>
     );
   }
-
+  LogBox.ignoreAllLogs();
   return (
     <NavigationContainer>
       <SafeAreaProvider>

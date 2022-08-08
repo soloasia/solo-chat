@@ -33,7 +33,7 @@ export const seconddata = [
         name: 'Appearance',
         icon: 'color-palette-outline',
         color: "#1772F7",
-        to:''
+        to:'Appearance'
     },
     {
         name: 'Language',

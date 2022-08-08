@@ -1,15 +1,23 @@
 import moment from 'moment';
 import { Divider, HStack, useDisclose } from 'native-base';
 import React, { useCallback, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard,FlatList, RefreshControl } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform } from 'react-native';
+import { useSelector } from 'react-redux';
+import reactotron from 'reactotron-react-native';
 import { baseColor, boxColor, chatText, textColor, whiteColor } from '../../config/colors';
 import { makeid, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import { message } from '../../temp_data/Setting';
 import ChatRecord from './ChatRecord';
+import { deviceHeight } from '../../styles/index';
+import _ from 'lodash';
 
 const ChatListScreen = (props:any) => {
+    const appearanceTheme = useSelector((state: any) => state.appearance);
+    const textsize = useSelector((state: any) => state.textSizeChange);
+
+
     const {chatItem} = props.route.params;
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
@@ -52,13 +60,13 @@ const ChatListScreen = (props:any) => {
                
 				<View style={[styles.chatBack,
 				{
-					backgroundColor: mess.isAdmin ? '#ECF1FD' : baseColor,
+					backgroundColor: mess.isAdmin ? '#ECF1FD' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
 					borderBottomRightRadius: mess.isAdmin ? 20 : 0,
 					borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
 					marginVertical: 1
 				}
 				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor }}>{mess.text}</Text>
+					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize }}>{mess.text}</Text>
 					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor:whiteColor, alignSelf: 'flex-end',paddingLeft:100 }}>{moment().format('HH:mm A')}</Text>
 				</View>
             </View>
@@ -76,50 +84,56 @@ const ChatListScreen = (props:any) => {
 
     return (
 		<BaseComponent {...baseComponentData} title={chatItem.name} is_main={false} rightIcon={rightIcon}>
-			<View style={styles.chatContent}>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-					<FlatList
-                            ref={ref}
-                            listKey={makeid()}
-                            renderItem={Item}
-                            data={message}
-                            showsVerticalScrollIndicator={false}
-                            ListFooterComponent={
-                                <View style={{ height: 20 }}>
-                                </View>
-                            }
-                            // refreshControl={
-                            //     <RefreshControl
-                            //         refreshing={refreshing}
-                            //         onRefresh={_handleRefresh}
-                            //         tintColor="black" />
-                            // }
-                            // onContentSizeChange={() => {
-                            //     if (!refreshing) {
+            <ImageBackground source={{uri: appearanceTheme.themurl}} resizeMode="cover" style={{width: deviceWidth, height:deviceHeight*.79}}>
+                <KeyboardAvoidingView style={styles.chatContent} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+                        <FlatList
+                                ref={ref}
+                                listKey={makeid()}
+                                renderItem={Item}
+                                data={message}
+                                showsVerticalScrollIndicator={false}
+                                ListFooterComponent={
+                                    <View style={{ height: 20 }}>
+                                    </View>
+                                }
+                                // refreshControl={
+                                //     <RefreshControl
+                                //         refreshing={refreshing}
+                                //         onRefresh={_handleRefresh}
+                                //         tintColor="black" />
+                                // }
+                                // onContentSizeChange={() => {
+                                //     if (!refreshing) {
 
-                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                            //     }
-                            // }}
-                            // onLayout={() => {
-                            //     if (!refreshing) {
+                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                //     }
+                                // }}
+                                // onLayout={() => {
+                                //     if (!refreshing) {
 
-                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                            //     }
-                            // }}
-                            scrollEventThrottle={16}
-                            onEndReachedThreshold={0.5}
-                            keyExtractor={(_, index) => index.toString()}
-                        >
-                        </FlatList>
-				</TouchableWithoutFeedback>
-			</View>
-			<ChatRecord
+                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                //     }
+                                // }}
+                                scrollEventThrottle={16}
+                                onEndReachedThreshold={0.5}
+                                keyExtractor={(_, index) => index.toString()}
+                            >
+                            </FlatList>
+                    </TouchableWithoutFeedback>
+                </KeyboardAvoidingView>
+                    {/* <View style={{position: 'absolute',top:'80%', width: deviceWidth}}>
+                       
+                    </View> */}
+            </ImageBackground>
+            <ChatRecord
                 message={state.message}
                 loading={state.loadSendMess}
                 onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
                 onOpen={_handleOpen}
                 onSend={onSend}
             />
+
 		</BaseComponent>
     );
 };
@@ -134,12 +148,11 @@ const styles = StyleSheet.create({
         transform: [{ scaleY: 1 }],
         flex: 1,
         justifyContent: 'flex-end',
-        marginBottom: 10,
+        // marginBottom: 10,
         padding: 15
     },
     chatBody: {
         transform: [{ scaleY: 1 }],
-        paddingHorizontal: 10,
         marginTop: 10,
 
     },
