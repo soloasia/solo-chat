@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import { Divider, HStack } from 'native-base';
+import { Divider, HStack, } from 'native-base';
 import React, { useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
@@ -17,6 +17,8 @@ const SettingScreen = () => {
     const navigate:any = useNavigation();
 	const ref = useRef<TransitioningView>(null);
 	const [isDarkMode, setDarkMode] = useState(false);
+	const [isNotificationOn, setisNotificationOn] = useState(false);
+	
     const colorScheme = useColorScheme();
 
 	const transition = (
@@ -36,7 +38,17 @@ const SettingScreen = () => {
 						</View>
 						<TextItem>{item.name}</TextItem>
 					</HStack>
-					<Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>
+					
+					<HStack alignItems={'center'}>
+						{item.name == "Notifications" && <Switch 
+							value={isNotificationOn} 
+							trackColor= {{true : baseColor}}
+							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
+							onValueChange={() => {
+								setisNotificationOn(!isNotificationOn)
+							}}></Switch>}
+						<Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>
+					</HStack>			
 				</HStack>
 			</TouchableOpacity>
 		)
@@ -44,7 +56,7 @@ const SettingScreen = () => {
 
 	const rightIcon = () =>{
 		return(
-			<TouchableOpacity style={style.containerCenter}>
+			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
 				<FontAwesome name="edit" size={25} color={baseColor}/>
 			</TouchableOpacity>
 		)
@@ -71,12 +83,12 @@ const SettingScreen = () => {
 									<Ionicons name={'sunny-outline'} size={25} style={{color:whiteColor}}/>
 									:
 									<Ionicons name={'moon-outline'} size={25} style={{color:textColor}}/>
-
 								}
 								<TextItem>Dark Mode</TextItem>
 							</HStack>
 							<Switch 
 								value={isDarkMode} 
+								trackColor= {{true : baseColor}}
 								style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
 								onValueChange={() => {
 									if (ref.current) {

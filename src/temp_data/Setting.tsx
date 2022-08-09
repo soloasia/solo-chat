@@ -1,4 +1,5 @@
 import moment from "moment"
+import { baseColor } from "../config/colors"
 
 export const data = [
     // {
@@ -37,9 +38,9 @@ export const seconddata = [
     },
     {
         name: 'Language',
-        icon: 'ios-language-outline',
-        color: "#8F9AA8",
-        to:''
+        icon: 'globe-outline',
+        color: baseColor, //"#8F9AA8",
+        to:'Language'
     },
     {
         name: 'Privacy',
