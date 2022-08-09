@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { Divider, HStack, } from 'native-base';
 import React, { useRef, useState } from 'react';
-import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch } from 'react-native';
+import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -37,8 +37,7 @@ const SettingScreen = () => {
 							<Ionicons name={item.icon} size={20} style={{color:whiteColor}}/>
 						</View>
 						<TextItem>{item.name}</TextItem>
-					</HStack>
-					
+					</HStack>				
 					<HStack alignItems={'center'}>
 						{item.name == "Notifications" && <Switch 
 							value={isNotificationOn} 
@@ -47,7 +46,8 @@ const SettingScreen = () => {
 							onValueChange={() => {
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
-						<Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>
+						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
+						
 					</HStack>			
 				</HStack>
 			</TouchableOpacity>
@@ -74,7 +74,7 @@ const SettingScreen = () => {
 							<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
 						</UserAvatar>
 						<TextItem style={{fontSize:18,paddingTop: 10}}>Big Boss</TextItem>
-						<TextItem style={{paddingTop: 5,color:chatText}}>@bigboss</TextItem>
+						<TouchableOpacity onPress={() => Clipboard.setString("@bigboss")}><TextItem style={{paddingTop: 5,color:chatText}}>@bigboss</TextItem></TouchableOpacity>
 					</View>
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>

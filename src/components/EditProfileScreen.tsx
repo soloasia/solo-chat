@@ -2,7 +2,7 @@
 import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../config/colors';
+import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
@@ -19,6 +19,7 @@ const EditProfileScreen = () => {
         username: '',
         isSecure: true,
 	});
+    
     const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>console.log("Hello")}>
@@ -67,7 +68,7 @@ const EditProfileScreen = () => {
                             />
                         </View>
                     </View>
-                    <TouchableOpacity style = {{...styles.input, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
+                    <TouchableOpacity style = {{...styles.usernameContainer, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
                         <Text>Username</Text>
                         <View style={{flexDirection :'row',alignItems : 'center'}}>
                             <Text style={{color: chatText}}>@bigboss</Text>
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
         height: 45,
         borderWidth: 0.5,
         padding: 10,
-        borderRadius : 8,
+        borderRadius : 50,
         borderColor: 'lightgray'
     },
     input: {
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
         borderWidth: 0.5,
         padding: 10,
         borderRadius : 50,
+        backgroundColor: boxColor,
         borderColor: 'lightgray'
     },
     // container: {
