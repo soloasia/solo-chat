@@ -30,7 +30,7 @@ const SettingScreen = () => {
 	  
 	const _renderItem = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>navigate.navigate(item.to)} style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+			<TouchableOpacity onPress={()=>item.name == "Notifications" ? null : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack alignItems={'center'} space={3}>
 						<View style={{width:35,height:35,backgroundColor:item.color,borderRadius:25,alignItems:'center',justifyContent:'center'}}>
@@ -63,7 +63,7 @@ const SettingScreen = () => {
 	}
 	
     return (
-		<BaseComponent {...baseComponentData} title={'Setting'} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
 				{
 				isDarkMode && <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'black' }} />

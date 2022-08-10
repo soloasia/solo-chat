@@ -11,18 +11,21 @@ import { UserData } from '../temp_data/Contact';
 import { main_padding } from '../config/settings';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import style from '../styles';
+import { useNavigation } from '@react-navigation/native';
 const ContactScreen = () => {
     const insets = useSafeAreaInsets()
 	const [state, setState] = useState<any>({
 		searchText: ''
 	});
+
+	const navigate:any = useNavigation();
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
 	};
 	const rightIcon = () =>{
 		return(
-			<TouchableOpacity style={style.containerCenter}>
+			<TouchableOpacity onPress={() => navigate.navigate('AddContact')} style={style.containerCenter}>
 				<Ionicons name="person-add-outline" size={25} color={baseColor}/>
 			</TouchableOpacity>
 		)

@@ -7,6 +7,7 @@ import { main_padding } from '../config/settings';
 import { TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import style, { deviceWidth } from '../styles';
+import ImagePicker from 'react-native-image-crop-picker';
 
 // create a component
 const EditProfileScreen = () => {
@@ -19,14 +20,18 @@ const EditProfileScreen = () => {
         username: '',
         isSecure: true,
 	});
+
+    const pickGallery = () => {
+        ImagePicker.openPicker({
+          width: 300,
+          height: 400,
+          cropping: false,
+          includeBase64: true,
+        }).then(res => {
+        //   setImgData(res);
+        });
+    }
     
-    const rightIcon = () =>{
-		return(
-			<TouchableOpacity style={style.containerCenter}  onPress={()=>console.log("Hello")}>
-				<Text style={{fontSize : 16,fontWeight : 'bold',color : baseColor}}>Save</Text>
-			</TouchableOpacity>
-		)
-	}
 
     return (
         <BaseComponent {...baseComponentData} title={'Edit Profile'} is_main={false}>
@@ -36,7 +41,7 @@ const EditProfileScreen = () => {
                         <UserAvatar style={{width:120,height:120, margin: main_padding}}>
                             <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
                         </UserAvatar>
-                        <Text style={{fontSize : 12,color : baseColor}}>Update Profile Photo</Text>
+                        <TouchableOpacity onPress={() => pickGallery()}><Text style={{fontSize : 12,color : baseColor}}>Update Profile Photo</Text></TouchableOpacity>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, padding: main_padding, marginTop: main_padding}}>
                             <TextInput 
                                 style={{...styles.input, width: '47%'}}
@@ -79,11 +84,6 @@ const EditProfileScreen = () => {
                 <TouchableOpacity onPress={()=>console.log("Save")} style={{height: 45,backgroundColor: startBtn, borderRadius: 25, alignItems: 'center', justifyContent: 'center',marginHorizontal: main_padding,marginTop : 50}}>
                         <Text style={{color: whiteSmoke, fontFamily:'Lato', fontSize: 16}}>Save</Text>
                 </TouchableOpacity>
-                {/* <View>
-                    <TouchableOpacity style = {{...styles.input, marginHorizontal : main_padding,justifyContent : 'center',alignItems :'center',}}>
-                        <Text style={{color : "red"}}>Delete Account</Text>
-                    </TouchableOpacity>
-                </View> */}
             </View>
         </BaseComponent>
     );

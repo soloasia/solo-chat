@@ -59,7 +59,7 @@ const SignupScreen = (props: any) => {
 
     return (
         <BaseComponent {...baseComponentData} title={'Sign Up'}>
-            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start',}}>
+            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start'}}>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                     <TouchableOpacity onPress={()=>handleSelectProfile()} style={{alignSelf: 'center'}}>
                         <LinearGradient
