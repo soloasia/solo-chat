@@ -18,16 +18,13 @@ const SettingScreen = () => {
 	const ref = useRef<TransitioningView>(null);
 	const [isDarkMode, setDarkMode] = useState(false);
 	const [isNotificationOn, setisNotificationOn] = useState(false);
-	
-    const colorScheme = useColorScheme();
-
 	const transition = (
 		<Transition.Together>
 		  <Transition.In type="fade" durationMs={600} />
 		  <Transition.Out type="fade" durationMs={600} />
 		</Transition.Together>
 	)
-	  
+	
 	const _renderItem = ({item,index}:any) =>{
 		return(
 			<TouchableOpacity onPress={()=>item.name == "Notifications" ? null : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
@@ -37,7 +34,7 @@ const SettingScreen = () => {
 							<Ionicons name={item.icon} size={20} style={{color:whiteColor}}/>
 						</View>
 						<TextItem>{item.name}</TextItem>
-					</HStack>				
+					</HStack>			
 					<HStack alignItems={'center'}>
 						{item.name == "Notifications" && <Switch 
 							value={isNotificationOn} 
@@ -47,7 +44,6 @@ const SettingScreen = () => {
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
 						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
-						
 					</HStack>			
 				</HStack>
 			</TouchableOpacity>
