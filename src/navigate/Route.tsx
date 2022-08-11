@@ -1,4 +1,4 @@
-import { SafeAreaView, useColorScheme, View, Platform, LogBox } from "react-native";
+import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
 import React from 'react'
 import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -16,7 +16,11 @@ import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
 import reactotron from "reactotron-react-native";
-import AppearanceScreen from '../containers/appearance/AppearanceScreen'
+import AppearanceScreen from "../containers/settings/AppearanceScreen";
+import QRcodeScreen from '../containers/settings/QRcodeScreen';
+import ChatProfileScreen from '../containers/chat/ChatProfileScreen';
+import MediaFilesScreen from '../containers/chat/MediaFilesScreen';
+import CreateGroup from '../containers/chat/CreateGroup';
 
 const Stack = createStackNavigator();
 
@@ -69,6 +73,10 @@ const Route = () => {
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Appearance" component={AppearanceScreen} />
+        <Stack.Screen name="QRcode" component={QRcodeScreen} />
+        <Stack.Screen name="ProfileChat" component={ChatProfileScreen} />
+        <Stack.Screen name="Mediafile" component={MediaFilesScreen} />
+        <Stack.Screen name="CreateGroup" component={CreateGroup} />
 
       </Stack.Navigator>
     );
@@ -151,20 +159,21 @@ const Route = () => {
   }
   LogBox.ignoreAllLogs();
   return (
-    <NavigationContainer>
-      <SafeAreaProvider>
-        <SafeAreaView
+    <SafeAreaProvider>
+       <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>
+      <NavigationContainer>
+        {/* <SafeAreaView
           // edges={['left', 'right', 'top']}
           style={[
             style.safeAreaContainer,
             {
               backgroundColor: '#fff',
             },
-          ]}>
-          <MainStack />
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </NavigationContainer>
+          ]}> */}
+        <MainStack />
+        {/* </SafeAreaView> */}
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 };
 

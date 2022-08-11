@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 60,
+        height: 100,
         color: "#aaa",
         shadowColor: "#000",
         shadowOffset: {

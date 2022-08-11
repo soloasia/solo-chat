@@ -12,8 +12,11 @@ import { message } from '../../temp_data/Setting';
 import ChatRecord from './ChatRecord';
 import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
+import { useNavigation } from '@react-navigation/native';
 
 const ChatListScreen = (props:any) => {
+    const navigate:any = useNavigation();
+
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
 
@@ -35,7 +38,7 @@ const ChatListScreen = (props:any) => {
 
     const rightIcon = () =>{
 		return(
-			<TouchableOpacity style={style.containerCenter}>
+			<TouchableOpacity onPress={()=>navigate.navigate('ProfileChat', {chatItem: chatItem})} style={style.containerCenter}>
 				<UserAvatar style={{width:35,height:35}}>
                     <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
                 </UserAvatar>
