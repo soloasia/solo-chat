@@ -31,7 +31,7 @@ const ChatScreen = () => {
 	}
 	const rightIcon = () =>{
 		return(
-			<TouchableOpacity style={style.containerCenter}>
+			<TouchableOpacity style={style.containerCenter} onPress={()=>navigate.navigate('CreateNewMessage')}>
 				<FontAwesome name="edit" size={25} color={baseColor}/>
 			</TouchableOpacity>
 		)

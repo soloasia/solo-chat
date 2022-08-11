@@ -6,7 +6,7 @@ import { Transition, Transitioning, TransitioningView } from 'react-native-reani
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import reactotron from 'reactotron-react-native';
-import { baseColor, boxColor, chatText, discountColor, textColor, textSecondColor, whiteColor } from '../config/colors';
+import { baseColor, boxColor, chatText, discountColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
@@ -53,7 +53,8 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				<FontAwesome name="edit" size={25} color={baseColor}/>
+				{/* <FontAwesome name="edit" size={25} color={baseColor}/> */}
+				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>Edit</Text>
 			</TouchableOpacity>
 		)
 	}

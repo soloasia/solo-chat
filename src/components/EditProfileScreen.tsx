@@ -17,7 +17,7 @@ const EditProfileScreen = () => {
         lastname: 'Boss',
 		password:'',
         phonenumber: '',
-        username: '',
+        username: '@bigboss',
         isSecure: true,
 	});
 
@@ -76,8 +76,21 @@ const EditProfileScreen = () => {
                     <TouchableOpacity style = {{...styles.usernameContainer, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
                         <Text>Username</Text>
                         <View style={{flexDirection :'row',alignItems : 'center'}}>
-                            <Text style={{color: chatText}}>@bigboss</Text>
-                            <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>
+                            <TextInput 
+                                style={{color: chatText,marginHorizontal : main_padding}} 
+                                placeholder='Username'
+                                value={state.username}
+                                onChangeText={(text) =>setState({
+                                    lastname: state.lastname,
+                                    firstname: state.firstname,
+                                    password: state.password,
+                                    isSecure: state.isSecure,
+                                    phonenumber: state.phonenumber,
+                                    username: text
+                                })}
+                                />
+                           
+                            {/* <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/> */}
                         </View>
                     </TouchableOpacity>
                 </View>

@@ -18,7 +18,10 @@ import messaging from '@react-native-firebase/messaging';
 import reactotron from "reactotron-react-native";
 import LanguageScreen from "../components/LanguageScreen";
 import EditProfileScreen from "../components/EditProfileScreen";
-import AddContactScreen from "../components/AddContact";
+import ExampleScreen from "../components/ExampleScreen";
+
+
+
 
 const Stack = createStackNavigator();
 
@@ -72,7 +75,8 @@ const Route = () => {
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        <Stack.Screen name="AddContact" component={AddContactScreen} />
+        <Stack.Screen name="Example" component={ExampleScreen} />
+
 
       </Stack.Navigator>
     );
