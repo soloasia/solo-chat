@@ -8,7 +8,7 @@ import SearchBox from '../customs_items/SearchBox';
 import reactotron from 'reactotron-react-native';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import { UserData } from '../temp_data/Contact';
-import { main_padding } from '../config/settings';
+import { large_padding, main_padding } from '../config/settings';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import style from '../styles';
 import { useNavigation } from '@react-navigation/native';
@@ -78,12 +78,13 @@ const ContactScreen = () => {
                 presentationStyle="formSheet"
                 visible ={showModal}
 				animationType="slide"
+				hardwareAccelerated ={true}
                 onDismiss={() => console.log('on dismiss')}>
-				<View style={{margin : main_padding}}>
+				<View style={{margin : main_padding , marginTop : large_padding}}>
 				 	<View style={{flexDirection : 'row',justifyContent: 'space-between'}}>
-					 	<TouchableOpacity onPress={()=> setShowModal(false)}><Text>Cancel</Text></TouchableOpacity>
-						<Text style={{fontWeight :'700'}} >Add Contact</Text>
-					 	<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : 'bold',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
+					 	<TouchableOpacity onPress={()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
+						<Text style={{fontWeight :'700',fontSize :16}}>Add Contact</Text>
+					 	<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
 					</View>
 
 					<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
@@ -97,10 +98,7 @@ const ContactScreen = () => {
                 </View>
                 <Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>
 				</View>
-
-
             </Modal>
-		
 		</BaseComponent>
 	);
 };
