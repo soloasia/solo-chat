@@ -11,7 +11,6 @@ import ImagePicker from 'react-native-image-crop-picker';
 
 // create a component
 const EditProfileScreen = () => {
-    const [isDarkMode, setDarkMode] = useState(false);
     const [state, setState] = useState<any>({
 		firstname: 'Big',
         lastname: 'Boss',
@@ -39,7 +38,7 @@ const EditProfileScreen = () => {
                 <View>
                     <View style={{justifyContent: 'center',alignItems:'center'}}>
                         <UserAvatar style={{width:120,height:120, margin: main_padding}}>
-                            <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+                            <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
                         </UserAvatar>
                         <TouchableOpacity onPress={() => pickGallery()}><Text style={{fontSize : 12,color : baseColor}}>Update Profile Photo</Text></TouchableOpacity>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, padding: main_padding, marginTop: main_padding}}>
