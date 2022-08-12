@@ -18,15 +18,14 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 // create a component
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
-    const { userChat } = props.route.params;
+    const { userChat, isUserProfile } =  props
     const [selectUser, setSelectUser] = useState([userChat])
-
     const _removeObj = ({ item, index }: any) => {
-        if(item.uniqueId != userChat.uniqueId){
+        // if(item.uniqueId != userChat.uniqueId){
             const filterDupplicate = selectUser.filter(element => element.uniqueId != item.uniqueId);
             
             setSelectUser(filterDupplicate)
-        }
+        // }
 
     }
     const _renderSelectedUserItem = ({ item, index }: any) => {
@@ -38,14 +37,14 @@ const CreateGroup = (props: any) => {
                 <TouchableOpacity 
                     onPress={() => _removeObj({ item, index })} 
                     style={{ 
-                        position: 'absolute', top: 13, right: 5, width: 20, height: 20, 
+                        position: 'absolute', top: 0, right: 0, width: 20, height: 20, 
                         borderRadius: 10, backgroundColor: iconColor, alignItems: 'center', 
                         justifyContent: 'center', borderColor: whiteSmoke, borderWidth: 1 
                     }}
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <Text style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13 }}>{item.name}</Text>
+                <Text style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.name}</Text>
             </VStack>
         )
     }
@@ -79,33 +78,17 @@ const CreateGroup = (props: any) => {
     }
     return (
         <View style={styles.container}>
-            <HStack alignItems='center' justifyContent='space-between'>
-                <HStack alignItems='center'>
-                    <TouchableOpacity
-                        activeOpacity={0.8}
-                        onPress={() => navigate.goBack()}
-                        style={{ padding: main_padding - 5 }}>
-                        <Ionicons name='chevron-back' size={25} color={colors.textColor} />
-                    </TouchableOpacity>
-                    <Text style={{ fontFamily: 'lato', color: textColor, fontSize: 15, fontWeight: '700' }}>Create new group</Text>
-                </HStack>
-                <TouchableOpacity style={{ paddingRight: main_padding }} disabled={selectUser.length > 1 ? false : true}>
-                    <Text style={{ fontSize: 14, fontFamily: 'lato', color: selectUser.length > 1? textColor : textDesColor, fontWeight: '700' }}>Create</Text>
-                </TouchableOpacity>
-            </HStack>
-            <View style={{ flex: 1, padding: main_padding }}>
-                <TextInput
-                    style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
-                    placeholder='Group name'
-                    placeholderTextColor={textDesColor}
-                />
-
-                <View style={{ height: deviceWidth * 0.3, justifyContent: 'center', }}>
-                    <FlatListHorizontal
-                        data={selectUser}
-                        renderItem={_renderSelectedUserItem}
-                    />
-                </View>
+            <View style={{ flex: 1, paddingHorizontal: main_padding }}>
+                {!isUserProfile ? 
+                    <View/>
+                :
+                    <View style={{ justifyContent: 'center', paddingBottom: 10}}>
+                        <FlatListHorizontal
+                            data={selectUser}
+                            renderItem={_renderSelectedUserItem}
+                        />
+                    </View>
+                }
                 <View style={{ flex: 1 }}>
                     <Text style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>Add people</Text>
                     <FlatListVertical
@@ -119,6 +102,11 @@ const CreateGroup = (props: any) => {
                     />
                 </View>
             </View>
+            <View style={{ width: deviceWidth, height: 80, padding: main_padding}}>
+                <TouchableOpacity style={{height: 45, backgroundColor: baseColor, borderRadius: 7, alignItems: 'center', justifyContent: 'center',}}>
+                    <Text style={{fontFamily: 'lato', fontSize: 16, fontWeight: '700', color: whiteSmoke }}>CREATE GROUP</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -127,7 +115,6 @@ const CreateGroup = (props: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 40,
     },
 });
 

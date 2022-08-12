@@ -132,7 +132,7 @@ export const actionChatProfile = [
         to: 'Mediafile'
     },
     {
-        title: 'Notification & Sounds',
+        title: 'Notification',
         icon: 'notifications',
         type: Ionicons,
         to: 'ProfileNoti'

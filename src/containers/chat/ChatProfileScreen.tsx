@@ -1,45 +1,83 @@
 //import liraries
-import { HStack, Icon, VStack } from 'native-base';
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { main_padding } from '../../config/settings';
+import { Divider, HStack, Icon, VStack } from 'native-base';
+import React, { Component, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput } from 'react-native';
+import { large_padding, main_padding } from '../../config/settings';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import colors, { whiteColor } from '../../config/colors';
+import colors, { boxColor, textSecondColor, whiteColor } from '../../config/colors';
 import { useNavigation } from '@react-navigation/native';
 import { FlatListHorizontal, UserAvatar, FlatListVertical } from '../../customs_items/Components';
 import LinearGradient from 'react-native-linear-gradient';
 import { actionChatProfile } from '../../temp_data/Setting';
-import { baseColor, whiteSmoke, bgChat, textDesColor } from '../../config/colors';
+import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor } from '../../config/colors';
+import { TransitioningView } from 'react-native-reanimated';
+import SearchBox from '../../customs_items/SearchBox';
+import CreateGroup from './CreateGroup';
 
 // create a component
-const ChatProfileScreen = (props:any) => {
+const ChatProfileScreen = (props: any) => {
     const navigate: any = useNavigation();
-    const {chatItem} = props.route.params;
+    const { chatItem } = props.route.params;
+    const [isNotification, setNotification] = useState(false)
+    const [isVisible, setIsvisible] = useState(false)
+    const ref = useRef<TransitioningView>(null);
+const [state, setState] = useState<any>({
+		searchText: ''
+	});
 
-
-    const selectedRoute =({item, index}:any) => {
-        navigate.navigate(item.to, {userChat: chatItem})
+    const selectedRoute = ({ item, index }: any) => {
+        index == 0 ?
+            setIsvisible(true)
+        :navigate.navigate(item.to, { userChat: chatItem })
     }
+    const handleChange = (stateName: string, value: any) => {
+		state[`${stateName}`] = value;
+		setState({...state});
+	};
 
-    const _renderItem = ({item,index}:any) =>{
-		return(
-			<TouchableOpacity onPress={()=>selectedRoute({item, index})} style={{padding:7,justifyContent:'center', marginTop: 7}}>
-				<HStack alignItems='center'>
-                    <View style={{
-                        width: 35, height: 35, borderRadius: 30, 
-                        backgroundColor: baseColor, alignItems: 'center', 
-                        justifyContent: 'center'
-                    }}>
-                        <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
-                    </View>
-                    <View style={{paddingHorizontal: main_padding-5, }}>
-                        <Text style={{fontSize: 15, fontFamily: 'lato'}}>{item.title}</Text>
-                    </View>
-                </HStack>
-			</TouchableOpacity>
-		)
+    const onChangeText = (text:any) =>{
+		handleChange('searchText',text)
 	}
+	const onConfirmSearch = () =>{
+	}
+
+
+    const _renderItem = ({ item, index }: any) => {
+        return (
+            <TouchableOpacity onPress={() => item.title == 'Notification' ? null :selectedRoute({ item, index })} style={{ padding: 7, justifyContent: 'center', marginTop: 7 }}>
+                <HStack alignItems='center' justifyContent='space-between'>
+                    <HStack>
+                        <View style={{
+                            width: 35, height: 35, borderRadius: 30,
+                            backgroundColor: baseColor, alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
+                            <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
+                        </View>
+                        <View style={{ marginHorizontal: main_padding - 5, borderBottomColor: labelColor, paddingVertical: 10 }}>
+                            <Text style={{ fontSize: 15, fontFamily: 'lato' }}>{item.title}</Text>
+                        </View>
+                    </HStack>
+                    {item.title == 'Notification' ?
+                        <Switch
+                            value={isNotification}
+                            trackColor={{ true: baseColor }}
+                            style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
+                            onValueChange={() => {
+                                if (ref.current) {
+                                    ref.current.animateNextTransition();
+                                }
+                                setNotification(!isNotification)
+                            }}
+                        />
+                        : <View />}
+
+                </HStack>
+                <Divider marginTop={2} marginLeft={main_padding * 3} color={boxColor} _light={{ bg: boxColor }} _dark={{ bg: whiteColor }} />
+            </TouchableOpacity>
+        )
+    }
 
     return (
         <View style={styles.container}>
@@ -69,7 +107,7 @@ const ChatProfileScreen = (props:any) => {
                 </View>
                 <View style={{ flex: 4.5, width: deviceWidth, paddingHorizontal: main_padding, }}>
                     <Text style={{ fontFamily: 'lato', fontSize: 15, color: colors.textColor, fontWeight: '700' }}>More Actions</Text>
-                    <View style={{ paddingVertical: main_padding-5, backgroundColor: bgChat, marginTop: 10, borderRadius: 10}}>
+                    <View style={{ paddingVertical: main_padding - 5, marginTop: 10, borderRadius: 10 }}>
                         <FlatListVertical
                             scrollEnabled={false}
                             renderItem={_renderItem}
@@ -78,6 +116,35 @@ const ChatProfileScreen = (props:any) => {
                     </View>
                 </View>
             </VStack>
+
+            <Modal
+                presentationStyle="formSheet"
+                visible={isVisible}
+                animationType="slide"
+                onDismiss={() => console.log('on dismiss')}>
+                <View style={{ margin: main_padding, marginTop: large_padding }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => setIsvisible(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16, fontFamily: 'lato' }}>Cancel</Text></TouchableOpacity>
+                        <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'lato', color: textDesColor }}>Create new group</Text>
+                        <View />
+                        <View/>
+                    </View>
+                </View>
+                <View style={{paddingHorizontal: main_padding }}>
+                    <TextInput
+                        style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
+                        placeholder='Group name...'
+                        placeholderTextColor={textDesColor}
+                    />
+                </View>
+                <SearchBox
+                    onChangeText={(text: any) => onChangeText(text)}
+                    onSearch={onConfirmSearch}
+                />
+
+                <CreateGroup isUserProfile={true} userChat={chatItem} />
+                
+            </Modal>
         </View>
     );
 };
