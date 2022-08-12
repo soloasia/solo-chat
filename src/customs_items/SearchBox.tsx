@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, TextInput } from 'react-native';
 import { boxColor } from '../config/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { activeOpacity, main_padding } from '../config/settings';
 import style from '../styles';
 const SearchBox = (props:any) => {
-    const { onChangeText,onSearch } = props
+    const {onChangeText,onSearch } = props
+    const [state, setstate] = useState("");
 	return (
 		<View style={styles.headerContainer}>
             <View style={styles.searchBox}>
@@ -21,8 +22,14 @@ const SearchBox = (props:any) => {
                     placeholder={"Search"}
                     onChangeText={(value) => {
                         onChangeText(value)
+                        setstate(value);
                     }}
                 />
+                {
+                    state && <TouchableOpacity onPress={()=>console.log("clear")} activeOpacity={activeOpacity}>
+                        <Ionicons style={styles.searchIcon} name="close-circle"/>
+                    </TouchableOpacity>
+                }
             </View>
         </View>
 	);

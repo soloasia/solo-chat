@@ -2,11 +2,11 @@
 import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Animated, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../config/colors';
-import { main_padding } from '../config/settings';
-import { TextItem, UserAvatar } from '../customs_items/Components';
-import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
-import style, { deviceWidth } from '../styles';
+import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../../config/colors';
+import { main_padding } from '../../config/settings';
+import { TextItem, UserAvatar } from '../../customs_items/Components';
+import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
+import style, { deviceWidth } from '../../styles';
 import ImagePicker from 'react-native-image-crop-picker';
 
 // create a component
