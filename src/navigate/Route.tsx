@@ -119,7 +119,7 @@ const Route = () => {
         }}
       >
         <Tab.Screen
-          name="Contact"
+          name="Contacts"
           component={ContactScreen}
           options={{
             headerShown: false,
@@ -133,7 +133,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Chat"
+          name="Chats"
           component={ChatScreen}
           options={{
             headerShown: false,
@@ -147,7 +147,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Setting"
+          name="Settings"
           component={SettingScreen}
           options={{
             headerShown: false,
