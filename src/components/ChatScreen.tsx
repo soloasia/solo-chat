@@ -114,7 +114,7 @@ const ChatScreen = () => {
 							<View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
 								<TouchableOpacity onPress={createGroup ?() => setCreateGroup(!createGroup) : ()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
 								{createGroup ? <Text style={{fontWeight :'600',fontSize :16}}>Create new group</Text> : <Text style={{fontWeight :'600',fontSize :16}}>New Message</Text>}
-								{createGroup ? <TouchableOpacity><Text style={{color: baseColor}}>Create</Text></TouchableOpacity> : <View></View>}
+								<View></View>
 							</View>
 						</View>
 						<SearchBox

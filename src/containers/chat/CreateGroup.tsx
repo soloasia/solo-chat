@@ -31,7 +31,7 @@ const CreateGroup = (props: any) => {
     const _renderSelectedUserItem = ({ item, index }: any) => {
         return (
             <VStack alignItems='center' style={{ marginLeft: 10, justifyContent: 'center', }}>
-                <UserAvatar style={{ width: 70, height: 70, borderWidth: 2, borderColor: baseColor }}>
+                <UserAvatar style={{ width: 60, height: 60, borderWidth: 2, borderColor: baseColor}}>
                     <Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
                 </UserAvatar>
                 <TouchableOpacity 
