@@ -4,11 +4,11 @@ import React, { Component, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, textColor, whiteColor } from '../config/colors';
-import { main_padding } from '../config/settings';
-import { FlatListVertical, TextItem } from '../customs_items/Components';
-import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
-import { data } from '../temp_data/Language';
+import { baseColor, boxColor, chatText, textColor, whiteColor } from '../../config/colors';
+import { main_padding } from '../../config/settings';
+import { FlatListVertical, TextItem } from '../../customs_items/Components';
+import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
+import { data } from '../../temp_data/Language';
 
 // create a component
 const LanguageScreen = () => {

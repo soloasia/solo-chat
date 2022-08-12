@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View,Image, Modal, TextInput } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View,Image, Modal, TextInput, Animated } from 'react-native';
 import { Divider, HStack,VStack } from 'native-base';
 import colors, { bageColor, baseColor, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
@@ -12,10 +12,12 @@ import style from '../styles';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import CreateGroup from '../containers/chat/CreateGroup';
 
 const ChatScreen = () => {
     const navigate:any = useNavigation();
 	const [showModal,setShowModal] = useState(false);
+	const [createGroup,setCreateGroup] = useState(false);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
@@ -60,8 +62,7 @@ const ChatScreen = () => {
 							</View>
 							:
 							<></>
-						}
-						
+						}	
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
@@ -87,7 +88,7 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
-	
+
 	return (
 		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
@@ -119,7 +120,7 @@ const ChatScreen = () => {
 					onChangeText={(text:any)=> onChangeText(text)}
 					onSearch={onConfirmSearch}
 				/>
-				<TouchableOpacity style= {{marginVertical : main_padding,flexDirection : "row",alignItems:'center',justifyContent: 'space-between',marginHorizontal : main_padding}}>
+				<TouchableOpacity onPress={()=> setCreateGroup(true)} style= {{marginVertical : main_padding,flexDirection : "row",alignItems:'center',justifyContent: 'space-between',marginHorizontal : main_padding}}>
 					<View style={{flexDirection : "row",justifyContent:'center',alignItems :'center'}}>
 						<Ionicons name='people-outline' size={25} color={colors.textColor} />
 						<Text style={{fontWeight :'500',marginLeft : 8}}>Create new group </Text>
@@ -135,7 +136,7 @@ const ChatScreen = () => {
 							<Footer />
 						</>
 					}
-			/>
+				/>
             </Modal>
 		</BaseComponent>
 	);
