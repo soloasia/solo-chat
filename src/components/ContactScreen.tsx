@@ -9,22 +9,17 @@ import reactotron from 'reactotron-react-native';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import { UserData } from '../temp_data/Contact';
 import { large_padding, main_padding } from '../config/settings';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import style from '../styles';
-import { useNavigation } from '@react-navigation/native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
-import { cos } from 'react-native-reanimated';
+
 
 const ContactScreen = () => {
 	const [state, setState] = useState<any>({
 		searchText: ''
 	});
 	const [username, setUsername] = useState("");
-
 	const [showModal,setShowModal] = useState(false);
 	const [showQR,setShowQr] = useState(false);
-
-	const navigate:any = useNavigation();
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
@@ -108,16 +103,13 @@ const ContactScreen = () => {
 				hardwareAccelerated ={true}
                 onDismiss={() => console.log('on dismiss')}>
 				<QRCodeScanner
-					onRead={(e)=>{}}
-					// flashMode={RNCamera.Constants.FlashMode.torch}
+					onRead={(e)=>{setShowQr(false); setShowModal(true); setUsername(e.data);}}
+					topViewStyle={{flexDirection :'row',justifyContent : 'space-between', flex : 1,alignItems:'flex-start',margin : main_padding}}
 					topContent={
-						<View></View>
-						// <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text>
-					}
-					bottomContent={
-					<TouchableOpacity style={styles.buttonTouchable}>
-						<Text style={styles.buttonText}>OK. Got it!</Text>
-					</TouchableOpacity>
+						<View style ={{flexDirection :'row',justifyContent : 'space-between',flex : 1,alignItems:'flex-start'}}>
+							<TouchableOpacity onPress={()=> {setShowQr(false);setShowModal(true)}}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
+							<View><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}></Text></View>
+						</View>
 					}
 				/>
             </Modal>

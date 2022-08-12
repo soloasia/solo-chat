@@ -108,7 +108,7 @@ const SettingScreen = () => {
 						data={seconddata}
 						renderItem={_renderItem}
 					/>
-					<TouchableOpacity style={{width:'100%',height:45,backgroundColor:boxColor,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
+					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor:boxColor,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
 						<TextItem style={{color:discountColor,textAlign:'center',fontSize:18,fontFamily:'Lato-Regular'}}>Log Out</TextItem>
 					</TouchableOpacity>
 					<Footer />

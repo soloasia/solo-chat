@@ -2,7 +2,7 @@ import { HStack, Icon, useDisclose, useToast, VStack } from 'native-base';
 import React, { useState, useEffect } from 'react'
 import { ActivityIndicator, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient';
-import { inputColor, textDesColor, startBtn, whiteSmoke, whiteColor } from '../../config/colors';
+import { inputColor, textDesColor, startBtn, whiteSmoke, whiteColor, bgChat } from '../../config/colors';
 import { main_padding } from '../../config/settings';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style from '../../styles';
@@ -200,7 +200,7 @@ export default SignupScreen;
 
 const styles = StyleSheet.create({
     input: {
-        backgroundColor: inputColor, 
+        backgroundColor: bgChat, 
         height: 45,width: '100%', 
         borderRadius: 25, 
         paddingHorizontal: main_padding, 

@@ -1,4 +1,7 @@
 import moment from "moment"
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseColor } from "../config/colors"
 
 export const data = [
@@ -12,16 +15,15 @@ export const data = [
         name: 'QR Code',
         icon: 'qr-code-outline',
         color: "#1772F7",
-        to:''
+        to:'QRcode'
     },
-    {
-        name: 'Save Message',
-        icon: 'bookmarks-outline',
-        color: "#85CDD1",
-        to:''
-    }
+    // {
+    //     name: 'Save Message',
+    //     icon: 'bookmarks-outline',
+    //     color: "#85CDD1",
+    //     to:''
+    // }
 ]
-
 
 export const seconddata = [
     {
@@ -34,7 +36,7 @@ export const seconddata = [
         name: 'Appearance',
         icon: 'color-palette-outline',
         color: "#1772F7",
-        to:''
+        to:'Appearance'
     },
     {
         name: 'Language',
@@ -114,4 +116,31 @@ export const message = [
             }
         ]
     }
+]
+
+export const actionChatProfile = [
+    {
+        title: 'Create group chat',
+        icon: 'account-group',
+        type: MaterialCommunityIcons,
+        to:'CreateGroup'
+    },
+    {
+        title: 'Media, files & links',
+        icon: 'photo-size-select-actual',
+        type: MaterialIcons,
+        to: 'Mediafile'
+    },
+    {
+        title: 'Notification & Sounds',
+        icon: 'notifications',
+        type: Ionicons,
+        to: 'ProfileNoti'
+    },
+    {
+        title: 'Share contact',
+        icon: 'ios-share-social-outline',
+        type: Ionicons,
+        to: ''
+    },
 ]

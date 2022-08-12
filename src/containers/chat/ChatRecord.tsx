@@ -8,9 +8,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { main_padding } from '../../config/settings';
+import { useSelector } from 'react-redux';
 
 const ChatRecord = (props: any) => {
     const { onOpen, onSend, message, onChangeMessage, loading } = props;
+    const textsize = useSelector((state: any) => state.textSizeChange);
+
     const [height, setHeight] = useState(40)
     return (
         <View style={styles.input}>
@@ -26,7 +29,7 @@ const ChatRecord = (props: any) => {
                 scrollEnabled
                 placeholder={"Type a message..."}
                 onChangeText={(_text) =>  onChangeMessage(_text) }
-                style={{ flex: message? 5:2.5, height: 40 ,color:textColor,backgroundColor:bgChat,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10}}
+                style={{ flex: message? 5:2.5, height: 40 ,color:textColor,backgroundColor:bgChat,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize}}
             /> 
             <HStack style={{ flex: 1, justifyContent: "flex-end" }}>
                 {message?
@@ -42,9 +45,7 @@ const ChatRecord = (props: any) => {
                             <Ionicons name="ios-camera-outline"  size={25} />
                         </TouchableOpacity>
                     </>
-                   
                 }
-                
             </HStack>
         </View >
     )
@@ -54,12 +55,13 @@ export default ChatRecord;
 
 const styles = StyleSheet.create({
     input: {
+        // position: 'absolute',
         backgroundColor: '#ffff',
         paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 60,
+        height: 100,
         color: "#aaa",
         shadowColor: "#000",
         shadowOffset: {
@@ -73,4 +75,5 @@ const styles = StyleSheet.create({
     icon: {
         paddingHorizontal: 5,
     },
+
 })
