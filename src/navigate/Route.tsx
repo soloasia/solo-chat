@@ -21,6 +21,13 @@ import QRcodeScreen from '../containers/settings/QRcodeScreen';
 import ChatProfileScreen from '../containers/chat/ChatProfileScreen';
 import MediaFilesScreen from '../containers/chat/MediaFilesScreen';
 import CreateGroup from '../containers/chat/CreateGroup';
+import LanguageScreen from "../components/LanguageScreen";
+import EditProfileScreen from "../components/EditProfileScreen";
+import ExampleScreen from "../components/ExampleScreen";
+import ProfileNotification from '../containers/chat/ProfileNotification';
+
+
+
 
 const Stack = createStackNavigator();
 
@@ -77,6 +84,11 @@ const Route = () => {
         <Stack.Screen name="ProfileChat" component={ChatProfileScreen} />
         <Stack.Screen name="Mediafile" component={MediaFilesScreen} />
         <Stack.Screen name="CreateGroup" component={CreateGroup} />
+        <Stack.Screen name="Language" component={LanguageScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="Example" component={ExampleScreen} />
+        <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
+
 
       </Stack.Navigator>
     );
