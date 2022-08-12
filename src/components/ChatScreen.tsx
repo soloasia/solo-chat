@@ -11,6 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import style from '../styles';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import CreateGroup from '../containers/chat/CreateGroup';
 
 
 const ChatScreen = () => {
@@ -103,39 +104,65 @@ const ChatScreen = () => {
 					</>
 				}
 			/>
+
 			<Modal
                 presentationStyle="formSheet"
                 visible ={showModal}
 				animationType="slide"
                 onDismiss={() => console.log('on dismiss')}>
-				<View style={{margin : main_padding, marginTop : large_padding}}>
-				 	<View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
-					 	<TouchableOpacity onPress={()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-						<Text style={{fontWeight :'600',fontSize :16}}>New Message</Text>
-						<View></View>
-					</View>
-				</View>
-				<SearchBox
-					onChangeText={(text:any)=> onChangeText(text)}
-					onSearch={onConfirmSearch}
-				/>
-				<TouchableOpacity onPress={()=> setCreateGroup(true)} style= {{marginVertical : main_padding,flexDirection : "row",alignItems:'center',justifyContent: 'space-between',marginHorizontal : main_padding}}>
-					<View style={{flexDirection : "row",justifyContent:'center',alignItems :'center'}}>
-						<Ionicons name='people-outline' size={25} color={colors.textColor} />
-						<Text style={{fontWeight :'500',marginLeft : 8}}>Create new group </Text>
-					</View>
-					<Ionicons name='chevron-forward' size={20} color={'lgray'} />
-				</TouchableOpacity>
-				<FlatListVertical
-					style={{padding:main_padding}}
-					renderItem={_renderContactView}
-					data={UserData}
-					ListFooterComponent={
-						<>
-							<Footer />
-						</>
-					}
-				/>
+					<View style={{margin : main_padding, marginTop : large_padding}}>
+							<View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
+								<TouchableOpacity onPress={createGroup ?() => setCreateGroup(!createGroup) : ()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
+								{createGroup ? <Text style={{fontWeight :'600',fontSize :16}}>Create new group</Text> : <Text style={{fontWeight :'600',fontSize :16}}>New Message</Text>}
+								{createGroup ? <TouchableOpacity><Text style={{color: baseColor}}>Create</Text></TouchableOpacity> : <View></View>}
+							</View>
+						</View>
+						<SearchBox
+							onChangeText={(text:any)=> onChangeText(text)}
+							onSearch={onConfirmSearch}
+						/>
+						{
+							createGroup 
+							?  
+								<>
+									<View style={{paddingHorizontal: main_padding ,marginBottom : main_padding}}>
+										<TextInput
+											style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
+											placeholder='Group name...'
+											placeholderTextColor={textDesColor}
+										/>
+									</View>
+									<CreateGroup isUserProfile={true} userChat={ChatData[0]} />
+								</>
+							: 
+							<>
+								<TouchableOpacity onPress={()=> setCreateGroup(true)} style= {{marginVertical : main_padding,flexDirection : "row",alignItems:'center',justifyContent: 'space-between',marginHorizontal : main_padding}}>
+									<View style={{flexDirection : "row",justifyContent:'center',alignItems :'center'}}>
+										<Ionicons name='people-outline' size={25} color={colors.textColor} />
+										<Text style={{fontWeight :'500',marginLeft : 8}}>Create new group </Text>
+									</View>
+									<Ionicons name='chevron-forward' size={20} color={'lgray'} />
+								</TouchableOpacity>
+								<FlatListVertical
+									style={{padding:main_padding}}
+									renderItem={_renderContactView}
+									data={UserData}
+									ListFooterComponent={
+										<>
+											<Footer />
+										</>
+									}
+								/>
+							</>
+						}
+
+				{/* {createGroup 
+				? 
+                	<CreateGroup isUserProfile={true} userChat={ChatData[0]} /> 
+				: <>
+					
+					</>
+				} */}
             </Modal>
 		</BaseComponent>
 	);
