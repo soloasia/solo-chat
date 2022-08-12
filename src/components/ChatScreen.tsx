@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View,Image, Modal, TextInput } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View,Image, Modal, TextInput, Animated } from 'react-native';
 import { Divider, HStack,VStack } from 'native-base';
 import colors, { bageColor, baseColor, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
@@ -15,6 +15,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 const ChatScreen = () => {
     const navigate:any = useNavigation();
 	const [showModal,setShowModal] = useState(false);
+	const [createGroup,setCreateGroup] = useState(false);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
@@ -59,8 +60,7 @@ const ChatScreen = () => {
 							</View>
 							:
 							<></>
-						}
-						
+						}	
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
@@ -86,7 +86,7 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
-	
+
 	return (
 		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox

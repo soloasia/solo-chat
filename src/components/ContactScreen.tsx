@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, View, TouchableOpacity, Modal, TextInput } from 'react-native';
-import {  Divider, HStack, VStack } from 'native-base'
+import {  CloseIcon, Divider, HStack, VStack } from 'native-base'
 import { baseColor, boxColor, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -12,6 +12,8 @@ import { large_padding, main_padding } from '../config/settings';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import style from '../styles';
 import { useNavigation } from '@react-navigation/native';
+import QRCodeScanner from 'react-native-qrcode-scanner';
+import { cos } from 'react-native-reanimated';
 
 const ContactScreen = () => {
 	const [state, setState] = useState<any>({
@@ -20,6 +22,7 @@ const ContactScreen = () => {
 	const [username, setUsername] = useState("");
 
 	const [showModal,setShowModal] = useState(false);
+	const [showQR,setShowQr] = useState(false);
 
 	const navigate:any = useNavigation();
 	const handleChange = (stateName: string, value: any) => {
@@ -86,7 +89,6 @@ const ContactScreen = () => {
 						<Text style={{fontWeight :'700',fontSize :16}}>Add Contact</Text>
 					 	<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
 					</View>
-
 					<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
                     <TextInput 
                         style={{...styles.input,marginTop : main_padding}}
@@ -94,11 +96,32 @@ const ContactScreen = () => {
                         value={username}
                         onChangeText={(text)=> setUsername(text)}
                     />
-                    <TouchableOpacity onPress={() => console.log("scann qr")}><Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/></TouchableOpacity>
+                    <TouchableOpacity onPress={() => {setShowModal(false); setShowQr(true); console.log(showQR)}}><Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/></TouchableOpacity>
                 </View>
                 <Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>
 				</View>
             </Modal>
+			<Modal
+                presentationStyle="formSheet"
+                visible ={showQR}
+				animationType="slide"
+				hardwareAccelerated ={true}
+                onDismiss={() => console.log('on dismiss')}>
+				<QRCodeScanner
+					onRead={(e)=>{}}
+					// flashMode={RNCamera.Constants.FlashMode.torch}
+					topContent={
+						<View></View>
+						// <Text style={styles.textBold}>wikipedia.org/wiki/QR_code</Text>
+					}
+					bottomContent={
+					<TouchableOpacity style={styles.buttonTouchable}>
+						<Text style={styles.buttonText}>OK. Got it!</Text>
+					</TouchableOpacity>
+					}
+				/>
+            </Modal>
+			
 		</BaseComponent>
 	);
 };
@@ -118,6 +141,23 @@ const styles = StyleSheet.create({
         fontFamily: 'lato', 
         fontSize: 13
     },
+	centerText: {
+        flex: 1,
+        fontSize: 18,
+        padding: 32,
+        color: '#777'
+      },
+      textBold: {
+        fontWeight: '500',
+        color: '#000'
+      },
+      buttonText: {
+        fontSize: 21,
+        color: 'rgb(0,122,255)'
+      },
+      buttonTouchable: {
+        padding: 16
+    }
 });
 
 export default ContactScreen;

@@ -19,8 +19,7 @@ import reactotron from "reactotron-react-native";
 import LanguageScreen from "../components/LanguageScreen";
 import EditProfileScreen from "../components/EditProfileScreen";
 import ExampleScreen from "../components/ExampleScreen";
-
-
+import ScanScreen from "../components/ScanScreen";
 
 
 const Stack = createStackNavigator();
@@ -75,7 +74,7 @@ const Route = () => {
         <Stack.Screen name="Signup" component={SignupScreen} />
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-        <Stack.Screen name="Example" component={ExampleScreen} />
+        <Stack.Screen name="Scan" component={ScanScreen} />
 
 
       </Stack.Navigator>
