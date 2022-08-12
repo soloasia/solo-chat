@@ -58,8 +58,6 @@ const Route = () => {
     }
   };
 
-
-
   const colorScheme = useColorScheme();
   function MainStack() {
     return (

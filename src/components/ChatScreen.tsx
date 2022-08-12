@@ -10,9 +10,8 @@ import { ChatData, UserData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
 import style from '../styles';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import CreateGroup from '../containers/chat/CreateGroup';
+
 
 const ChatScreen = () => {
     const navigate:any = useNavigation();
