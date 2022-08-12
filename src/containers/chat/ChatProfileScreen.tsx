@@ -1,7 +1,7 @@
 //import liraries
 import { Divider, HStack, Icon, VStack } from 'native-base';
 import React, { Component, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput, Share } from 'react-native';
 import { large_padding, main_padding } from '../../config/settings';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -22,10 +22,11 @@ const ChatProfileScreen = (props: any) => {
     const [isNotification, setNotification] = useState(false)
     const [isVisible, setIsvisible] = useState(false)
     const ref = useRef<TransitioningView>(null);
-const [state, setState] = useState<any>({
+    const [state, setState] = useState<any>({
 		searchText: ''
 	});
 
+    
     const selectedRoute = ({ item, index }: any) => {
         index == 0 ?
             setIsvisible(true)
