@@ -73,7 +73,7 @@ const EditProfileScreen = () => {
                             />
                         </View>
                     </View>
-                    <TouchableOpacity style = {{...styles.usernameContainer, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
+                    <View style = {{...styles.usernameContainer, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
                         <Text>Username</Text>
                         <View style={{flexDirection :'row',alignItems : 'center'}}>
                             <TextInput 
@@ -92,7 +92,7 @@ const EditProfileScreen = () => {
                            
                             {/* <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/> */}
                         </View>
-                    </TouchableOpacity>
+                    </View>
                 </View>
                 <TouchableOpacity onPress={()=>console.log("Save")} style={{height: 45,backgroundColor: startBtn, borderRadius: 25, alignItems: 'center', justifyContent: 'center',marginHorizontal: main_padding,marginTop : 50}}>
                         <Text style={{color: whiteSmoke, fontFamily:'Lato', fontSize: 16}}>Save</Text>
