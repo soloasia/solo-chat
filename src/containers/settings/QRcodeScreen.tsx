@@ -1,14 +1,16 @@
 //import liraries
-import { Image, VStack, Stack } from 'native-base';
+import { Image, VStack, Stack, Icon } from 'native-base';
 import React, { Component, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ImageBackground, FlatList, Platform, TouchableOpacity } from 'react-native';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
-import { deviceWidth, deviceHeight } from '../../styles/index';
-import { whiteColor, whiteSmoke } from '../../config/colors';
+import style, { deviceWidth, deviceHeight } from '../../styles/index';
+import { whiteColor, whiteSmoke, bgChat, textDesColor } from '../../config/colors';
 import { bgQRcode } from '../../temp_data/ThemeBackground';
 import { FlatListHorizontal, makeid, UserAvatar } from '../../customs_items/Components';
 import { main_padding } from '../../config/settings';
 import QRCode from 'react-native-qrcode-svg';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // create a component
 const QRcodeScreen = () => {
@@ -41,43 +43,56 @@ const QRcodeScreen = () => {
             </TouchableOpacity>
         )
     };
+
+    const rightIcon = () =>{
+		return(
+			<TouchableOpacity style={style.containerCenter}>
+                <Icon name='share-social' as={Ionicons} size='lg' />
+				{/* <UserAvatar style={{width:35,height:35}}>
+                    <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+                </UserAvatar> */}
+			</TouchableOpacity>
+        )
+    }
     return (
-        <BaseComponent {...baseComponentData} title='QR Code'>
+        <BaseComponent {...baseComponentData} title='QR Code' rightIcon={rightIcon}>
             <View style={styles.container}>
                 <VStack justifyContent='space-between'>
-                    <View style={{ width: deviceWidth, height: deviceHeight / 1.7 }}>
-                        <ImageBackground source={{ uri: theme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight / 1.6, justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{
-                                width: 250, height: 250, backgroundColor: theme.textColor,
-                                borderRadius: 25, justifyContent: 'center', alignItems: 'center',
-                                shadowColor: "#000",
-                                shadowOffset: {
-                                    width: 0,
-                                    height: 8,
-                                },
-                                shadowOpacity: 0.46,
-                                shadowRadius: 11.14,
-                                elevation: 17,
-                            }}>
-                                <View style={{padding: main_padding-5 ,borderRadius: 10, backgroundColor: whiteSmoke, marginTop: main_padding}}>
-                                    <QRCode
-                                        value="@chSoheng"
-                                        logo={require('./../../assets/profile.png')}
-                                        logoSize={30}
-                                        logoBackgroundColor='transparent'
-                                    />
-                                </View>
-                                
-                                <View style={{ marginTop: main_padding + 10 }}>
-                                    <Text style={{ fontFamily: 'lato', fontSize: 17, fontWeight: '700', color: whiteColor }}>@CHSOHENG</Text>
-                                </View>
+                    <View style={{ width: deviceWidth, height: deviceHeight / 1.2, alignItems: 'center', justifyContent: 'center', }}>
+                        {/* <ImageBackground source={{ uri: theme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight / 1.6, justifyContent: 'center', alignItems: 'center' }}> */}
+                        <View style={{
+                            width: deviceWidth * .8, height: deviceHeight * .45, backgroundColor: whiteSmoke,
+                            borderRadius: 25, justifyContent: 'center', alignItems: 'center',
+                            shadowColor: "#000",
+                            shadowOffset: {
+                                width: 0,
+                                height: 1,
+                            },
+                            shadowOpacity: 0.20,
+                            shadowRadius: 1.41,
+
+                            elevation: 2,
+                        }}>
+                            <View style={{ padding: main_padding, borderRadius: 10, backgroundColor: bgChat, marginTop: main_padding }}>
+                                <QRCode
+                                    value="@chSoheng"
+                                    // logo={require('./../../assets/profile.png')}
+                                    logoSize={30}
+                                    size={200}
+                                    logoBackgroundColor='transparent'
+                                />
                             </View>
-                            <UserAvatar style={{ position: 'absolute', top: 90, left: '38%', width: 100, height: 100 }}>
-                                <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-                            </UserAvatar>
-                        </ImageBackground>
+
+                            <View style={{ marginTop: main_padding + 10 }}>
+                                <Text style={{ fontFamily: 'lato', fontSize: 17, fontWeight: '700', color: textDesColor }}>@CHSOHENG</Text>
+                            </View>
+                        </View>
+                        <UserAvatar style={{ position: 'absolute', top: '16%', left: '38%', width: 100, height: 100 }}>
+                            <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+                        </UserAvatar>
+                        {/* </ImageBackground> */}
                     </View>
-                    <View style={{ backgroundColor: whiteColor, borderTopLeftRadius: 25, borderTopRightRadius: 25, height: deviceHeight / 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 }}>
+                    {/* <View style={{ backgroundColor: whiteColor, borderTopLeftRadius: 25, borderTopRightRadius: 25, height: deviceHeight / 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 }}>
                         <View style={{ padding: main_padding + 10 }}>
                             <Text style={{ fontFamily: 'lato', fontSize: 15 }}>THEMES QRCODE</Text>
                         </View>
@@ -90,7 +105,7 @@ const QRcodeScreen = () => {
                             renderItem={_renderThemes}
                             keyExtractor={(_, index) => index.toString()}
                         />
-                    </View>
+                    </View> */}
                 </VStack>
             </View>
         </BaseComponent>
