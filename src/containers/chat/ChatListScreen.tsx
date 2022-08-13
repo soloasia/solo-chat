@@ -19,12 +19,9 @@ const ChatListScreen = (props:any) => {
 
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
-
-
     const {chatItem} = props.route.params;
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
-
 	const [state, setState] = useState<any>({
 		message: '',
 		loadSendMess:false,
@@ -34,8 +31,6 @@ const ChatListScreen = (props:any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
 	};
-	
-
     const rightIcon = () =>{
 		return(
 			<TouchableOpacity onPress={()=>navigate.navigate('ProfileChat', {chatItem: chatItem})} style={style.containerCenter}>
@@ -59,8 +54,7 @@ const ChatListScreen = (props:any) => {
 	}
 	const messageText = (mess: any, index: any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>
-               
+            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>           
 				<View style={[styles.chatBack,
 				{
 					backgroundColor: mess.isAdmin ? '#ECF1FD' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
