@@ -1,6 +1,6 @@
 import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
-import React from 'react'
-import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
+import React, { createContext, useState } from 'react'
+import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
@@ -25,18 +25,20 @@ import LanguageScreen from "../containers/settings/LanguageScreen";
 import EditProfileScreen from "../containers/settings/EditProfileScreen";
 import ProfileNotification from "../containers/chat/ProfileNotification";
 
+
+
 const Stack = createStackNavigator();
+
+export const ThemeContext = React.createContext({});
 
 const Tab = createBottomTabNavigator();
 
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
-
   React.useEffect(() => {
     checkPermissionNotification()
   }, [])
-
 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
@@ -58,7 +60,6 @@ const Route = () => {
     }
   };
 
-  const colorScheme = useColorScheme();
   function MainStack() {
     return (
       <Stack.Navigator
@@ -81,8 +82,6 @@ const Route = () => {
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
-
-
 
       </Stack.Navigator>
     );
@@ -164,23 +163,56 @@ const Route = () => {
     );
   }
   LogBox.ignoreAllLogs();
+  const LightTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: baseColor,
+      background: 'rgb(242, 242, 242)',
+      card: 'rgb(255, 255, 255)',
+      text: "black",
+      border: 'rgb(199, 199, 204)',
+      notification: 'rgb(255, 69, 58)',
+    },
+  };
+  
+  const MyDarkTheme = {
+    dark: true,
+    colors: {
+      ...DarkTheme.colors,
+      primary: baseColor,
+      background: 'rgb(242, 242, 242)',
+      card: 'rgb(255, 255, 255)',
+      text: "white",
+      border: 'rgb(199, 199, 204)',
+      notification: 'rgb(255, 69, 58)',
+    },
+  };
+  const [theme, setTheme] = useState("Light");
+  const themeData = {theme, setTheme};
+  console.log(theme);
   return (
     <SafeAreaProvider>
-       <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>
-      <NavigationContainer>
-        {/* <SafeAreaView
-          // edges={['left', 'right', 'top']}
-          style={[
-            style.safeAreaContainer,
-            {
-              backgroundColor: '#fff',
-            },
-          ]}> */}
-        <MainStack />
-        {/* </SafeAreaView> */}
-      </NavigationContainer>
+       <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
+        <ThemeContext.Provider value={themeData}>
+          <NavigationContainer theme={theme == "Light" ? LightTheme : MyDarkTheme}>
+            {/* <SafeAreaView
+              // edges={['left', 'right', 'top']}
+              style={[
+                style.safeAreaContainer,
+                {
+                  backgroundColor: '#fff',
+                },
+              ]}> */}
+            <MainStack />
+            {/* </SafeAreaView> */}
+          </NavigationContainer>
+        </ThemeContext.Provider>
     </SafeAreaProvider>
   );
 };
 
 export default Route;
+
+
+

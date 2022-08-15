@@ -53,6 +53,7 @@ const SignupScreen = (props: any) => {
         }
         navigate.navigate('Main')
     }
+    
     const onChange = (data:any) =>{
         setProfile(data.data)
     }

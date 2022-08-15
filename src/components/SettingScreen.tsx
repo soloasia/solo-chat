@@ -1,11 +1,9 @@
-import { useNavigation } from '@react-navigation/native';
-import { Divider, HStack, } from 'native-base';
-import React, { useRef, useState } from 'react';
-import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard } from 'react-native';
+import { useNavigation, useTheme } from '@react-navigation/native';
+import { Divider, HStack } from 'native-base';
+import React, { useContext, useRef, useState } from 'react';
+import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import reactotron from 'reactotron-react-native';
 import { baseColor, boxColor, chatText, discountColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
@@ -17,6 +15,7 @@ const SettingScreen = () => {
     const navigate:any = useNavigation();
 	const ref = useRef<TransitioningView>(null);
 	const [isDarkMode, setDarkMode] = useState(false);
+	const themeT = useTheme();
 	const [isNotificationOn, setisNotificationOn] = useState(false);
 	const transition = (
 		<Transition.Together>
@@ -53,12 +52,11 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				{/* <FontAwesome name="edit" size={25} color={baseColor}/> */}
 				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>Edit</Text>
 			</TouchableOpacity>
 		)
 	}
-	
+ 	
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
@@ -70,7 +68,7 @@ const SettingScreen = () => {
 						<UserAvatar style={{width:120,height:120}}>
 							<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
 						</UserAvatar>
-						<TextItem style={{fontSize:18,paddingTop: 10}}>Big Boss</TextItem>
+						<TextItem style={{fontSize:18,paddingTop: 10,color : themeT.colors.text}}>Big Boss</TextItem>
 						<TouchableOpacity onPress={() => Clipboard.setString("@bigboss")}><TextItem style={{paddingTop: 5,color:chatText}}>@bigboss</TextItem></TouchableOpacity>
 					</View>
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
@@ -91,7 +89,7 @@ const SettingScreen = () => {
 									if (ref.current) {
 										ref.current.animateNextTransition();
 									}
-									setDarkMode(!isDarkMode)
+									setDarkMode(!isDarkMode);
 								}} 
 							/>
 						</HStack>

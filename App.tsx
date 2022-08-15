@@ -24,7 +24,9 @@
      }
    }
  });
+
  const App = () => {
+  
    return ( 
      <Provider store={store}>
          <NativeBaseProvider theme={theme}>

@@ -1,6 +1,7 @@
 //import liraries
+import { useTheme } from '@react-navigation/native';
 import { Center, Divider, HStack } from 'native-base';
-import React, { Component, useEffect, useState } from 'react';
+import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -18,6 +19,7 @@ const LanguageScreen = () => {
     const selectedLanguage = (index : number) => {
         setSelectedIndex(index);
     }
+    const { colors } = useTheme();
 
     const _renderItem = ({item,index}:any) => {
         return (
@@ -37,13 +39,15 @@ const LanguageScreen = () => {
         )
     }
 
+
     useEffect(() => { 
         setLanguageData(data);
     }, []);
+    
 
     return (
         <BaseComponent {...baseComponentData} title={'Language'} is_main={false} >
-            <View style ={styles.container}>
+            <View style ={[styles.container,{}]}>
             <FlatListVertical
                 style={{paddingTop : main_padding}}
                 data={languageData}
