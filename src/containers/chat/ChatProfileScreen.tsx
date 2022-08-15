@@ -91,18 +91,18 @@ const ChatProfileScreen = (props: any) => {
             <VStack justifyContent='space-between' flex={1}>
                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
                     <LinearGradient
-                        colors={['#17C8FF', '#329BFF', '#5A6BDBD2', '#4A62EBBE', '#002FFFB0']}
+                        colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                         start={{ x: 0, y: 0 }}
 
-                        end={{ x: 1, y: 0 }}
+                        end={{ x: 1, y: 1 }}
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
-                        <View style={{ margin: 3, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 99, height: 99, }}>
-                            <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 99, height: 99, overflow: 'hidden' }} />
+                        <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
+                            <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
                         </View>
                     </LinearGradient>
                     <View style={{ paddingVertical: main_padding }}>
-                        <Text style={{ fontFamily: 'lato', fontSize: 14, fontWeight: '600' }}>{chatItem.name.toString().toUpperCase()}</Text>
+                        <Text style={{ fontFamily: 'lato', fontSize: 16, fontWeight: '600' }}>{chatItem.name.toString().toUpperCase()}</Text>
                         <Text style={{ fontFamily: 'lato', fontSize: 13, paddingTop: main_padding - 10, color: '#797979E8' }}>Bio: smilling </Text>
                     </View>
                 </View>

@@ -13,66 +13,68 @@ import ChatRecord from './ChatRecord';
 import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { main_padding } from '../../config/settings';
 
-const ChatListScreen = (props:any) => {
-    const navigate:any = useNavigation();
+const ChatListScreen = (props: any) => {
+    const navigate: any = useNavigation();
 
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
-    const {chatItem} = props.route.params;
+    const { chatItem } = props.route.params;
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
-	const [state, setState] = useState<any>({
-		message: '',
-		loadSendMess:false,
+    const [state, setState] = useState<any>({
+        message: '',
+        loadSendMess: false,
 
-	});
-	const handleChange = (stateName: string, value: any) => {
-		state[`${stateName}`] = value;
-		setState({...state});
-	};
-    const rightIcon = () =>{
-		return(
-			<TouchableOpacity onPress={()=>navigate.navigate('ProfileChat', {chatItem: chatItem})} style={style.containerCenter}>
-				<UserAvatar style={{width:35,height:35}}>
-                    <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+    });
+    const handleChange = (stateName: string, value: any) => {
+        state[`${stateName}`] = value;
+        setState({ ...state });
+    };
+    const rightIcon = () => {
+        return (
+            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
+                <UserAvatar style={{ width: 35, height: 35 }}>
+                    <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
                 </UserAvatar>
-			</TouchableOpacity>
+            </TouchableOpacity>
         )
     }
-	const onChangeMessage = useCallback(
-        (text:any) => {
-			handleChange('message',text)
+    const onChangeMessage = useCallback(
+        (text: any) => {
+            handleChange('message', text)
         },
         [state.message],
-    );	
-	const _handleOpen = () => {
+    );
+    const _handleOpen = () => {
         onOpen()
     }
-	const onSend = () =>{
+    const onSend = () => {
 
-	}
-	const messageText = (mess: any, index: any) => {
+    }
+    const messageText = (mess: any, index: any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>           
-				<View style={[styles.chatBack,
-				{
-					backgroundColor: mess.isAdmin ? '#ECF1FD' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
-					borderBottomRightRadius: mess.isAdmin ? 20 : 0,
-					borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
-					marginVertical: 1
-				}
-				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize }}>{mess.text}</Text>
-					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor:whiteColor, alignSelf: 'flex-end',paddingLeft:100 }}>{moment().format('HH:mm A')}</Text>
-				</View>
+            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>
+                <View style={[styles.chatBack,
+                {
+                    backgroundColor: mess.isAdmin ? '#ECF1FD' : _.isEmpty(appearanceTheme) ? baseColor : appearanceTheme.textColor,
+                    borderBottomRightRadius: mess.isAdmin ? 20 : 0,
+                    borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
+                    marginVertical: 1
+                }
+                ]}>
+                    <Text selectable={true} selectionColor={'blue'} style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize }}>{mess.text}</Text>
+                    <Text style={{ fontSize: 10, color: mess.isAdmin ? textColor : whiteColor, alignSelf: 'flex-end', paddingLeft: 100 }}>{moment().format('HH:mm A')}</Text>
+                </View>
             </View>
         )
     };
 
-	const Item = ({ item, index }: any) => (
+    const Item = ({ item, index }: any) => (
         <>
-            <Text style={{ textAlign: 'center', fontSize: 13,paddingTop:10,paddingBottom:10,color:chatText}}>{item.date}</Text>
+            <Text style={{ textAlign: 'center', fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText }}>{item.date}</Text>
             {item.data.map((mess: any, index: any) => messageText(mess, index))}
         </>
     );
@@ -80,73 +82,77 @@ const ChatListScreen = (props:any) => {
 
 
     return (
-		<BaseComponent {...baseComponentData} title={chatItem.name} is_main={false} rightIcon={rightIcon}>
-            <ImageBackground source={{uri: appearanceTheme.themurl}} resizeMode="cover" style={{width: deviceWidth, height:deviceHeight*.79}}>
-                <KeyboardAvoidingView style={styles.chatContent} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <BaseComponent {...baseComponentData} title={chatItem.name} is_main={false} rightIcon={rightIcon}>
+
+            <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
+                <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                    <TouchableWithoutFeedback accessible={false} >
                         <FlatList
-                                ref={ref}
-                                listKey={makeid()}
-                                renderItem={Item}
-                                data={message}
-                                showsVerticalScrollIndicator={false}
-                                ListFooterComponent={
-                                    <View style={{ height: 20 }}>
-                                    </View>
-                                }
-                                // refreshControl={
-                                //     <RefreshControl
-                                //         refreshing={refreshing}
-                                //         onRefresh={_handleRefresh}
-                                //         tintColor="black" />
-                                // }
-                                // onContentSizeChange={() => {
-                                //     if (!refreshing) {
+                            style={{paddingHorizontal: main_padding}}
+                            ref={ref}
+                            listKey={makeid()}
+                            renderItem={Item}
+                            data={message}
+                            showsVerticalScrollIndicator={false}
+                            ListFooterComponent={
+                                <View style={{ height: 20 }}>
+                                </View>
+                            }
+                            // refreshControl={
+                            //     <RefreshControl
+                            //         refreshing={refreshing}
+                            //         onRefresh={_handleRefresh}
+                            //         tintColor="black" />
+                            // }
+                            // onContentSizeChange={() => {
+                            //     if (!refreshing) {
 
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
-                                // onLayout={() => {
-                                //     if (!refreshing) {
+                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                            //     }
+                            // }}
+                            // onLayout={() => {
+                            //     if (!refreshing) {
 
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
-                                scrollEventThrottle={16}
-                                onEndReachedThreshold={0.5}
-                                keyExtractor={(_, index) => index.toString()}
-                            >
-                            </FlatList>
+                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                            //     }
+                            // }}
+                            scrollEventThrottle={16}
+                            onEndReachedThreshold={0.5}
+                            keyExtractor={(_, index) => index.toString()}
+                        >
+                        </FlatList>
                     </TouchableWithoutFeedback>
-                </KeyboardAvoidingView>
-                    {/* <View style={{position: 'absolute',top:'80%', width: deviceWidth}}>
-                       
-                    </View> */}
-            </ImageBackground>
-            <ChatRecord
-                message={state.message}
-                loading={state.loadSendMess}
-                onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
-                onOpen={_handleOpen}
-                onSend={onSend}
-            />
 
-		</BaseComponent>
+
+                    <View style={{ width: deviceWidth, height: deviceHeight * .2 }}>
+                        <ChatRecord
+                            message={state.message}
+                            loading={state.loadSendMess}
+                            onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
+                            onOpen={_handleOpen}
+                            onSend={onSend}
+                        />
+                    </View>
+                </KeyboardAvoidingView>
+
+            </ImageBackground>
+
+        </BaseComponent>
     );
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	chatContent: {
+    container: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    chatContent: {
         transform: [{ scaleY: 1 }],
         flex: 1,
         justifyContent: 'flex-end',
         // marginBottom: 10,
-        padding: 15
+        // paddingHorizontal: main_padding
     },
     chatBody: {
         transform: [{ scaleY: 1 }],

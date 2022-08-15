@@ -58,6 +58,8 @@ const Route = () => {
     }
   };
 
+
+
   const colorScheme = useColorScheme();
   function MainStack() {
     return (
@@ -119,7 +121,7 @@ const Route = () => {
         }}
       >
         <Tab.Screen
-          name="Contacts"
+          name="Contact"
           component={ContactScreen}
           options={{
             headerShown: false,
@@ -133,7 +135,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Chats"
+          name="Chat"
           component={ChatScreen}
           options={{
             headerShown: false,
@@ -147,7 +149,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Settings"
+          name="Setting"
           component={SettingScreen}
           options={{
             headerShown: false,

@@ -11,6 +11,7 @@ import { main_padding } from '../../config/settings';
 import QRCode from 'react-native-qrcode-svg';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 
 // create a component
 const QRcodeScreen = () => {
@@ -44,18 +45,18 @@ const QRcodeScreen = () => {
         )
     };
 
-    const rightIcon = () =>{
-		return(
-			<TouchableOpacity style={style.containerCenter}>
-                <Icon name='share-social' as={Ionicons} size='lg' />
-				{/* <UserAvatar style={{width:35,height:35}}>
-                    <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
-                </UserAvatar> */}
-			</TouchableOpacity>
-        )
-    }
+    // const rightIcon = () => {
+    //     return (
+    //         <TouchableOpacity style={style.containerCenter}>
+    //             <Icon name='share-social' as={Ionicons} size='lg' />
+    //             {/* <UserAvatar style={{width:35,height:35}}>
+    //                 <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+    //             </UserAvatar> */}
+    //         </TouchableOpacity>
+    //     )
+    // }
     return (
-        <BaseComponent {...baseComponentData} title='QR Code' rightIcon={rightIcon}>
+        <BaseComponent {...baseComponentData} title='QR Code'>
             <View style={styles.container}>
                 <VStack justifyContent='space-between'>
                     <View style={{ width: deviceWidth, height: deviceHeight / 1.2, alignItems: 'center', justifyContent: 'center', }}>
@@ -68,10 +69,10 @@ const QRcodeScreen = () => {
                                 width: 0,
                                 height: 1,
                             },
-                            shadowOpacity: 0.20,
-                            shadowRadius: 1.41,
+                            shadowOpacity: 0.18,
+                            shadowRadius: 1.00,
 
-                            elevation: 2,
+                            elevation: 1,
                         }}>
                             <View style={{ padding: main_padding, borderRadius: 10, backgroundColor: bgChat, marginTop: main_padding }}>
                                 <QRCode
@@ -87,9 +88,17 @@ const QRcodeScreen = () => {
                                 <Text style={{ fontFamily: 'lato', fontSize: 17, fontWeight: '700', color: textDesColor }}>@CHSOHENG</Text>
                             </View>
                         </View>
-                        <UserAvatar style={{ position: 'absolute', top: '16%', left: '38%', width: 100, height: 100 }}>
-                            <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-                        </UserAvatar>
+                        <LinearGradient
+                            colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
+                            start={{ x: 0, y: 0 }}
+
+                            end={{ x: 1, y: 1 }}
+                            style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105, position: 'absolute', top: '14%', left: '38%' }}
+                        >
+                            <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
+                                <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                            </View>
+                        </LinearGradient>
                         {/* </ImageBackground> */}
                     </View>
                     {/* <View style={{ backgroundColor: whiteColor, borderTopLeftRadius: 25, borderTopRightRadius: 25, height: deviceHeight / 2, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 }}>

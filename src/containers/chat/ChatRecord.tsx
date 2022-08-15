@@ -55,13 +55,12 @@ export default ChatRecord;
 
 const styles = StyleSheet.create({
     input: {
-        // position: 'absolute',
-        backgroundColor: '#ffff',
+        backgroundColor: '#FFFFFFE8',
         paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 100,
+        height: 90,
         color: "#aaa",
         shadowColor: "#000",
         shadowOffset: {

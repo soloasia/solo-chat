@@ -27,7 +27,7 @@ const ContactScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity onPress={() => setShowModal(true)} style={style.containerCenter}>
-				<Ionicons name="person-add-outline" size={25} color={baseColor}/>
+				<Ionicons name="person-add-outline" size={23} color={baseColor}/>
 			</TouchableOpacity>
 		)
 	}

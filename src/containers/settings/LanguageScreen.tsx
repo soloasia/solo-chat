@@ -24,9 +24,9 @@ const LanguageScreen = () => {
             <TouchableOpacity onPress={() => selectedLanguage(index)}>
                 <HStack justifyContent={'space-between'} flex={1} style ={{alignItems : 'center',margin : 0}}>
                     <View>
-                        <Text style = {{fontWeight: 'bold',fontSize : 16}}>{item.name}</Text> 
+                        <Text style = {{fontWeight: 'bold',fontSize : 16, fontFamily: 'lato'}}>{item.name}</Text> 
                         <View style = {{height: 4}}></View>
-                        <Text style ={{color: chatText,fontSize : 14}}>{item.language}</Text> 
+                        <Text style ={{color: chatText,fontSize : 14, fontFamily: 'lato'}}>{item.language}</Text> 
                     </View>
                     { index == selectedIndex ? <Ionicons name={'checkmark-circle'} size={25} style={{color:baseColor}}/> : <></>}
                 </HStack>

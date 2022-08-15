@@ -63,15 +63,16 @@ const SignupScreen = (props: any) => {
                 <View style={{flex: 3, justifyContent: 'center'}}>
                     <TouchableOpacity onPress={()=>handleSelectProfile()} style={{alignSelf: 'center'}}>
                         <LinearGradient
-                            colors={['#00FFFF', '#17C8FF', '#329BFF', '#4C64FF', '#3654FF', '#002FFF']}
-                            start={{x: 0, y: 0}}
-                            end={{x: 1, y: 0}}
+                            colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
+                            start={{ x: 0, y: 0 }}
+
+                            end={{ x: 1, y: 1 }}
                             style={{marginTop: 15, width: 120, borderRadius: 100, height: 120}}
                         >
-                            <View style={{ flex: 1,margin: 1, backgroundColor: whiteColor,justifyContent: 'center',borderRadius: 100}}>
+                            <View style={{ flex: 1,margin: 2, backgroundColor: whiteColor,justifyContent: 'center',borderRadius: 100}}>
                                 {profileAvatar != '' ?
-                                    <Image source={{uri: 'data:image/png;base64,'+profileAvatar}} resizeMode='cover' style={{borderRadius: 100, width: 118, height:118, overflow: 'hidden'}} />
-                                : <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{borderRadius: 100, width: 118, height:118, overflow: 'hidden'}} />}
+                                    <Image source={{uri: 'data:image/png;base64,'+profileAvatar}} resizeMode='cover' style={{borderRadius: 100, width: 116, height:116, overflow: 'hidden'}} />
+                                : <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{borderRadius: 100, width: 116, height:116, overflow: 'hidden'}} />}
                             </View>
                         </LinearGradient>
                         <View style={{position: 'absolute', bottom: 5, right:7, backgroundColor: whiteColor, borderRadius: 20, padding: 5}}>
