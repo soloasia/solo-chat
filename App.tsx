@@ -24,7 +24,9 @@ import * as React from 'react';
      }
    }
  });
+
  const App = () => {
+  
    return ( 
      <Provider store={store}>
          <NativeBaseProvider theme={theme}>
