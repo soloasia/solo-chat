@@ -16,9 +16,6 @@ export const ThemeProvider = ({ children } : any) => {
       StatusBar.setBarStyle("dark-content");
     }
   };
-
-  console.log(theme);
-
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}

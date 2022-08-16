@@ -64,7 +64,7 @@ const ChatListScreen = (props:any) => {
 				}
 				]}>
 					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize }}>{mess.text}</Text>
-					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor:whiteColor, alignSelf: 'flex-end',paddingLeft:100 }}>{moment().format('HH:mm A')}</Text>
+					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor: whiteColor, alignSelf: 'flex-end', paddingLeft:100 }}>{moment().format('HH:mm A')}</Text>
 				</View>
             </View>
         )

@@ -1,7 +1,9 @@
+import { backgroundDark, boxColor, greyDark, primaryDark } from "../config/colors";
 
 type ThemeT = {
     backgroundColor : string,
     textColor : string,
+    primary : string
 }
 
 type ThemeModeType = {
@@ -9,8 +11,8 @@ type ThemeModeType = {
 }
 
 const themeStyle : ThemeModeType = {
-    light : {backgroundColor : 'white',textColor:'black'},
-    dark : {backgroundColor : 'black',textColor:'white'}
+    light : {backgroundColor : 'white',textColor:'black',primary : boxColor},
+    dark : {backgroundColor : backgroundDark, textColor: greyDark, primary: primaryDark}
 };
 
 

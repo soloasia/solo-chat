@@ -16,7 +16,7 @@ import { ThemeContext } from '../utils/ThemeManager';
 const SettingScreen = () => {
     const navigate:any = useNavigation();
 	const ref = useRef<TransitioningView>(null);
-	const [isDarkMode, setDarkMode] = useState(false);
+	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
 	const [isNotificationOn, setisNotificationOn] = useState(false);
 	const transition = (
@@ -57,6 +57,7 @@ const SettingScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
@@ -75,22 +76,22 @@ const SettingScreen = () => {
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>
 							<HStack alignItems={'center'} space={3}>
-								{isDarkMode?
-									<Ionicons name={'sunny-outline'} size={25} style={{color:whiteColor}}/>
+								{theme === "light"?
+									<Ionicons name={'sunny-outline'} size={25} style={{color: "black"}}/>
 									:
-									<Ionicons name={'moon-outline'} size={25} style={{color:textColor}}/>
+									<Ionicons name={'moon-outline'} size={25} style={{color: "white"}}/>
 								}
 								<TextItem >Dark Mode</TextItem>
 							</HStack>
 							<Switch 
-								value={isDarkMode} 
+								value={theme == "dark"} 
 								trackColor= {{true : baseColor}}
 								style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
 								onValueChange={() => {
 									if (ref.current) {
 										ref.current.animateNextTransition();
 									}
-									setDarkMode(!isDarkMode);
+									// setDarkMode(!isDarkMode);
 									toggleTheme();
 								}} 
 							/>
@@ -108,7 +109,7 @@ const SettingScreen = () => {
 						data={seconddata}
 						renderItem={_renderItem}
 					/>
-					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor:boxColor,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
+					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
 						<TextItem style={{color:discountColor,textAlign:'center',fontSize:18,fontFamily:'Lato-Regular'}}>Log Out</TextItem>
 					</TouchableOpacity>
 					<Footer />

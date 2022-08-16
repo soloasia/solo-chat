@@ -1,20 +1,24 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Text, StyleSheet, View, TouchableOpacity, TextInput } from 'react-native';
 import { boxColor } from '../config/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import { activeOpacity, main_padding } from '../config/settings';
 import style from '../styles';
+import { ThemeContext } from '../utils/ThemeManager';
+import { color } from 'react-native-reanimated';
+import themeStyle from '../styles/theme';
 const SearchBox = (props:any) => {
     const {onChangeText,onSearch } = props
     const [state, setstate] = useState("");
+    const {theme} : any = useContext(ThemeContext);
 	return (
 		<View style={styles.headerContainer}>
-            <View style={styles.searchBox}>
+            <View style={{...styles.searchBox,backgroundColor : themeStyle[theme].primary}}>
                 <TouchableOpacity onPress={onSearch} activeOpacity={activeOpacity}>
                     <Ionicons style={styles.searchIcon} name="search" />
                 </TouchableOpacity>
                 <TextInput
-                    style={[style.p,{flex:1}]}
+                    style={[style.p,{flex:1,color: themeStyle[theme].textColor}]}
                     returnKeyType="search"
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -57,7 +61,6 @@ const styles = StyleSheet.create({
         height: 45,
         width: '100%',
         borderRadius: 50,
-        backgroundColor: boxColor,
         flexDirection: 'row', 
         alignItems: 'center',
     },

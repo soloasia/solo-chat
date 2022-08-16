@@ -1,12 +1,14 @@
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
 import { Box } from 'native-base'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { ReactNode } from 'react'
 import { BackHandler, InteractionManager, KeyboardAvoidingView, Platform, StyleSheet, View,Text, TouchableOpacity } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {  baseColor, whiteColor, whiteSmoke } from '../config/colors'
 import ScreenHeader, { headerData } from '../customs_items/ScreenHeader'
 import { style } from '../styles'
+import themeStyle from '../styles/theme'
+import { ThemeContext } from '../utils/ThemeManager'
 
 interface propsType {
     title: string | null,
@@ -57,14 +59,15 @@ const BaseComponent: React.FC<propsType> = (props) => {
             }
         }, [])
     );
-
+    
+    const {theme} : any = useContext(ThemeContext);
    
     const renderItem = () => {
         return (
             <KeyboardAvoidingView
                 keyboardVerticalOffset={Platform.OS === "ios" ? 15 : 25}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
-                style={[styles.mainContainer]}
+                style={[styles.mainContainer,{backgroundColor : themeStyle[theme].backgroundColor}]}
             >
                 <View style={styles.container}>
                     <ScreenHeader
@@ -97,7 +100,7 @@ const styles = StyleSheet.create({
     },
     mainContainer: {
         flex: 1,
-        backgroundColor: whiteColor
+        // backgroundColor: whiteColor
         // backgroundColor: whiteSmoke
     }
 })

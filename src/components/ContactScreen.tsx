@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Text, StyleSheet, Image, View, TouchableOpacity, Modal, TextInput } from 'react-native';
-import {  CloseIcon, Divider, HStack, VStack } from 'native-base'
-import { baseColor, boxColor, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import {  CloseIcon, Divider, HStack, theme, VStack } from 'native-base'
+import { baseColor, boxColor, greyDark, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SearchBox from '../customs_items/SearchBox';
-import reactotron from 'reactotron-react-native';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import { UserData } from '../temp_data/Contact';
 import { large_padding, main_padding } from '../config/settings';
 import style from '../styles';
 import QRCodeScanner from 'react-native-qrcode-scanner';
+import themeStyle from '../styles/theme';
+import { ThemeContext } from '../utils/ThemeManager';
 
 
 const ContactScreen = () => {
@@ -20,11 +21,12 @@ const ContactScreen = () => {
 	const [username, setUsername] = useState("");
 	const [showModal,setShowModal] = useState(false);
 	const [showQR,setShowQr] = useState(false);
+	const {theme} : any = useContext(ThemeContext);
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
 	};
-	const rightIcon = () =>{
+	const rightIcon = () => {
 		return(
 			<TouchableOpacity onPress={() => setShowModal(true)} style={style.containerCenter}>
 				<Ionicons name="person-add-outline" size={25} color={baseColor}/>
@@ -39,7 +41,7 @@ const ContactScreen = () => {
 	const _renderContactView = ({item,index}:any) =>{
 		return(
 			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
-				<HStack  alignItems="center" space={4}>
+				<HStack alignItems="center" space={4}>
 					<UserAvatar>
 						<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
 					</UserAvatar>
@@ -78,22 +80,25 @@ const ContactScreen = () => {
 				animationType="slide"
 				hardwareAccelerated ={true}
                 onDismiss={() => console.log('on dismiss')}>
-				<View style={{margin : main_padding , marginTop : large_padding}}>
-				 	<View style={{flexDirection : 'row',justifyContent: 'space-between'}}>
-					 	<TouchableOpacity onPress={()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-						<Text style={{fontWeight :'700',fontSize :16}}>Add Contact</Text>
-					 	<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
+				<View style = {{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
+					<View style={{margin : main_padding , marginTop : large_padding}}>
+						<View style={{flexDirection : 'row',justifyContent: 'space-between'}}>
+							<TouchableOpacity onPress={()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
+							<TextItem style={{fontWeight :'700',fontSize :16}}>Add Contact</TextItem>
+							<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
+						</View>
+						<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
+						<TextInput 
+							style={{...styles.input,marginTop : main_padding,backgroundColor : themeStyle[theme].primary,color : themeStyle[theme].textColor}}
+							placeholder='Username'
+							placeholderTextColor={'#ADB9C6'}
+							value={username}
+							onChangeText={(text)=> setUsername(text)}
+						/>
+						<TouchableOpacity onPress={() => {setShowModal(false); setShowQr(true); console.log(showQR)}}><Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/></TouchableOpacity>
 					</View>
-					<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
-                    <TextInput 
-                        style={{...styles.input,marginTop : main_padding}}
-                        placeholder='Username'
-                        value={username}
-                        onChangeText={(text)=> setUsername(text)}
-                    />
-                    <TouchableOpacity onPress={() => {setShowModal(false); setShowQr(true); console.log(showQR)}}><Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/></TouchableOpacity>
-                </View>
-                <Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>
+					<Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>
+					</View>
 				</View>
             </Modal>
 			<Modal
@@ -102,16 +107,18 @@ const ContactScreen = () => {
 				animationType="slide"
 				hardwareAccelerated ={true}
                 onDismiss={() => console.log('on dismiss')}>
-				<QRCodeScanner
-					onRead={(e)=>{setShowQr(false); setShowModal(true); setUsername(e.data);}}
-					topViewStyle={{flexDirection :'row',justifyContent : 'space-between', flex : 1,alignItems:'flex-start',margin : main_padding}}
-					topContent={
-						<View style ={{flexDirection :'row',justifyContent : 'space-between',flex : 1,alignItems:'flex-start'}}>
-							<TouchableOpacity onPress={()=> {setShowQr(false);setShowModal(true)}}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-							<View><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}></Text></View>
-						</View>
-					}
-				/>
+				<View style={{flex : 1,backgroundColor : themeStyle[theme].backgroundColor}}>
+					<QRCodeScanner
+						onRead={(e)=>{setShowQr(false); setShowModal(true); setUsername(e.data);}}
+						topViewStyle={{flexDirection :'row',justifyContent : 'space-between', flex : 1,alignItems:'flex-start',margin : main_padding}}
+						topContent={
+							<View style ={{flexDirection :'row',justifyContent : 'space-between',flex : 1,alignItems:'flex-start'}}>
+								<TouchableOpacity onPress={()=> {setShowQr(false);setShowModal(true)}}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
+								<View><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}></Text></View>
+							</View>
+						}
+					/>
+				</View>
             </Modal>
 			
 		</BaseComponent>
