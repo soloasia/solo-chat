@@ -1,5 +1,5 @@
 import { HStack, Icon, useDisclose, useToast, VStack } from 'native-base';
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { ActivityIndicator, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient';
 import { inputColor, textDesColor, startBtn, whiteSmoke, whiteColor, bgChat } from '../../config/colors';
@@ -12,6 +12,8 @@ import SelectImagePicker from '../../customs_items/SelectImagePicker';
 import { useNavigation } from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
 import reactotron from 'reactotron-react-native';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 const SignupScreen = (props: any) => {
     const navigate:any = useNavigation();
@@ -53,6 +55,8 @@ const SignupScreen = (props: any) => {
         }
         navigate.navigate('Main')
     }
+
+    const {theme} : any = useContext(ThemeContext);
     
     const onChange = (data:any) =>{
         setProfile(data.data)
@@ -60,7 +64,7 @@ const SignupScreen = (props: any) => {
 
     return (
         <BaseComponent {...baseComponentData} title={'Sign Up'}>
-            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start'}}>
+            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start',backgroundColor: themeStyle[theme].backgroundColor}}>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                     <TouchableOpacity onPress={()=>handleSelectProfile()} style={{alignSelf: 'center'}}>
                         <LinearGradient
@@ -84,7 +88,7 @@ const SignupScreen = (props: any) => {
                     </View>
                     <View style={{flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, padding: main_padding, marginTop: main_padding}}>
                         <TextInput 
-                            style={{...styles.input, width: '47%'}}
+                            style={{...styles.input, width: '47%',backgroundColor: themeStyle[theme].primary}}
                             placeholder='Firtname'
                             value={state.firstname}
                             onChangeText={(text)=>setState({
@@ -98,7 +102,7 @@ const SignupScreen = (props: any) => {
                             placeholderTextColor={textDesColor}
                         />
                         <TextInput 
-                            style={{...styles.input, width: '47%'}}
+                            style={{...styles.input, width: '47%',backgroundColor: themeStyle[theme].primary}}
                             placeholder='Lastname'
                             value={state.lastname}
                             onChangeText={(text)=>setState({
@@ -114,7 +118,7 @@ const SignupScreen = (props: any) => {
                     </View>
                     <VStack px={main_padding}>
                         <TextInput 
-                            style={{...styles.input}}
+                            style={{...styles.input,backgroundColor: themeStyle[theme].primary}}
                             placeholder='Username'
                             value={state.username}
                             onChangeText={(text)=>setState({
@@ -128,7 +132,7 @@ const SignupScreen = (props: any) => {
                             placeholderTextColor={textDesColor}
                         />
                         <TextInput 
-                            style={{...styles.input,marginTop: 15}}
+                            style={{...styles.input,marginTop: 15,backgroundColor: themeStyle[theme].primary}}
                             placeholder='Phone number'
                             value={state.phonenumber}
                             onChangeText={(text)=>setState({
@@ -145,7 +149,7 @@ const SignupScreen = (props: any) => {
                         />
                         <View style={{ marginTop: 15}}>
                             <TextInput 
-                                style={{...styles.input}}
+                                style={{...styles.input,backgroundColor: themeStyle[theme].primary}}
                                 placeholder='Password'
                                 value={state.password}
                                 onChangeText={(text)=>setState({
