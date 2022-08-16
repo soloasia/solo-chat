@@ -1,5 +1,5 @@
 import { HStack, Modal, Toast } from "native-base";
-import React, { ReactNode, useCallback, useRef } from "react";
+import React, { ReactNode, useCallback, useContext, useRef } from "react";
 import { FlatList, Platform, StyleSheet, Text, TextInputProps, TextProps, TouchableOpacity, TouchableOpacityProps, TouchableWithoutFeedback, View } from "react-native";
 import style, { activeOpacity } from "../styles";
 import FontAwsome from 'react-native-vector-icons/FontAwesome'
@@ -7,6 +7,8 @@ import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
 import colors, { baseColor, borderColor, boxColor, buttonColor, buttonSecondColor, textSecondColor, whiteColor, whiteSmoke } from "../config/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemeContext } from "../utils/ThemeManager";
+import themeStyle from "../styles/theme";
 
 export const makeid = () => {
     var text = "";
@@ -19,10 +21,11 @@ export const makeid = () => {
 }
 
 export const TextItem = (props: TextProps | ReactNode | any) => {
+    const {theme} : any = useContext(ThemeContext);
     return (
         <Text
             {...props}
-            style={[style.p, style.textChoose, props.style]}>{props.children}</Text>
+            style={[style.p, style.textChoose, props.style,{color : themeStyle[theme].textColor}]}>{props.children}</Text>
     )
 }
 export const CardItem = (props: any) => {

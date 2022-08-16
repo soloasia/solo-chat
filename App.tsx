@@ -13,6 +13,7 @@
  import { Provider } from 'react-redux';
  import Route from './src/navigate/Route';
  import store from './src/store';
+import { ThemeProvider } from './src/utils/ThemeManager';
  
  const theme = extendTheme({
    components: {
@@ -26,15 +27,16 @@
  });
 
  const App = () => {
-  
    return ( 
-     <Provider store={store}>
+    <ThemeProvider>
+      <Provider store={store}>
          <NativeBaseProvider theme={theme}>
              <View style={{flex:1}}>
                  <Route />
              </View>
          </NativeBaseProvider>
-     </Provider>
+      </Provider>
+    </ThemeProvider>
    );
  };
  export default App;

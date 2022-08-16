@@ -1,6 +1,6 @@
 import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
 import React, { createContext, useState } from 'react'
-import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme,} from "@react-navigation/native";
+import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
@@ -194,8 +194,7 @@ const Route = () => {
   return (
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
-        <ThemeContext.Provider value={themeData}>
-          <NavigationContainer theme={theme == "Light" ? LightTheme : MyDarkTheme}>
+       <NavigationContainer theme={theme == "Light" ? DefaultTheme : DarkTheme}>
             {/* <SafeAreaView
               // edges={['left', 'right', 'top']}
               style={[
@@ -207,7 +206,6 @@ const Route = () => {
             <MainStack />
             {/* </SafeAreaView> */}
           </NavigationContainer>
-        </ThemeContext.Provider>
     </SafeAreaProvider>
   );
 };
