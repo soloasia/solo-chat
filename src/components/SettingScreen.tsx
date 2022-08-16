@@ -39,7 +39,7 @@ const SettingScreen = () => {
 							value={isNotificationOn} 
 							trackColor= {{true : baseColor}}
 							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
-							onValueChange={() => {
+							onValueChange={() => { 
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
 						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
