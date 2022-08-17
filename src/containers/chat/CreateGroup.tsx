@@ -44,7 +44,7 @@ const CreateGroup = (props: any) => {
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <Text style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.name}</Text>
+                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.name}</TextItem>
             </VStack>
         )
     }
@@ -90,7 +90,7 @@ const CreateGroup = (props: any) => {
                     </View>
                 }
                 <View style={{ flex: 1 }}>
-                    <Text style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>Add people</Text>
+                    <TextItem style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>Add people</TextItem>
                     <FlatListVertical
                         renderItem={_renderUsers}
                         data={ChatData}

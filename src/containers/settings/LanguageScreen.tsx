@@ -13,22 +13,19 @@ import { data } from '../../temp_data/Language';
 
 // create a component
 const LanguageScreen = () => {
-
     const [languageData, setLanguageData] = useState<any>();
     const [selectedIndex,setSelectedIndex] = useState(0);
     const selectedLanguage = (index : number) => {
         setSelectedIndex(index);
     }
-    const { colors } = useTheme();
-
     const _renderItem = ({item,index}:any) => {
         return (
             <TouchableOpacity onPress={() => selectedLanguage(index)}>
                 <HStack justifyContent={'space-between'} flex={1} style ={{alignItems : 'center',margin : 0}}>
                     <View>
-                        <Text style = {{fontWeight: 'bold',fontSize : 16, fontFamily: 'lato'}}>{item.name}</Text> 
+                        <TextItem style = {{fontWeight: 'bold',fontSize : 16}}>{item.name}</TextItem> 
                         <View style = {{height: 4}}></View>
-                        <Text style ={{color: chatText,fontSize : 14, fontFamily: 'lato'}}>{item.language}</Text> 
+                        <TextItem style ={{color: chatText,fontSize : 14}}>{item.language}</TextItem> 
                     </View>
                     { index == selectedIndex ? <Ionicons name={'checkmark-circle'} size={25} style={{color:baseColor}}/> : <></>}
                 </HStack>

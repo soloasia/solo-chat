@@ -32,6 +32,11 @@ export const inputColor = '#F9F9F9'
 export const chatText = '#BDBCBC'
 
 
+/** Dark Mode */
+export const backgroundDark = "#222831";
+export const primaryDark = "#393E46";
+export const greyDark = "#EEEEEE";
+
 
 export default {
     whiteColor,

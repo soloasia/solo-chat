@@ -1,5 +1,5 @@
 import { HStack, Icon, useToast, VStack } from 'native-base';
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { ActivityIndicator, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { inputColor, textDesColor, startBtn, whiteSmoke, bgChat } from '../../config/colors';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
@@ -9,10 +9,13 @@ import { main_padding } from '../../config/settings';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import messaging from '@react-native-firebase/messaging';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 const LoginScreen = (props: any) => {
     const navigate:any = useNavigation();
     const [token, setToken] = useState('')
+    const {theme} : any = useContext(ThemeContext);
 
     useEffect(() => {
         getToken()
@@ -38,9 +41,10 @@ const LoginScreen = (props: any) => {
         }
     }
 
+
     return (
         <BaseComponent {...baseComponentData} title={'Log In'}>
-            <View style={style.flexContainerCenterWhite}>
+            <View style={[style.flexContainerCenterWhite,{backgroundColor : themeStyle[theme].backgroundColor}]}>
                 <VStack justifyContent='space-between' alignItems='center'>
                     <View style={{flex: 2.5, width: deviceWidth*.9, justifyContent: 'center', alignItems: 'center'}}>
                         <View style={{width: 150, height: 150}}>
@@ -48,12 +52,11 @@ const LoginScreen = (props: any) => {
                                 source={{uri:'https://assets2.lottiefiles.com/private_files/lf30_z588h1j0.json'}} 
                                 autoPlay loop 
                             /> 
-                        </View>
-                        
+                        </View>  
                     </View>
                     <View style={{flex: 3.5, width: deviceWidth*.9, paddingVertical: main_padding}}>
                         <TextInput 
-                            style={{backgroundColor: bgChat, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
+                            style={{height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13,backgroundColor: themeStyle[theme].primary}}
                             placeholder='Username'
                             value={state.username}
                             onChangeText={(text)=>setState({
@@ -65,7 +68,7 @@ const LoginScreen = (props: any) => {
                         />
                         <View style={{ marginTop: 15}}>
                             <TextInput 
-                                style={{backgroundColor: bgChat, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
+                                style={{height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13,backgroundColor: themeStyle[theme].primary}}
                                 placeholder='Password'
                                 value={state.password}
                                 onChangeText={(text)=>setState({

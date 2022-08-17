@@ -1,5 +1,5 @@
 //import liraries
-import React, { Component, useState } from 'react';
+import React, { Component, useContext, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Animated, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../../config/colors';
@@ -8,9 +8,13 @@ import { TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import ImagePicker from 'react-native-image-crop-picker';
+import themeStyle from '../../styles/theme';
+import { theme } from 'native-base';
+import { ThemeContext } from '../../utils/ThemeManager';
 
 // create a component
 const EditProfileScreen = () => {
+    const {theme} : any = useContext(ThemeContext);
     const [state, setState] = useState<any>({
 		firstname: 'Big',
         lastname: 'Boss',
@@ -30,8 +34,6 @@ const EditProfileScreen = () => {
         //   setImgData(res);
         });
     }
-    
-
     return (
         <BaseComponent {...baseComponentData} title={'Edit Profile'} is_main={false}>
             <View style={{}}>
@@ -43,7 +45,7 @@ const EditProfileScreen = () => {
                         <TouchableOpacity onPress={() => pickGallery()}><Text style={{fontSize : 12,color : baseColor}}>Update Profile Photo</Text></TouchableOpacity>
                         <View style={{flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, padding: main_padding, marginTop: main_padding}}>
                             <TextInput 
-                                style={{...styles.input, width: '47%'}}
+                                style={{...styles.input, width: '47%',backgroundColor : themeStyle[theme].primary,color : themeStyle[theme].textColor}}
                                 placeholder='Firstname'
                                 value={state.firstname}
                                 onChangeText={(text)=>setState({
@@ -57,7 +59,7 @@ const EditProfileScreen = () => {
                                 placeholderTextColor={textDesColor}
                             />
                             <TextInput 
-                                style={{...styles.input, width: '47%'}}
+                                style={{...styles.input, width: '47%',backgroundColor : themeStyle[theme].primary, color : themeStyle[theme].textColor}}
                                 placeholder='Lastname'
                                 value={state.lastname}
                                 onChangeText={(text)=>setState({
@@ -73,7 +75,7 @@ const EditProfileScreen = () => {
                         </View>
                     </View>
                     <View style = {{...styles.usernameContainer, marginHorizontal : main_padding,justifyContent : 'space-between',flexDirection : 'row',alignItems :'center'}}>
-                        <Text>Username</Text>
+                        <TextItem>Username</TextItem>
                         <View style={{flexDirection :'row',alignItems : 'center'}}>
                             <TextInput 
                                 style={{color: chatText,marginHorizontal : main_padding}} 
