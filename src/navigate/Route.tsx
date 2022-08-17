@@ -15,7 +15,6 @@ import AuthOptionScreen from "../components/AuthOptionScreen";
 import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
-import reactotron from "reactotron-react-native";
 
 const Stack = createStackNavigator();
 
@@ -49,10 +48,6 @@ const Route = () => {
       console.log('User declined messaging permissions :(');
     }
   };
-
-
-
-  const colorScheme = useColorScheme();
   function MainStack() {
     return (
       <Stack.Navigator
