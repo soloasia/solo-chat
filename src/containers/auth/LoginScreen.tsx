@@ -1,7 +1,7 @@
 import { HStack, Icon, useToast, VStack } from 'native-base';
 import React, { useState, useEffect } from 'react'
 import { ActivityIndicator, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { inputColor, textDesColor, startBtn, whiteSmoke } from '../../config/colors';
+import { inputColor, textDesColor, startBtn, whiteSmoke, bgChat } from '../../config/colors';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import Lottie from 'lottie-react-native';
 import style, { deviceWidth } from '../../styles';
@@ -53,7 +53,7 @@ const LoginScreen = (props: any) => {
                     </View>
                     <View style={{flex: 3.5, width: deviceWidth*.9, paddingVertical: main_padding}}>
                         <TextInput 
-                            style={{backgroundColor: inputColor, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
+                            style={{backgroundColor: bgChat, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
                             placeholder='Username'
                             value={state.username}
                             onChangeText={(text)=>setState({
@@ -65,7 +65,7 @@ const LoginScreen = (props: any) => {
                         />
                         <View style={{ marginTop: 15}}>
                             <TextInput 
-                                style={{backgroundColor: inputColor, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
+                                style={{backgroundColor: bgChat, height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13}}
                                 placeholder='Password'
                                 value={state.password}
                                 onChangeText={(text)=>setState({

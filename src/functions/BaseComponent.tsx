@@ -92,7 +92,8 @@ export default React.memo(BaseComponent)
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        paddingTop: 40
     },
     mainContainer: {
         flex: 1,

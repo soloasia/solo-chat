@@ -1,6 +1,6 @@
-import { SafeAreaView, useColorScheme, View, Platform, } from "react-native";
-import React from 'react'
-import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
+import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
+import React, { createContext, useState } from 'react'
+import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
@@ -15,19 +15,29 @@ import AuthOptionScreen from "../components/AuthOptionScreen";
 import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
+import AppearanceScreen from "../containers/settings/AppearanceScreen";
+import QRcodeScreen from '../containers/settings/QRcodeScreen';
+import ChatProfileScreen from '../containers/chat/ChatProfileScreen';
+import MediaFilesScreen from '../containers/chat/MediaFilesScreen';
+import CreateGroup from '../containers/chat/CreateGroup';
+import LanguageScreen from "../containers/settings/LanguageScreen";
+import EditProfileScreen from "../containers/settings/EditProfileScreen";
+import ProfileNotification from "../containers/chat/ProfileNotification";
+
+
 
 const Stack = createStackNavigator();
+
+export const ThemeContext = React.createContext({});
 
 const Tab = createBottomTabNavigator();
 
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
-
   React.useEffect(() => {
     checkPermissionNotification()
   }, [])
-
 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
@@ -62,6 +72,14 @@ const Route = () => {
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="Appearance" component={AppearanceScreen} />
+        <Stack.Screen name="QRcode" component={QRcodeScreen} />
+        <Stack.Screen name="ProfileChat" component={ChatProfileScreen} />
+        <Stack.Screen name="Mediafile" component={MediaFilesScreen} />
+        <Stack.Screen name="CreateGroup" component={CreateGroup} />
+        <Stack.Screen name="Language" component={LanguageScreen} />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+        <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
 
       </Stack.Navigator>
     );
@@ -142,23 +160,57 @@ const Route = () => {
       </Tab.Navigator>
     );
   }
-
+  LogBox.ignoreAllLogs();
+  const LightTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: baseColor,
+      background: 'rgb(242, 242, 242)',
+      card: 'rgb(255, 255, 255)',
+      text: "black",
+      border: 'rgb(199, 199, 204)',
+      notification: 'rgb(255, 69, 58)',
+    },
+  };
+  
+  const MyDarkTheme = {
+    dark: true,
+    colors: {
+      ...DarkTheme.colors,
+      primary: baseColor,
+      background: 'rgb(242, 242, 242)',
+      card: 'rgb(255, 255, 255)',
+      text: "white",
+      border: 'rgb(199, 199, 204)',
+      notification: 'rgb(255, 69, 58)',
+    },
+  };
+  const [theme, setTheme] = useState("Light");
+  const themeData = {theme, setTheme};
+  console.log(theme);
   return (
-    <NavigationContainer>
-      <SafeAreaProvider>
-        <SafeAreaView
-          // edges={['left', 'right', 'top']}
-          style={[
-            style.safeAreaContainer,
-            {
-              backgroundColor: '#fff',
-            },
-          ]}>
-          <MainStack />
-        </SafeAreaView>
-      </SafeAreaProvider>
-    </NavigationContainer>
+    <SafeAreaProvider>
+       <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
+        <ThemeContext.Provider value={themeData}>
+          <NavigationContainer theme={theme == "Light" ? LightTheme : MyDarkTheme}>
+            {/* <SafeAreaView
+              // edges={['left', 'right', 'top']}
+              style={[
+                style.safeAreaContainer,
+                {
+                  backgroundColor: '#fff',
+                },
+              ]}> */}
+            <MainStack />
+            {/* </SafeAreaView> */}
+          </NavigationContainer>
+        </ThemeContext.Provider>
+    </SafeAreaProvider>
   );
 };
 
 export default Route;
+
+
+

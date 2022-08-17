@@ -2,7 +2,7 @@ import { HStack, Icon, useDisclose, useToast, VStack } from 'native-base';
 import React, { useState, useEffect } from 'react'
 import { ActivityIndicator, Image, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient';
-import { inputColor, textDesColor, startBtn, whiteSmoke, whiteColor } from '../../config/colors';
+import { inputColor, textDesColor, startBtn, whiteSmoke, whiteColor, bgChat } from '../../config/colors';
 import { main_padding } from '../../config/settings';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style from '../../styles';
@@ -53,25 +53,27 @@ const SignupScreen = (props: any) => {
         }
         navigate.navigate('Main')
     }
+    
     const onChange = (data:any) =>{
         setProfile(data.data)
     }
 
     return (
         <BaseComponent {...baseComponentData} title={'Sign Up'}>
-            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start',}}>
+            <View style={{...style.flexContainerCenterWhite, justifyContent: 'flex-start'}}>
                 <View style={{flex: 3, justifyContent: 'center'}}>
                     <TouchableOpacity onPress={()=>handleSelectProfile()} style={{alignSelf: 'center'}}>
                         <LinearGradient
-                            colors={['#00FFFF', '#17C8FF', '#329BFF', '#4C64FF', '#3654FF', '#002FFF']}
-                            start={{x: 0, y: 0}}
-                            end={{x: 1, y: 0}}
+                            colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
+                            start={{ x: 0, y: 0 }}
+
+                            end={{ x: 1, y: 1 }}
                             style={{marginTop: 15, width: 120, borderRadius: 100, height: 120}}
                         >
-                            <View style={{ flex: 1,margin: 1, backgroundColor: whiteColor,justifyContent: 'center',borderRadius: 100}}>
+                            <View style={{ flex: 1,margin: 2, backgroundColor: whiteColor,justifyContent: 'center',borderRadius: 100}}>
                                 {profileAvatar != '' ?
-                                    <Image source={{uri: 'data:image/png;base64,'+profileAvatar}} resizeMode='cover' style={{borderRadius: 100, width: 118, height:118, overflow: 'hidden'}} />
-                                : <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{borderRadius: 100, width: 118, height:118, overflow: 'hidden'}} />}
+                                    <Image source={{uri: 'data:image/png;base64,'+profileAvatar}} resizeMode='cover' style={{borderRadius: 100, width: 116, height:116, overflow: 'hidden'}} />
+                                : <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{borderRadius: 100, width: 116, height:116, overflow: 'hidden'}} />}
                             </View>
                         </LinearGradient>
                         <View style={{position: 'absolute', bottom: 5, right:7, backgroundColor: whiteColor, borderRadius: 20, padding: 5}}>
@@ -200,7 +202,7 @@ export default SignupScreen;
 
 const styles = StyleSheet.create({
     input: {
-        backgroundColor: inputColor, 
+        backgroundColor: bgChat, 
         height: 45,width: '100%', 
         borderRadius: 25, 
         paddingHorizontal: main_padding, 
