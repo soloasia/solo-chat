@@ -175,7 +175,7 @@ export function FlatListScroll(props:any) {
     const insets = useSafeAreaInsets()
     return (
         <View style={{
-            height: insets.bottom > 0 ? (insets.bottom + 15):20
+            height: insets.bottom > 0 ? (insets.bottom + 15):70
         }} />
     )
 }

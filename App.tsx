@@ -14,6 +14,7 @@
  import store from './src/store';
 import { ThemeProvider } from './src/utils/ThemeManager';
 import React, { useContext } from 'react'
+import { ProvideAuth } from './src/functions/UserAuth';
  
  const theme = extendTheme({
    components: {
@@ -30,11 +31,13 @@ import React, { useContext } from 'react'
    return ( 
     <ThemeProvider>
       <Provider store={store}>
-         <NativeBaseProvider theme={theme}>
-             <View style={{flex:1}}>
-                 <Route />
-             </View>
-         </NativeBaseProvider>
+        <ProvideAuth>
+          <NativeBaseProvider theme={theme}>
+              <View style={{flex:1}}>
+                  <Route />
+              </View>
+          </NativeBaseProvider>
+        </ProvideAuth>
       </Provider>
     </ThemeProvider>
    );

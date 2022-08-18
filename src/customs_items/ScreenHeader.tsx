@@ -33,14 +33,14 @@ const ScreenHeader: React.FC<propsType> = (props) => {
                 <View style={[style.buttonHeader]}>
                     <Text style={[style.pBold,{fontSize:25,color : themeStyle[theme].textColor}]}>{title}</Text>
                 </View>
-            :  title !='Log In' && title !='Sign Up'?
+                :
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={()=>navigate.goBack()}
                     style={[style.buttonHeader]}>
                     <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
-            :<View style={{width: 50 }}/>}
+            }
             <TextItem style={[style.pBold, styles.title, {textAlign: 'center',color : themeStyle[theme].textColor}]} numberOfLines={1}>{is_main? '':title}</TextItem>
             {rightIcon ? rightIcon() :
                 <Box

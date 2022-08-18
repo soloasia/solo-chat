@@ -28,6 +28,7 @@ import { ThemeContext } from "../utils/ThemeManager";
 import { useDispatch } from "react-redux";
 import { useAuth } from "../functions/UserAuth";
 import { loadData } from "../functions/LoadData";
+import SplashScreen from "../components/SplashScreen";
 
 
 const Stack = createStackNavigator();
@@ -39,6 +40,7 @@ export const navigationRef: any = createNavigationContainerRef()
 const Route = () => {
   const dispatch = useDispatch();
   const auth = useAuth();
+  const [splashscreen,setSplash] = useState(true)
   
   React.useEffect(() => {
     checkPermissionNotification();
@@ -48,10 +50,10 @@ const Route = () => {
 		  loadData(dispatch);
 		};
 		init().finally(async () => {
-		//   const timer = setTimeout(() => {
-		// 	setSplash(false)
-		//   }, 3000);
-		//   return () => clearTimeout(timer);
+		  const timer = setTimeout(() => {
+			  setSplash(false)
+		  }, 1500);
+		  return () => clearTimeout(timer);
 		  // if (auth.user !== null) await RNBootSplash.hide({fade: true});
 		});
 	  }
@@ -91,8 +93,18 @@ const Route = () => {
           // cardStyleInterpolator:
           //   CardStyleInterpolators.forFadeFromBottomAndroid,
         }}>
-        <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
-        <Stack.Screen name="Main" component={MainTab} />
+        {auth.user ? 
+          <>
+            <Stack.Screen name="Main" component={MainTab} />
+            <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
+          </>
+            :
+            <>
+              <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
+              <Stack.Screen name="Main" component={MainTab} />
+            </>
+          }
+        {/* <Stack.Screen name="Main" component={MainTab} /> */}
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
@@ -116,9 +128,10 @@ const Route = () => {
         screenOptions={({ route }) => ({
           headerShown: false,
           tabBarStyle: {
-            height: 90,
-            paddingHorizontal: 5,
+            height:Platform.OS ==='ios'? 90:50,
+            paddingHorizontal: 0,
             paddingTop: 0,
+            paddingBottom:Platform.OS ==='ios'?0:5,
             backgroundColor: themeStyle[theme].backgroundColor,
             position: 'absolute',
             borderTopWidth: 0,
@@ -201,17 +214,8 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-            {/* <SafeAreaView
-              // edges={['left', 'right', 'top']}
-              style={[
-                style.safeAreaContainer,
-                {
-                  backgroundColor: '#fff',
-                },
-              ]}> */}
-            <MainStack />
-            {/* </SafeAreaView> */}
-          </NavigationContainer>
+          {splashscreen? <SplashScreen/>:<MainStack />}
+        </NavigationContainer>
     </SafeAreaProvider>
   );
 };

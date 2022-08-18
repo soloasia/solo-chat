@@ -4,7 +4,7 @@ import React, { useContext, useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, discountColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
+import { baseColor, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
@@ -109,8 +109,8 @@ const SettingScreen = () => {
 						data={seconddata}
 						renderItem={_renderItem}
 					/>
-					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
-						<TextItem style={{color:discountColor,textAlign:'center',fontSize:18,fontFamily:'Lato-Regular'}}>Log Out</TextItem>
+					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center',alignItems:'center'}}>
+						<Text style={[style.pBold,{color:offlineColor}]}>Log Out</Text>
 					</TouchableOpacity>
 					<Footer />
 				</FlatListScroll>

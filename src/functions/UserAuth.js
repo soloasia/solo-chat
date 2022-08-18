@@ -23,24 +23,24 @@ function useProvideAuth() {
 
   const [user, setUser] = useState(null);
   async function checkUser() {
-    // let token = await AsyncStorage.getItem('@token');
+    let token = await AsyncStorage.getItem('@token');
     // dispatch(loadToken(token))
-    // if (token === null) {
-    //     setUser(false);
-    // } else {
-    //     const formdata = new FormData();
-    //     formdata.append("token",token);
-    //     GET('me/detail',formdata)
-    //     .then((result) => {
-    //         dispatch(loadUser(result.data));
-    //         setUser(true)
-    //     })
-    //     .catch(() => {
-    //       setUser(false);
-    //     });
-    // }
+    dispatch({ type: 'LOAD_USER_TOKEN', value: token });
+    if (token === null) {
+        setUser(false);
+    } else {
+        const formdata = new FormData();
+        formdata.append("token",token);
+        GET('me/detail',formdata)
+        .then((result) => {
+            dispatch(loadUser(result.data));
+            setUser(true)
+        })
+        .catch(() => {
+          setUser(false);
+        });
+    }
   }
-
   return {
     user,
   };

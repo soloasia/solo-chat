@@ -26,14 +26,14 @@ const AuthOptionScreen = (props: any) => {
                 </View>
                 <View style={{padding: 15, height: deviceHeight*0.3}}>
                     <TextItem style={[style.pBold,{textAlign: 'center'}]}>Welcome to Chat APP!</TextItem>
-                    <TextItem style={{fontSize: 14, fontFamily: 'Lato', color: labelColor, marginTop: 5, textAlign: 'center', lineHeight: 25}}>Chat app provided secure and fast messaging, join our team and enjoy online communication.</TextItem>
+                    <TextItem style={[style.p,{color: labelColor, marginTop: 5, textAlign: 'center', lineHeight: 25}]}>Chat app provided secure and fast messaging, join our team and enjoy online communication.</TextItem>
                 </View>
                 <VStack alignItems='center' justifyContent='center'>
                     <TouchableOpacity onPress={()=>navigate.navigate('Login')} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
-                        <Text style={{color: whiteSmoke, fontFamily:'Lato', fontSize: 16}}>Get Started</Text>
+                        <Text style={[style.p,{color:whiteSmoke}]}>Get Started</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>navigate.navigate('Signup')} style={{marginTop: 20, alignItems: 'center', justifyContent: 'center'}}>
-                        <TextItem style={{color: textDesColor, fontFamily:'Lato', fontSize: 13}}>Don't have an account?</TextItem>
+                        <TextItem style={style.p}>Don't have an account? Sing Up here</TextItem>
                     </TouchableOpacity>
                     
                 </VStack>

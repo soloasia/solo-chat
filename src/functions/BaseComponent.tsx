@@ -65,7 +65,7 @@ const BaseComponent: React.FC<propsType> = (props) => {
     const renderItem = () => {
         return (
             <KeyboardAvoidingView
-                keyboardVerticalOffset={Platform.OS === "ios" ? 15 : 25}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 15 :0}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
                 style={[styles.mainContainer,{backgroundColor : themeStyle[theme].backgroundColor}]}
             >

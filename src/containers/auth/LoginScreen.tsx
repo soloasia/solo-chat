@@ -1,5 +1,5 @@
 import React, { useState, useContext,createRef } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { HStack, VStack } from 'native-base';
 import { textDesColor, startBtn, whiteSmoke, bgChat, borderColor, offlineColor } from '../../config/colors';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
@@ -68,7 +68,10 @@ const LoginScreen = (props: any) => {
                         dispatch(loadUser(res.data))
                     }
                 })
-                navigate.navigate('Main')
+                navigate.reset({
+                    index: 0,
+                    routes: [{ name: 'Main' }]
+                })
                 handleChange('loading', false);
               }else{
                 handleChange('loading', false);
@@ -85,11 +88,11 @@ const LoginScreen = (props: any) => {
         navigate.navigate('Signup');
     }
     return (
-        <BaseComponent {...baseComponentData} title={'Log In'}>
+        <BaseComponent {...baseComponentData} title={''}>
             <View style={[style.flexContainerCenterWhite,{backgroundColor : themeStyle[theme].backgroundColor}]}>
                 <VStack justifyContent='space-between' alignItems='center'>
                     <View style={{flex: 2.5, width: deviceWidth*.9, justifyContent: 'center', alignItems: 'center'}}>
-                        <View style={{width: 150, height: 150}}>
+                        <View style={{width: 300, height: 150}}>
                             <Lottie
                                 source={require('../../assets/login.json')}  
                                 autoPlay loop 
@@ -131,18 +134,18 @@ const LoginScreen = (props: any) => {
                             </TouchableOpacity>
                         </View>
                         {state.isValidateForm?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your password</Text>:<View/>}
-                        <TouchableOpacity style={{marginTop:main_padding,alignItems:'flex-end'}}>
+                        {/* <TouchableOpacity style={{marginTop:main_padding,alignItems:'flex-end'}}>
                             <Text style={[style.p,{color: startBtn}]}>Forgot password?</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </View> 
-                    <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:insets.bottom}}>
+                    <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:Platform.OS ==='ios'? insets.bottom:20}}>
                         <TouchableOpacity onPress={onLogin} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
                             <Text style={[style.p,{color:whiteSmoke}]}>Log In</Text>
                         </TouchableOpacity>
                         <HStack marginTop='3' alignItems='center' justifyContent='center'>
-                            <Text style={style.p}>Don't have an account? </Text>
+                            <Text style={[style.p,{fontSize:12}]}>Don't have an account? </Text>
                             <TouchableOpacity onPress={()=>navigate.navigate('Signup')}>
-                                <Text style={[style.pBold,{color:startBtn}]}> Sign up </Text>
+                                <Text style={[style.p,{color:startBtn}]}> Sign Up here</Text>
                             </TouchableOpacity>
                         </HStack>
                     </View> 
