@@ -5,7 +5,7 @@ import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch,
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
-import { baseColor, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
+import { baseColor, borderDivider, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { AlertBox, FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
@@ -70,7 +70,10 @@ const SettingScreen = () => {
         serLoading(true)
         setTimeout( async () => {
             await AsynceStorage.setItem('@token', '');
-            navigate.navigate('Login')
+            navigate.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
             serLoading(false)
         }, 2000);
 	}
@@ -117,13 +120,13 @@ const SettingScreen = () => {
 							/>
 						</HStack>
 					</TouchableOpacity>
-					<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+					<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					<FlatListVertical
 						style={{paddingTop:main_padding}}
 						data={data}
 						renderItem={_renderItem}
 					/>
-					<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+					<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					<FlatListVertical
 						style={{paddingTop:main_padding}}
 						data={seconddata}

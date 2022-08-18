@@ -30,6 +30,7 @@ import { useAuth } from "../functions/UserAuth";
 import { loadData } from "../functions/LoadData";
 import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
+import { main_padding } from '../config/settings';
 
 
 const Stack = createStackNavigator();
@@ -132,9 +133,9 @@ const Route = () => {
           tabBarHideOnKeyboard: true,
           tabBarStyle: {
             height:Platform.OS ==='ios'? 90:50,
-            paddingHorizontal: 0,
+            paddingHorizontal: 5,
             paddingTop: 0,
-            paddingBottom:Platform.OS ==='ios'?0:5,
+            paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
             backgroundColor: themeStyle[theme].backgroundColor,
             position: 'absolute',
             borderTopWidth: 0,

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
-import colors, { bageColor, baseColor, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import SearchBox from '../customs_items/SearchBox';
@@ -15,6 +15,7 @@ import CreateGroup from '../containers/chat/CreateGroup';
 import { ThemeContext } from '../utils/ThemeManager';
 import themeStyle from '../styles/theme';
 import Feather from 'react-native-vector-icons/Feather';
+import { textSecondColor } from '../config/colors';
 
 
 const ChatScreen = () => {
@@ -47,7 +48,7 @@ const ChatScreen = () => {
 	}
 	const _renderChatView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:boxColor}}>
+			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack space={3} alignItems="center">
 						<UserAvatar>
@@ -55,7 +56,7 @@ const ChatScreen = () => {
 						</UserAvatar>
 						<VStack space={1}>
 							<TextItem style={{ fontSize: 16 }}>{item.name}</TextItem>
-							<TextItem style={{ textAlign: 'center', fontSize: 14, color: chatText }}>{item.text}</TextItem>
+							<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
 						</VStack>
 					</HStack>
 					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -75,7 +76,7 @@ const ChatScreen = () => {
 
 	const _renderContactView = ({ item, index }: any) => {
 		return (
-			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
+			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10}}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
 						<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
@@ -86,7 +87,7 @@ const ChatScreen = () => {
 							<View style={{ width: 12, height: 12, borderRadius: 10, backgroundColor: item.status == 'online' ? onlineColor : offlineColor }} />
 							<TextItem style={{ textAlign: 'center', fontSize: 13, color: item.status == 'online' ? onlineColor : offlineColor, paddingLeft: 5, }}>{item.status}</TextItem>
 						</HStack>
-						<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor }} _dark={{ bg: whiteColor }} />
+						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider }} _dark={{ bg: whiteColor }} />
 					</VStack>
 				</HStack>
 			</TouchableOpacity>

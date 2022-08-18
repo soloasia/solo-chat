@@ -59,14 +59,14 @@ const ChatListScreen = (props: any) => {
             <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>           
 				<View style={[styles.chatBack,
 				{
-					backgroundColor: mess.isAdmin ? '#ECF1FD' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
+					backgroundColor: mess.isAdmin ? '#DBDBDBE3' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
 					borderBottomRightRadius: mess.isAdmin ? 20 : 0,
 					borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
 					marginVertical: 1
 				}
 				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize }}>{mess.text}</Text>
-					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor: whiteColor, alignSelf: 'flex-end', paddingLeft:100 }}>{moment().format('HH:mm A')}</Text>
+					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.text}</Text>
+					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor: whiteColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment().format('HH:mm A')}</Text>
 				</View>
             </View>
         )

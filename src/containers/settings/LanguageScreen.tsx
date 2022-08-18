@@ -5,7 +5,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, textColor, whiteColor } from '../../config/colors';
+import { baseColor, borderDivider, boxColor, chatText, textColor, whiteColor } from '../../config/colors';
 import { main_padding } from '../../config/settings';
 import { FlatListVertical, TextItem } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
@@ -30,7 +30,7 @@ const LanguageScreen = () => {
                     { index == selectedIndex ? <Ionicons name={'checkmark-circle'} size={25} style={{color:baseColor}}/> : <></>}
                 </HStack>
                 {
-                  index == data.length - 1 ? <></> : <Divider marginTop={main_padding} marginBottom={main_padding} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+                  index == data.length - 1 ? <></> : <Divider marginTop={main_padding} marginBottom={main_padding} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
                 }
             </TouchableOpacity>
         )

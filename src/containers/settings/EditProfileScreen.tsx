@@ -1,15 +1,15 @@
 //import liraries
 import React, { Component, useContext, useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Animated, } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Animated, Modal, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke } from '../../config/colors';
-import { main_padding } from '../../config/settings';
-import { TextItem, UserAvatar } from '../../customs_items/Components';
+import { baseColor, boxColor, chatText, startBtn, textDesColor, textSecondColor, whiteSmoke, textColor } from '../../config/colors';
+import { large_padding, main_padding } from '../../config/settings';
+import { AlertBox, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import ImagePicker from 'react-native-image-crop-picker';
 import themeStyle from '../../styles/theme';
-import { theme, useDisclose } from 'native-base';
+import { Icon, theme, useDisclose, VStack } from 'native-base';
 import { ThemeContext } from '../../utils/ThemeManager';
 import { useDispatch, useSelector } from 'react-redux';
 import SelectImagePicker from '../../customs_items/SelectImagePicker';
@@ -18,6 +18,11 @@ import { GET, POST } from '../../functions/BaseFuntion';
 import { useNavigation } from '@react-navigation/native';
 import { loadUser } from '../../actions/User';
 import CustomLoading from '../../customs_items/CustomLoading';
+import LottieView from 'lottie-react-native';
+import { deviceHeight, activeOpacity } from '../../styles/index';
+import { message } from '../../temp_data/Setting';
+import _ from 'lodash';
+import AsynceStorage from '@react-native-async-storage/async-storage'
 
 // create a component
 const EditProfileScreen = () => {
@@ -38,7 +43,11 @@ const EditProfileScreen = () => {
         username: userInfo.username,
         profileImg: userInfo.profile_photo,
         isSecure: true,
-        loading: false
+        loading: false,
+        isVisible: false,
+        newPassword: '',
+        confirmPassword: '',
+        isAlertShow: false
     });
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
@@ -46,7 +55,7 @@ const EditProfileScreen = () => {
     };
 
     const handleShowProfileImg = () => {
-        navigate.navigate('DisplayFullImg', {imgDisplay: state.profileImg})
+        navigate.navigate('DisplayFullImg', { imgDisplay: state.profileImg })
     }
 
     const onChange = (data: any) => {
@@ -54,7 +63,7 @@ const EditProfileScreen = () => {
     }
 
     const handleSave = () => {
-        
+
         handleChange('loading', true)
         const formdata = new FormData();
         formdata.append("username", state.username);
@@ -76,6 +85,51 @@ const EditProfileScreen = () => {
             .catch(e => {
                 handleChange('loading', false);
             });
+    }
+
+    const handleChangePassword = () => {
+        const formdata = new FormData();
+        formdata.append("current_password", state.password);
+        formdata.append("password", state.newPassword);
+        formdata.append("password_confirmation", state.confirmPassword)
+        if(state.password !='' && state.newPassword !='' && state.confirmPassword!=''){
+            POST('me/change-password', formdata).then(async (result: any) => {
+                if (result.status) {
+                    handleChange('isVisible', false)
+                    handleChange('isAlertShow', true)
+                    // dispatch(loadUser(result.data))
+                    // navigate.goBack()
+                    // navigate.navigate('Main')
+                } else if(!_.isEmpty(result.errors)){
+
+                    Alert.alert('Attention! \n',result.errors[0])
+                }else{
+                    Alert.alert('Attention! \n',result.message)
+                }
+            }).catch(e => {
+                Alert.alert('Something went wrong! \n',"your password couldn't change, please try again later")
+            });
+        }else {
+            Alert.alert('Attention! \n','Please enter all the fields to change your password')
+        }
+    }
+
+    reactotron.log(theme)
+
+    const onConfirm = () => {
+        // setIsOpen(false);
+        // navigate.navigate('Signup');
+        handleChange('isAlertShow', false)
+        handleChange('loading', true)
+
+        setTimeout( async () => {
+            await AsynceStorage.setItem('@token', '');
+            navigate.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
+            handleChange('loading', false)
+        }, 2000);
     }
     return (
         <BaseComponent {...baseComponentData} title={'Personal Infomation'} is_main={false}>
@@ -120,7 +174,7 @@ const EditProfileScreen = () => {
                     </View>
                     <View style={{ ...styles.usernameContainer, marginHorizontal: main_padding, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: main_padding + 10 }}>
                         <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: textDesColor }}>Password</Text>
-                        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <TouchableOpacity onPress={() => handleChange('isVisible', true)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: textSecondColor }}>Change password</Text>
 
                             <Ionicons name='chevron-forward-outline' size={20} style={{ color: textSecondColor }} />
@@ -136,8 +190,96 @@ const EditProfileScreen = () => {
                 onChange={(data: any) => onChange(data)}
                 onClose={() => onClose()}
             />
-            <CustomLoading
-                visible={state.loading}
+            <CustomLoading visible={state.loading} />
+
+            <Modal
+                style={{ backgroundColor: themeStyle[theme].primary, height: deviceHeight }}
+                presentationStyle="formSheet"
+                visible={state.isVisible}
+                animationType='slide'
+                onDismiss={() => console.log('on dismiss')}>
+
+                <View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
+                    <View style={{ margin: main_padding, marginTop: large_padding, }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <TouchableOpacity onPress={() => handleChange('isVisible', false)} style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Icon name='ios-chevron-back' as={Ionicons} size='lg' color={textSecondColor} />
+                                <Text style={{ color: baseColor, fontSize: 13, fontFamily: 'Montserrat-Regular' }}>Back</Text>
+
+                            </TouchableOpacity>
+                            <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'Montserrat-Regular', color: themeStyle[theme].textColor }}>Change password</Text>
+                            <TouchableOpacity onPress={handleChangePassword}>
+                                <Text style={{ fontWeight: '600', fontSize: 15, fontFamily: 'Montserrat-Regular', color: baseColor }}>DONE</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <VStack>
+                        <View style={{ width: deviceWidth, alignItems: 'center' }}>
+                            <LottieView
+                                style={{ width: deviceWidth * .5, height: deviceWidth * .5 }}
+                                source={{ uri: 'https://assets2.lottiefiles.com/packages/lf20_ff305byc.json' }}
+                                loop
+                            />
+                        </View>
+                        <View style={{ marginTop: 20, paddingHorizontal: main_padding }}>
+                            <TextInput
+                                autoFocus={true}
+                                style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
+                                placeholder='Current password'
+                                value={state.password}
+                                secureTextEntry={state.isSecure}
+                                placeholderTextColor={'#ADB9C6'}
+                                returnKeyType='go'
+                                onChangeText={(text) => {
+                                    handleChange('password', text)
+                                }}
+                            />
+                            <TouchableOpacity onPress={() => handleChange('isSecure', !state.isSecure)} style={{ position: 'absolute', bottom: 7, right: 25, borderWidth: 0.5, borderRadius: 20, width: 70, height: 30, justifyContent: 'center', alignItems: 'center', borderColor: startBtn }}>
+                                <Text style={{ fontFamily: 'lato', fontSize: 13, color: startBtn }}>{state.isSecure ? "View*" : "Hide*"}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={{ marginTop: 10, paddingHorizontal: main_padding }}>
+                            <TextInput
+                                style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
+                                placeholder='New password'
+                                value={state.newPassword}
+                                secureTextEntry={true}
+                                placeholderTextColor={'#ADB9C6'}
+                                returnKeyType='go'
+                                onChangeText={(text) => {
+                                    handleChange('newPassword', text)
+                                }}
+                            />
+
+                        </View>
+                        <View style={{ marginTop: 10, paddingHorizontal: main_padding }}>
+                            <TextInput
+                                style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
+                                placeholder='Confirm password'
+                                value={state.confirmPassword}
+                                secureTextEntry={true}
+                                placeholderTextColor={'#ADB9C6'}
+                                returnKeyType='go'
+                                onChangeText={(text) => {
+                                    handleChange('confirmPassword', text)
+                                }}
+                            />
+
+                        </View>
+                    </VStack>
+                </View>
+
+            </Modal>
+
+            <AlertBox
+                title={'Password updated!'}
+                des={"You want to keep as loged in or \nlogin again"}
+                btn_cancle={"Keep loged in"}
+                btn_name={'Sign out'}
+                onCloseAlert={() => handleChange('isAlertShow', false)}
+                onConfirm={onConfirm}
+                isOpen={state.isAlertShow}
             />
         </BaseComponent>
     );
