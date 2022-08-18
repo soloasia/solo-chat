@@ -217,8 +217,8 @@ const SignupScreen = (props: any) => {
                                 setFormattedValue(text);
                             }}
                             placeholder="XX XXX XXXX"
-                            textContainerStyle={{backgroundColor:themeStyle[theme].primary,borderRadius:25,borderBottomWidth:0.1}}
-                            containerStyle={{width:'100%',height:45,borderColor:state.phoneNumberError?offlineColor:borderColor,borderWidth:0.7,borderRadius:25,marginTop:20,backgroundColor:themeStyle[theme].primary}}
+                            textContainerStyle={{backgroundColor:themeStyle[theme].primary,borderRadius:25}}
+                            containerStyle={{width:'100%',height:45,borderColor:state.phoneNumberError?offlineColor:borderColor,borderWidth:0.4,borderRadius:25,marginTop:20,backgroundColor:themeStyle[theme].primary}}
                             textInputStyle={[style.p,{height:45}]}
                         />
                         {state.phoneNumberError?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your phone number</Text>:''}

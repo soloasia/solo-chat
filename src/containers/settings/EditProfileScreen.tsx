@@ -21,6 +21,8 @@ import CustomLoading from '../../customs_items/CustomLoading';
 import LottieView from 'lottie-react-native';
 import { deviceHeight, activeOpacity } from '../../styles/index';
 import { message } from '../../temp_data/Setting';
+import _ from 'lodash';
+import AsynceStorage from '@react-native-async-storage/async-storage'
 
 // create a component
 const EditProfileScreen = () => {
@@ -93,21 +95,42 @@ const EditProfileScreen = () => {
         if(state.password !='' && state.newPassword !='' && state.confirmPassword!=''){
             POST('me/change-password', formdata).then(async (result: any) => {
                 if (result.status) {
-                    dispatch(loadUser(result.data))
-                    navigate.goBack()
+                    handleChange('isVisible', false)
+                    handleChange('isAlertShow', true)
+                    // dispatch(loadUser(result.data))
+                    // navigate.goBack()
                     // navigate.navigate('Main')
-                } else {
-                    Alert.alert(result.message)
+                } else if(!_.isEmpty(result.errors)){
+
+                    Alert.alert('Attention! \n',result.errors[0])
+                }else{
+                    Alert.alert('Attention! \n',result.message)
                 }
             }).catch(e => {
-                handleChange('loading', false);
+                Alert.alert('Something went wrong! \n',"your password couldn't change, please try again later")
             });
         }else {
-            Alert.alert('Please enter all the fields to change your password')
+            Alert.alert('Attention! \n','Please enter all the fields to change your password')
         }
     }
 
     reactotron.log(theme)
+
+    const onConfirm = () => {
+        // setIsOpen(false);
+        // navigate.navigate('Signup');
+        handleChange('isAlertShow', false)
+        handleChange('loading', true)
+
+        setTimeout( async () => {
+            await AsynceStorage.setItem('@token', '');
+            navigate.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
+            handleChange('loading', false)
+        }, 2000);
+    }
     return (
         <BaseComponent {...baseComponentData} title={'Personal Infomation'} is_main={false}>
             <View style={{}}>
@@ -167,6 +190,7 @@ const EditProfileScreen = () => {
                 onChange={(data: any) => onChange(data)}
                 onClose={() => onClose()}
             />
+            <CustomLoading visible={state.loading} />
 
             <Modal
                 style={{ backgroundColor: themeStyle[theme].primary, height: deviceHeight }}
@@ -174,7 +198,6 @@ const EditProfileScreen = () => {
                 visible={state.isVisible}
                 animationType='slide'
                 onDismiss={() => console.log('on dismiss')}>
-                <CustomLoading visible={true} />
 
                 <View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
                     <View style={{ margin: main_padding, marginTop: large_padding, }}>
@@ -248,6 +271,16 @@ const EditProfileScreen = () => {
                 </View>
 
             </Modal>
+
+            <AlertBox
+                title={'Password updated!'}
+                des={"You want to keep as loged in or \nlogin again"}
+                btn_cancle={"Keep loged in"}
+                btn_name={'Sign out'}
+                onCloseAlert={() => handleChange('isAlertShow', false)}
+                onConfirm={onConfirm}
+                isOpen={state.isAlertShow}
+            />
         </BaseComponent>
     );
 };

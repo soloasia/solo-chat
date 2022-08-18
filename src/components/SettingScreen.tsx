@@ -70,7 +70,10 @@ const SettingScreen = () => {
         serLoading(true)
         setTimeout( async () => {
             await AsynceStorage.setItem('@token', '');
-            navigate.navigate('Login')
+            navigate.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
             serLoading(false)
         }, 2000);
 	}
