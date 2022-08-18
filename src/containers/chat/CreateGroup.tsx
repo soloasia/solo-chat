@@ -5,7 +5,7 @@ import React, { Component, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import reactotron from 'reactotron-react-native';
-import colors, { boxColor, iconColor, whiteColor } from '../../config/colors';
+import colors, { borderDivider, boxColor, iconColor, whiteColor } from '../../config/colors';
 import { main_padding } from '../../config/settings';
 import { textDesColor, textColor, labelColor, baseColor, borderColor, whiteSmoke } from '../../config/colors';
 import { FlatListHorizontal, FlatListVertical, Footer, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -59,7 +59,7 @@ const CreateGroup = (props: any) => {
     const _renderUsers = ({ item, index }: any) => {
         var filterIsadded = selectUser.filter(element => element.uniqueId === item.uniqueId);
         return (
-            <TouchableOpacity onPress={() => _handleAddPeople({ item, index })} style={{ paddingVertical: main_padding - 5, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: boxColor }}>
+            <TouchableOpacity onPress={() => _handleAddPeople({ item, index })} style={{ paddingVertical: main_padding - 5, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: borderDivider }}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar style={{ width: 50, height: 50, }}>

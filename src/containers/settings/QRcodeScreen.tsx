@@ -1,25 +1,29 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, Text, StyleSheet} from 'react-native';
 import { Image, VStack } from 'native-base';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
-import { whiteColor, whiteSmoke, bgChat, textDesColor } from '../../config/colors';
+import { whiteColor, whiteSmoke, bgChat, textDesColor, textSecondColor } from '../../config/colors';
 import { main_padding } from '../../config/settings';
 import QRCode from 'react-native-qrcode-svg';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 const QRcodeScreen = () => {
     const userInfo = useSelector((state: any) => state.user);
+    const { theme }: any = useContext(ThemeContext);
+
     return (
         <BaseComponent {...baseComponentData} title='QR Code'>
             <View style={styles.container}>
                 <VStack justifyContent='space-between'>
                     <View style={{ width: deviceWidth, height: deviceHeight / 1.2, alignItems: 'center', justifyContent: 'center', }}>
                         <View style={{
-                            width: deviceWidth * .8, height: deviceHeight * .45, backgroundColor: whiteSmoke,
+                            width: deviceWidth * .8, height: deviceHeight * .45, backgroundColor: theme =='dark' ? '#232B36E1' : whiteSmoke,
                             borderRadius: 25, justifyContent: 'center', alignItems: 'center',
-                            shadowColor: "#000",
+                            shadowColor: theme =='dark' ? "#FFFFFF" : '#000',
                             shadowOffset: {
                                 width: 0,
                                 height: 1,
@@ -32,14 +36,14 @@ const QRcodeScreen = () => {
                             <View style={{ padding: main_padding, borderRadius: 10, backgroundColor: bgChat, marginTop: main_padding }}>
                                 <QRCode
                                     value={userInfo.id.toString()}
-                                    logoSize={30}
-                                    size={200}
+                                    size={180}
                                     logoBackgroundColor='transparent'
                                 />
                             </View>
 
                             <View style={{ marginTop: main_padding + 10 }}>
-                                <Text style={{ fontFamily: 'lato', fontSize: 17, fontWeight: '700', color: textDesColor }}>@{userInfo.username.toUpperCase()}</Text>
+                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14,textAlign: 'center', color: textSecondColor, paddingBottom: 10 }}>Username</Text>
+                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 16, fontWeight: '700', color: themeStyle[theme].textColor }}>{userInfo.username.toUpperCase()}</Text>
                             </View>
                         </View>
                         <LinearGradient

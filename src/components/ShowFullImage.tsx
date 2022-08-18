@@ -13,7 +13,7 @@ const FullImageDisplay = (props: any) => {
     return (
         <BaseComponent {...baseComponentData} title=''>
             <View style={styles.container}>
-               <Image source={{uri: imgDisplay}} resizeMode='contain' style={{width: deviceWidth, height: deviceWidth}} />
+               <Image source={{uri: imgDisplay}} resizeMode='cover' style={{width: deviceWidth, height: deviceWidth}} />
             </View>
         </BaseComponent>
     );

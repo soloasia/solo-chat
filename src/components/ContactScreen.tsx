@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, Image, View, TouchableOpacity, Modal, TextInput, ActivityIndicator, RefreshControl, Keyboard } from 'react-native';
 import {  CloseIcon, Divider, HStack, theme, VStack } from 'native-base'
-import { baseColor, boxColor, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import { baseColor, borderDivider, boxColor, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import SearchBox from '../customs_items/SearchBox';
@@ -131,7 +131,7 @@ const ContactScreen = () => {
 							<View style={{width:12,height:12,borderRadius:10,backgroundColor:item.status =='online'? onlineColor:offlineColor}}/>
 							<TextItem style={{textAlign:'center',fontSize:13,color:item.status =='online'? onlineColor:offlineColor,paddingLeft: 5,}}>{item.status}</TextItem>
 						</HStack>
-						<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
