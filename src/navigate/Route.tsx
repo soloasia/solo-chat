@@ -1,10 +1,10 @@
 import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
-import React, { createContext, useState } from 'react'
-import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme,} from "@react-navigation/native";
+import React, { createContext, useContext, useState } from 'react'
+import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
-import { baseColor } from "../config/colors";
+import { backgroundDark, baseColor, greyDark } from "../config/colors";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ChatScreen from "../components/ChatScreen";
@@ -15,7 +15,6 @@ import AuthOptionScreen from "../components/AuthOptionScreen";
 import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
-import reactotron from "reactotron-react-native";
 import AppearanceScreen from "../containers/settings/AppearanceScreen";
 import QRcodeScreen from '../containers/settings/QRcodeScreen';
 import ChatProfileScreen from '../containers/chat/ChatProfileScreen';
@@ -24,21 +23,42 @@ import CreateGroup from '../containers/chat/CreateGroup';
 import LanguageScreen from "../containers/settings/LanguageScreen";
 import EditProfileScreen from "../containers/settings/EditProfileScreen";
 import ProfileNotification from "../containers/chat/ProfileNotification";
-
+import themeStyle from "../styles/theme";
+import { ThemeContext } from "../utils/ThemeManager";
+import { useDispatch } from "react-redux";
+import { useAuth } from "../functions/UserAuth";
+import { loadData } from "../functions/LoadData";
+import FullImageDisplay from '../components/ShowFullImage';
 
 
 const Stack = createStackNavigator();
-
-export const ThemeContext = React.createContext({});
 
 const Tab = createBottomTabNavigator();
 
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
+  const dispatch = useDispatch();
+  const auth = useAuth();
+  
   React.useEffect(() => {
-    checkPermissionNotification()
+    checkPermissionNotification();
+	requestMobileToken();
+	if (auth !== null) {
+		const init = async () => {
+		  loadData(dispatch);
+		};
+		init().finally(async () => {
+		//   const timer = setTimeout(() => {
+		// 	setSplash(false)
+		//   }, 3000);
+		//   return () => clearTimeout(timer);
+		  // if (auth.user !== null) await RNBootSplash.hide({fade: true});
+		});
+	  }
   }, [])
+
+  const {theme} : any = useContext(ThemeContext);
 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
@@ -51,6 +71,11 @@ const Route = () => {
     // await requestNotifications(['alert', 'badge', 'sound']);
     await messaging().registerDeviceForRemoteMessages();
   };
+  const requestMobileToken = async () => {
+    const token = await messaging().getToken();
+    dispatch({ type: 'LOAD_MOBILE_TOKEN', value: token });
+  };
+
   const requestForNotificationPermission = async () => {
     const granted = await messaging().requestPermission();
     if (granted) {
@@ -59,7 +84,6 @@ const Route = () => {
       console.log('User declined messaging permissions :(');
     }
   };
-
   function MainStack() {
     return (
       <Stack.Navigator
@@ -68,7 +92,6 @@ const Route = () => {
           // cardStyleInterpolator:
           //   CardStyleInterpolators.forFadeFromBottomAndroid,
         }}>
-
         <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
         <Stack.Screen name="Main" component={MainTab} />
         <Stack.Screen name="ChatList" component={ChatListScreen} />
@@ -82,40 +105,27 @@ const Route = () => {
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
+        <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
 
       </Stack.Navigator>
     );
   }
   function MainTab() {
-    const customTabBarStyle = {
-      keyboardHidesTabBar: true,
-      activeTintColor: baseColor,
-      inactiveTintColor: '#666',
-      allowFontScaling: false,
-      style: {
-        backgroundColor: '#fff',
-      },
-      labelStyle: {
-        fontSize: 12,
-        fontFamily: 'Lato-Regular'
-      },
-      showIcon: true,
-      showLabel: true,
-      tabStyle: { width: deviceWidth / 4, marginTop: 3 },
-      indicatorStyle: {
-        height: 0,
-      },
-    };
     return (
       <Tab.Navigator
         backBehavior="initialRoute"
-        initialRouteName="Chat"
-        tabBarOptions={customTabBarStyle}
-        screenOptions={({ route }: any) => {
-          return {
-            tabBarVisible: route.params ? route.params.showTabBar : true,
-          };
-        }}
+        initialRouteName={"Chat"}
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarStyle: {
+            height: 90,
+            paddingHorizontal: 5,
+            paddingTop: 0,
+            backgroundColor: themeStyle[theme].backgroundColor,
+            position: 'absolute',
+            borderTopWidth: 0,
+        },
+      })}
       >
         <Tab.Screen
           name="Contact"
@@ -181,21 +191,18 @@ const Route = () => {
     colors: {
       ...DarkTheme.colors,
       primary: baseColor,
-      background: 'rgb(242, 242, 242)',
+      background: backgroundDark,
       card: 'rgb(255, 255, 255)',
       text: "white",
       border: 'rgb(199, 199, 204)',
       notification: 'rgb(255, 69, 58)',
     },
   };
-  const [theme, setTheme] = useState("Light");
-  const themeData = {theme, setTheme};
-  console.log(theme);
+
   return (
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
-        <ThemeContext.Provider value={themeData}>
-          <NavigationContainer theme={theme == "Light" ? LightTheme : MyDarkTheme}>
+       <NavigationContainer>
             {/* <SafeAreaView
               // edges={['left', 'right', 'top']}
               style={[
@@ -207,7 +214,6 @@ const Route = () => {
             <MainStack />
             {/* </SafeAreaView> */}
           </NavigationContainer>
-        </ThemeContext.Provider>
     </SafeAreaProvider>
   );
 };

@@ -1,12 +1,14 @@
-import { HStack, Modal, Toast } from "native-base";
-import React, { ReactNode, useCallback, useRef } from "react";
+import { AlertDialog, HStack, Modal, Toast,Button as NButton, } from "native-base";
+import React, { ReactNode, useCallback, useContext, useRef } from "react";
 import { FlatList, Platform, StyleSheet, Text, TextInputProps, TextProps, TouchableOpacity, TouchableOpacityProps, TouchableWithoutFeedback, View } from "react-native";
 import style, { activeOpacity } from "../styles";
 import FontAwsome from 'react-native-vector-icons/FontAwesome'
 import Feather from "react-native-vector-icons/Feather";
 import AntDesign from "react-native-vector-icons/AntDesign";
-import colors, { baseColor, borderColor, boxColor, buttonColor, buttonSecondColor, textSecondColor, whiteColor, whiteSmoke } from "../config/colors";
+import colors, { baseColor, borderColor, boxColor, buttonColor, buttonSecondColor, greyDark, textColor, textSecondColor, whiteColor, whiteSmoke } from "../config/colors";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { ThemeContext } from "../utils/ThemeManager";
+import themeStyle from "../styles/theme";
 
 export const makeid = () => {
     var text = "";
@@ -19,10 +21,11 @@ export const makeid = () => {
 }
 
 export const TextItem = (props: TextProps | ReactNode | any) => {
+    const {theme} : any = useContext(ThemeContext);
     return (
         <Text
             {...props}
-            style={[style.p, style.textChoose, props.style]}>{props.children}</Text>
+            style={[style.p, style.textChoose, props.style,{color : themeStyle[theme].textColor}]}>{props.children}</Text>
     )
 }
 export const CardItem = (props: any) => {
@@ -127,11 +130,52 @@ export function FlatListScroll(props:any) {
         </Modal>
     );
   }
+
+  export const AlertBox = (props: any) => {
+    const cancelRef = React.useRef(null);
+    return (
+        <AlertDialog
+            leastDestructiveRef={cancelRef}
+            isOpen={props.isOpen}
+            onClose={props.onCloseAlert}
+        >
+            <AlertDialog.Content>
+                <AlertDialog.Header>
+                    <Text style={style.pBold}>{props.title}</Text>
+                </AlertDialog.Header>
+                <AlertDialog.Body>
+                    <TextItem>{props.des}</TextItem>
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                    <NButton
+                        style={{backgroundColor:greyDark}}
+                        _text={{
+                            ...style.p,
+                            color: textColor
+                        }}
+                        onPress={props.onCloseAlert}>
+                        {props.btn_cancle}
+                    </NButton>
+                    <NButton
+                        style={{backgroundColor:baseColor}}
+                        _text={{
+                            ...style.p,
+                            color: whiteSmoke
+                        }} onPress={props.onConfirm} ml={3}>
+                        {props.btn_name}
+                    </NButton>
+                </AlertDialog.Footer>
+            </AlertDialog.Content>
+            
+        </AlertDialog>
+    )
+}
+
   export const Footer = () => {
     const insets = useSafeAreaInsets()
     return (
         <View style={{
-            height: insets.bottom > 0 ? (insets.bottom):20
+            height: insets.bottom > 0 ? (insets.bottom + 15):20
         }} />
     )
 }
@@ -145,7 +189,7 @@ export function FlatListScroll(props:any) {
     return Toast.show({
       title: title,
       duration: duration,
-      status: status,
+    //   status: status,
     });
   }
 const styles = StyleSheet.create({

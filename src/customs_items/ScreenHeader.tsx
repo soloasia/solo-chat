@@ -1,5 +1,5 @@
 import { Box } from 'native-base';
-import React from 'react'
+import React, { useContext } from 'react'
 import { StyleSheet, TouchableOpacity, View,Image,Text } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -8,6 +8,8 @@ import style, { activeOpacity, deviceWidth } from '../styles';
 import { TextItem } from './Components';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { ThemeContext } from '../utils/ThemeManager';
+import themeStyle from '../styles/theme';
 
 interface propsType {
     title: string,
@@ -24,21 +26,22 @@ const ScreenHeader: React.FC<propsType> = (props) => {
     const { title, rightIcon, is_main } = props;
     const insets = useSafeAreaInsets();
     const navigate:any = useNavigation();
+    const {theme} : any = useContext(ThemeContext);
     return (
-        <View style={[styles.header, {flexDirection:'row',alignItems:'center'}]}>
+        <View style={[styles.header, {flexDirection:'row',alignItems:'center',backgroundColor : themeStyle[theme].backgroundColor}]}>
             {is_main  ?
                 <View style={[style.buttonHeader]}>
-                    <Text style={[style.pBold,{fontSize:25}]}>{title}</Text>
+                    <Text style={[style.pBold,{fontSize:25,color : themeStyle[theme].textColor}]}>{title}</Text>
                 </View>
             :  title !='Log In' && title !='Sign Up'?
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={()=>navigate.goBack()}
                     style={[style.buttonHeader]}>
-                    <Ionicons name='chevron-back' size={25} color={colors.textColor} />
+                    <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             :<View style={{width: 50 }}/>}
-            <TextItem style={[style.pBold, styles.title, {textAlign: 'center'}]} numberOfLines={1}>{is_main? '':title}</TextItem>
+            <TextItem style={[style.pBold, styles.title, {textAlign: 'center',color : themeStyle[theme].textColor}]} numberOfLines={1}>{is_main? '':title}</TextItem>
             {rightIcon ? rightIcon() :
                 <Box
                     style={{
@@ -60,8 +63,9 @@ const styles = StyleSheet.create({
     },
     title: {
         flex: 1,
-        fontSize: 18,
-        color: colors.textColor,
+        fontSize: 20,
+        fontFamily:'Montserrat-Bold'
+        // color: colors.textColor,
     },
     badge: {
         position: 'absolute',

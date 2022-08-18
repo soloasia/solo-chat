@@ -118,12 +118,12 @@ export const style = StyleSheet.create({
   p: {
     fontSize: 15,
     color:textColor,
-    fontFamily:'Lato-Regular'
+    fontFamily:'Montserrat-Regular'
   },
   pBold: {
-    fontSize: 15,
+    fontSize: 16,
     color:labelColor,
-    fontFamily:'Lato-Bold'
+    fontFamily:'Montserrat-Bold'
   },
   pCategory: {
     ...Moul,
