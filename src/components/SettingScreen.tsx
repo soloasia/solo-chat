@@ -4,6 +4,7 @@ import React, { useContext, useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
 import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
@@ -15,6 +16,7 @@ import { ThemeContext } from '../utils/ThemeManager';
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
+    const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
@@ -25,6 +27,8 @@ const SettingScreen = () => {
 		  <Transition.Out type="fade" durationMs={600} />
 		</Transition.Together>
 	)
+
+
 	const _renderItem = ({item,index}:any) =>{
 		return(
 			<TouchableOpacity onPress={()=>item.name == "Notifications" ? null : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
@@ -57,6 +61,10 @@ const SettingScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	
+	const handleLogout = () => {
+		navigate.navigate('Login')
+	}
 
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
@@ -68,10 +76,13 @@ const SettingScreen = () => {
 				<FlatListScroll style={{padding: main_padding,}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
-							<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+							{userInfo.profile_photo!=null ? 
+								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
+							:<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
+							
 						</UserAvatar>
-						<TextItem style={{fontSize:18,paddingTop: 10}}>Big Boss</TextItem>
-						<TouchableOpacity onPress={() => Clipboard.setString("@bigboss")}><TextItem style={{paddingTop: 5,color:chatText}}>@bigboss</TextItem></TouchableOpacity>
+						<TextItem style={{fontSize:18,paddingTop: 10}}>{userInfo.first_name +' ' + userInfo.last_name}</TextItem>
+						<TouchableOpacity onPress={() => Clipboard.setString(userInfo.username)}><Text style={{paddingTop: 5,color:chatText, fontFamily: 'Montserrat-Regular', fontSize: 15}}>{userInfo.username}</Text></TouchableOpacity>
 					</View>
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>

@@ -29,6 +29,7 @@ import { useDispatch } from "react-redux";
 import { useAuth } from "../functions/UserAuth";
 import { loadData } from "../functions/LoadData";
 import SplashScreen from "../components/SplashScreen";
+import FullImageDisplay from '../components/ShowFullImage';
 
 
 const Stack = createStackNavigator();
@@ -116,6 +117,7 @@ const Route = () => {
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
+        <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
 
       </Stack.Navigator>
     );
