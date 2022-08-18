@@ -46,7 +46,6 @@ const ContactScreen = () => {
 	useEffect(()=>{
 		getData();
     },[user])
-
 	function getData() {
 		GET(`me/contact?page=${lastDoc}`)
 		.then(async (result: any) => {
@@ -59,7 +58,6 @@ const ContactScreen = () => {
 			setLoading(false)
 		});
 	}
-
 	const renderFooter: any = () => {
         if (!isMoreLoading) return true;
         return (
@@ -74,7 +72,6 @@ const ContactScreen = () => {
         if (!hasScrolled)
             setHasScrolled(true)
     };
-
 	const getMore = async () => {
         if (!hasScrolled) return null;
         if (lastDoc > 0) {
@@ -109,7 +106,6 @@ const ContactScreen = () => {
             setIsRefresh(false)
         }, 200);
     };
-
 	const rightIcon = () => {
 		return(
 			<TouchableOpacity onPress={() => setShowModal(true)} style={style.containerCenter}>
@@ -178,7 +174,6 @@ const ContactScreen = () => {
 					}}
 				/>
 			}
-			
 			<Modal
                 presentationStyle="formSheet"
                 visible ={showModal}
@@ -195,7 +190,7 @@ const ContactScreen = () => {
 						<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
 						<TextInput 
 							style={{...styles.input,marginTop : main_padding,backgroundColor : themeStyle[theme].primary,color : themeStyle[theme].textColor}}
-							placeholder='Username'
+							placeholder='Enter Username'
 							placeholderTextColor={'#ADB9C6'}
 							value={username}
 							onChangeText={(text)=> setUsername(text)}
