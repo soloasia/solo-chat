@@ -27,8 +27,6 @@ import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
 
-
-
 const Stack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();

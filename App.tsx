@@ -8,12 +8,14 @@
  * @format
  */
  import { extendTheme, NativeBaseProvider } from 'native-base';
- import React from 'react';
+ import React, { useState } from 'react';
  import { View } from 'react-native';
  import { Provider } from 'react-redux';
  import Route from './src/navigate/Route';
  import store from './src/store';
-import { ThemeProvider } from './src/utils/ThemeManager';
+ import { ThemeProvider } from './src/utils/ThemeManager';
+ import LanguageManager from './src/utils/LangaugeManager';
+
  
  const theme = extendTheme({
    components: {
@@ -29,13 +31,15 @@ import { ThemeProvider } from './src/utils/ThemeManager';
  const App = () => {
    return ( 
     <ThemeProvider>
-      <Provider store={store}>
-         <NativeBaseProvider theme={theme}>
-             <View style={{flex:1}}>
-                 <Route />
-             </View>
-         </NativeBaseProvider>
-      </Provider>
+      <LanguageManager>
+        <Provider store={store}>
+          <NativeBaseProvider theme={theme}>
+              <View style={{flex:1}}>
+                  <Route />
+              </View>
+          </NativeBaseProvider>
+        </Provider>
+      </LanguageManager>
     </ThemeProvider>
    );
  };

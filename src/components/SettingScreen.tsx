@@ -12,6 +12,7 @@ import style from '../styles';
 import themeStyle from '../styles/theme';
 import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
+import i18n from 'i18n-js';
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
@@ -61,11 +62,8 @@ const SettingScreen = () => {
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
-				{/* {
-				isDarkMode && <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'themeStyle[theme].backgroundColor'}} />
-				} */}
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
-				<FlatListScroll style={{padding: main_padding,}}>
+				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
 							<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>

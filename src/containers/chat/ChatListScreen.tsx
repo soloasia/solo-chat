@@ -5,7 +5,7 @@ import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedba
 import { useSelector } from 'react-redux';
 import reactotron from 'reactotron-react-native';
 import { baseColor, boxColor, chatText, textColor, whiteColor } from '../../config/colors';
-import { makeid, UserAvatar } from '../../customs_items/Components';
+import { makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import { message } from '../../temp_data/Setting';
@@ -13,6 +13,7 @@ import ChatRecord from './ChatRecord';
 import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
+import I18n from 'i18n-js';
 
 const ChatListScreen = (props:any) => {
     const navigate:any = useNavigation();

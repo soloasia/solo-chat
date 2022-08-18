@@ -39,15 +39,8 @@ export const ThemeProvider = ({ children } : any) => {
     try {
       const value = await AsyncStorage.getItem(_key)
       if(value != null) {
-        // value previously stored
         setTheme(value);
-        if (value === "light") {
-          StatusBar.setBarStyle("dark-content");
-        } else {
-          StatusBar.setBarStyle("light-content");
-          // StatusBar.setBarStyle("dark-content");
-        }
-
+        value === "light" ?  StatusBar.setBarStyle("dark-content") :  StatusBar.setBarStyle("light-content");
       } else {
         storeTheme("light");
       }
@@ -55,6 +48,8 @@ export const ThemeProvider = ({ children } : any) => {
       // error reading value
     }
   }
+
+  
 
   useEffect(() => {
     getTheme();

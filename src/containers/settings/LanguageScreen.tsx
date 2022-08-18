@@ -10,41 +10,86 @@ import { main_padding } from '../../config/settings';
 import { FlatListVertical, TextItem } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { data } from '../../temp_data/Language';
+import firestore from '@react-native-firebase/firestore';
+import i18n from 'i18n-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // create a component
 const LanguageScreen = () => {
-    const [languageData, setLanguageData] = useState<any>();
+    const [languageData, setLanguageData] = useState<any>([]);
     const [selectedIndex,setSelectedIndex] = useState(0);
-    const selectedLanguage = (index : number) => {
+    const selectedLanguage = async (index : number) => {
         setSelectedIndex(index);
+        console.log(languageData[index].code);
+        i18n.locale = languageData[index].code.toLowerCase();
+        await storeLanguage(languageData[index].code.toLowerCase());
+    }
+
+    const storeLanguage = async (value : string) => {
+        try {
+            await AsyncStorage.setItem("language", value);
+        
+        } catch (e) {
+            // saving error
+            
+        }
     }
     const _renderItem = ({item,index}:any) => {
         return (
             <TouchableOpacity onPress={() => selectedLanguage(index)}>
                 <HStack justifyContent={'space-between'} flex={1} style ={{alignItems : 'center',margin : 0}}>
                     <View>
-                        <TextItem style = {{fontWeight: 'bold',fontSize : 16}}>{item.name}</TextItem> 
+                        <TextItem style = {{fontWeight: 'bold',fontSize : 14}}>{item.label}</TextItem> 
                         <View style = {{height: 4}}></View>
-                        <TextItem style ={{color: chatText,fontSize : 14}}>{item.language}</TextItem> 
+                        <TextItem style ={{color: chatText,fontSize : 12, textTransform: 'uppercase'}}>{item.code}</TextItem> 
                     </View>
                     { index == selectedIndex ? <Ionicons name={'checkmark-circle'} size={25} style={{color:baseColor}}/> : <></>}
                 </HStack>
-                {
-                  index == data.length - 1 ? <></> : <Divider marginTop={main_padding} marginBottom={main_padding} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
-                }
+               <Divider marginTop={main_padding} marginBottom={main_padding} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
             </TouchableOpacity>
         )
     }
 
+    const getLanguage = async () => {
+        try {
+            const value = await AsyncStorage.getItem("language");
+            if(value != null) {
+                console.log("value",value);
+                console.log("language data",languageData.length);
+                if(languageData.length > 0) {
+                    const result = languageData.find((e : any) => e.code.toLowerCase() == value.toLowerCase());
+                    console.log("result",result);
+                    const index = languageData.indexOf(result);
+                    console.log("language index: ",index);
+                    setSelectedIndex(index);
+                }
+              
+            }
+        } catch(e) {
+            // error reading value
+        }
+    }
 
     useEffect(() => { 
-        setLanguageData(data);
+        const subscriber = firestore()
+        .collection('translations')
+        .doc('languages')
+        .onSnapshot(documentSnapshot => {
+            var lang = documentSnapshot.data();
+            if(lang != null || lang != undefined) {
+                setLanguageData(lang["language"]);
+                console.log("language data",languageData.length);
+                getLanguage();
+            }
+            
+        });
+      return () => subscriber();
     }, []);
     
-
     return (
-        <BaseComponent {...baseComponentData} title={'Language'} is_main={false} >
+        <BaseComponent {...baseComponentData} title={i18n.t('language')} is_main={false} >
             <View style ={[styles.container,{}]}>
+            {/* <TextItem>{i18n.t('language')}</TextItem> */}
             <FlatListVertical
                 style={{paddingTop : main_padding}}
                 data={languageData}
