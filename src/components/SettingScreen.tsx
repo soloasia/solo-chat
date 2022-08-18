@@ -7,17 +7,22 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
-import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
+import { AlertBox, FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import style from '../styles';
 import themeStyle from '../styles/theme';
 import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
+import AsynceStorage from '@react-native-async-storage/async-storage'
+import CustomLoading from '../customs_items/CustomLoading';
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
     const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [loading,serLoading] = useState(false)
+
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
 	const [isNotificationOn, setisNotificationOn] = useState(false);
@@ -27,8 +32,6 @@ const SettingScreen = () => {
 		  <Transition.Out type="fade" durationMs={600} />
 		</Transition.Together>
 	)
-
-
 	const _renderItem = ({item,index}:any) =>{
 		return(
 			<TouchableOpacity onPress={()=>item.name == "Notifications" ? null : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
@@ -63,7 +66,13 @@ const SettingScreen = () => {
 	}
 	
 	const handleLogout = () => {
-		navigate.navigate('Login')
+		setIsOpen(false)
+        serLoading(true)
+        setTimeout( async () => {
+            await AsynceStorage.setItem('@token', '');
+            navigate.navigate('Login')
+            serLoading(false)
+        }, 2000);
 	}
 
     return (
@@ -120,12 +129,24 @@ const SettingScreen = () => {
 						data={seconddata}
 						renderItem={_renderItem}
 					/>
-					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center',alignItems:'center'}}>
+					<TouchableOpacity onPress={()=>setIsOpen(true)} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center',alignItems:'center'}}>
 						<Text style={[style.pBold,{color:offlineColor}]}>Log Out</Text>
 					</TouchableOpacity>
 					<Footer />
 				</FlatListScroll>
 			</Transitioning.View>
+			<CustomLoading
+                visible={loading}
+            />
+			<AlertBox
+                title={'Log Out!'}
+                des={"Are you sure you want to log out?"}
+                btn_cancle={"No"}
+                btn_name={'Yes'}
+                onCloseAlert={() => setIsOpen(false)}
+                onConfirm={handleLogout}
+                isOpen={isOpen}
+            />
 		</BaseComponent>
     );
 };

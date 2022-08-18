@@ -11,7 +11,6 @@ import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import reactotron from 'reactotron-react-native';
 import CustomLoading from '../../customs_items/CustomLoading';
 import { GET, POST } from '../../functions/BaseFuntion';
 import { AlertBox } from '../../customs_items/Components';
@@ -73,7 +72,6 @@ const LoginScreen = (props: any) => {
                             index: 0,
                             routes: [{ name: 'Main' }]
                         })
-                        // navigate.navigate('Main')
                         handleChange('loading', false);
                     } else {
                         handleChange('loading', false);
@@ -135,14 +133,10 @@ const LoginScreen = (props: any) => {
                                 </TouchableOpacity>
                             </View>
                             {state.isValidateForm ? <Text style={[style.p, { fontSize: 13, color: 'red', paddingTop: 10, textAlign: 'left' }]}>* Please fill your password</Text> : <View />}
-                            <TouchableOpacity style={{ marginTop: main_padding, alignItems: 'flex-end' }}>
+                            {/* <TouchableOpacity style={{ marginTop: main_padding, alignItems: 'flex-end' }}>
                                 <Text style={[style.p, { color: startBtn }]}>Forgot password?</Text>
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
-                        {state.isValidateForm?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your password</Text>:<View/>}
-                        {/* <TouchableOpacity style={{marginTop:main_padding,alignItems:'flex-end'}}>
-                            <Text style={[style.p,{color: startBtn}]}>Forgot password?</Text>
-                        </TouchableOpacity> */}
                     </TouchableWithoutFeedback>
                     <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:Platform.OS ==='ios'? insets.bottom:20}}>
                         <TouchableOpacity onPress={onLogin} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
