@@ -91,9 +91,10 @@ const Route = () => {
     return (
       <Tab.Navigator
         backBehavior="initialRoute"
-        initialRouteName={"Chat"}
+        initialRouteName="Chat"
         screenOptions={({ route }) => ({
           headerShown: false,
+          resetOnBlur : false,
           tabBarStyle: {
             height: 90,
             paddingHorizontal: 5,
@@ -150,32 +151,6 @@ const Route = () => {
     );
   }
   LogBox.ignoreAllLogs();
-  const LightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      primary: baseColor,
-      background: 'rgb(242, 242, 242)',
-      card: 'rgb(255, 255, 255)',
-      text: "black",
-      border: 'rgb(199, 199, 204)',
-      notification: 'rgb(255, 69, 58)',
-    },
-  };
-  
-  const MyDarkTheme = {
-    dark: true,
-    colors: {
-      ...DarkTheme.colors,
-      primary: baseColor,
-      background: backgroundDark,
-      card: 'rgb(255, 255, 255)',
-      text: "white",
-      border: 'rgb(199, 199, 204)',
-      notification: 'rgb(255, 69, 58)',
-    },
-  };
-
   return (
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   

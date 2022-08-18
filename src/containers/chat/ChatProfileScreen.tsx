@@ -92,7 +92,6 @@ const [state, setState] = useState<any>({
                     <LinearGradient
                         colors={['#17C8FF', '#329BFF', '#5A6BDBD2', '#4A62EBBE', '#002FFFB0']}
                         start={{ x: 0, y: 0 }}
-
                         end={{ x: 1, y: 0 }}
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
