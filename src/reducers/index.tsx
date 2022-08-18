@@ -2,6 +2,7 @@ import { combineReducers } from "redux";
 import Language from "./Language";
 import Appearance from './Appearance';
 import { User } from "./User";
+import { Contact } from "./Contact";
 
 const LoadingStyles = (
   state = [],
@@ -72,6 +73,7 @@ const rootReducers = combineReducers({
   mobile_token:mobileToken,
   token:userToken,
   user : User,
+  mycontact : Contact
 });
 
 export type ReducerState = ReturnType<typeof rootReducers>

@@ -3,14 +3,21 @@ import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { deviceWidth } from '../styles';
+import { deviceHeight, deviceWidth } from '../styles';
+import Lottie from 'lottie-react-native';
 
 const SplashScreen = (props:any) => {
     const navigate: any = useNavigation();
     const insets = useSafeAreaInsets();
 
     return (
-        <LinearGradient start={{x:0, y: 0}} end={{x: 1, y: 1}} colors={['#163e58','#085467', '#055769', '#006472']} style={{flex:1,width:deviceWidth,justifyContent:'center',alignItems:'center'}}>
+        <LinearGradient start={{x:0, y: 0}} end={{x: 1, y: 1}} colors={['#ffffff','#ffffff', '#ffffff', '#ffffff']} style={{flex:1,width:deviceWidth,justifyContent:'center',alignItems:'center'}}>
+            <View style={{width: deviceWidth, height: deviceHeight*0.4, }}>
+                <Lottie
+                    source={require('../assets/chats.json')} 
+                    autoPlay loop 
+                /> 
+            </View>
         </LinearGradient>
     )
 }

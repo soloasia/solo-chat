@@ -129,6 +129,7 @@ const Route = () => {
         initialRouteName={"Chat"}
         screenOptions={({ route }) => ({
           headerShown: false,
+          tabBarHideOnKeyboard: true,
           tabBarStyle: {
             height:Platform.OS ==='ios'? 90:50,
             paddingHorizontal: 0,
