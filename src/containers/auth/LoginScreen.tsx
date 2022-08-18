@@ -1,47 +1,89 @@
-import { HStack, Icon, useToast, VStack } from 'native-base';
-import React, { useState, useEffect, useContext } from 'react'
-import { ActivityIndicator, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import { inputColor, textDesColor, startBtn, whiteSmoke, bgChat } from '../../config/colors';
+import React, { useState, useContext,createRef } from 'react'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { HStack, VStack } from 'native-base';
+import { textDesColor, startBtn, whiteSmoke, bgChat, borderColor, offlineColor } from '../../config/colors';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import Lottie from 'lottie-react-native';
 import style, { deviceWidth } from '../../styles';
-import { main_padding } from '../../config/settings';
+import { isWhitespaceOrEmpty, main_padding } from '../../config/settings';
 import { useNavigation } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import messaging from '@react-native-firebase/messaging';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import reactotron from 'reactotron-react-native';
+import CustomLoading from '../../customs_items/CustomLoading';
+import { GET, POST } from '../../functions/BaseFuntion';
+import { AlertBox } from '../../customs_items/Components';
+import AsynceStorage from '@react-native-async-storage/async-storage'
+import { loadUser } from '../../actions/User';
 
 const LoginScreen = (props: any) => {
+    const usernameRef = createRef<TextInput>();
+    const passwordRef = createRef<TextInput>();
     const navigate:any = useNavigation();
-    const [token, setToken] = useState('')
     const {theme} : any = useContext(ThemeContext);
+    const mobile_token = useSelector((state: any) => state.mobile_token);
+    const [inputBorder, setborderColor] = useState<any>(borderColor);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const dispatch:any = useDispatch();
 
-    useEffect(() => {
-        getToken()
-    }, []);
-
-    const getToken = async () => {
-        const token = await messaging().getToken();
-        setToken(token);
-    }
-
+    const insets = useSafeAreaInsets();
     const [state, setState] = useState<any>({
 		username: '',
 		password:'',
-        isSecure: true
-
+        isSecure: true,
+        isValidateForm:false,
+        loading:false
 	});
-
-    const handleLogin = () => {
-        let bodyRequest = {
-            "username": state.username,
-            "password": state.password,
-            "mobile_token": token
+    const handleChange = (stateName: string, value: any) => {
+		state[`${stateName}`] = value;
+		setState({...state});
+	};
+    const onEnter = (ref: React.RefObject<TextInput>) => {
+        if (ref.current !== null) {
+            ref.current.focus()
         }
     }
-
-
+    const onLogin = () =>{
+        if(isWhitespaceOrEmpty(state.username) || isWhitespaceOrEmpty(state.password)){
+            handleChange('isValidateForm',true)
+            setborderColor(offlineColor)
+        }else{
+            handleChange('loading',true)
+            const formdata = new FormData();
+            formdata.append("username",state.username);
+            formdata.append("password",state.password);
+            formdata.append("mobile_token",mobile_token);
+            POST('user/login', formdata)
+            .then(async (result: any) => {
+              if (result.access_token) {
+                const formdata = new FormData();
+                formdata.append("token",result.access_token);
+                await AsynceStorage.setItem('@token', result.access_token);
+                dispatch({ type: 'LOAD_USER_TOKEN', value: result.access_token });
+                GET('me/detail')
+                .then((res) => {
+                    if(res.status){
+                        dispatch(loadUser(res.data))
+                    }
+                })
+                navigate.navigate('Main')
+                handleChange('loading', false);
+              }else{
+                handleChange('loading', false);
+                setIsOpen(true)
+              }
+            })
+            .catch(e => {
+              handleChange('loading', false);
+            });
+        }
+    }
+    const onConfirm = () =>{
+        setIsOpen(false);
+        navigate.navigate('Signup');
+    }
     return (
         <BaseComponent {...baseComponentData} title={'Log In'}>
             <View style={[style.flexContainerCenterWhite,{backgroundColor : themeStyle[theme].backgroundColor}]}>
@@ -49,57 +91,75 @@ const LoginScreen = (props: any) => {
                     <View style={{flex: 2.5, width: deviceWidth*.9, justifyContent: 'center', alignItems: 'center'}}>
                         <View style={{width: 150, height: 150}}>
                             <Lottie
-                                source={{uri:'https://assets2.lottiefiles.com/private_files/lf30_z588h1j0.json'}} 
+                                source={require('../../assets/login.json')}  
                                 autoPlay loop 
                             /> 
                         </View>  
                     </View>
                     <View style={{flex: 3.5, width: deviceWidth*.9, paddingVertical: main_padding}}>
-                        <TextInput 
-                            style={{height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13,backgroundColor: themeStyle[theme].primary}}
-                            placeholder='Username'
-                            value={state.username}
-                            onChangeText={(text)=>setState({
-                                username: text,
-                                password: state.password,
-                                isSecure: state.isSecure
-                            })}
-                            placeholderTextColor={textDesColor}
-                        />
-                        <View style={{ marginTop: 15}}>
+                        <VStack>
                             <TextInput 
-                                style={{height: 45, borderRadius: 25, paddingHorizontal: main_padding, color: textDesColor, fontFamily: 'lato', fontSize: 13,backgroundColor: themeStyle[theme].primary}}
+                                ref={usernameRef}
+                                style={[style.p,styles.input,{backgroundColor: themeStyle[theme].primary,borderColor:inputBorder}]}
+                                placeholder='Username'
+                                value={state.username}
+                                placeholderTextColor={'#ADB9C6'}
+                                returnKeyType='done'
+                                onSubmitEditing={() => onEnter(passwordRef)}
+                                onChangeText={(text)=>{
+                                    handleChange('username',text)
+                                }}
+                            />
+                            {state.isValidateForm?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your username</Text>:<View/>}
+                        </VStack>
+                        <View style={{ marginTop: 20}}>
+                            <TextInput 
+                                ref={passwordRef}
+                                style={[style.p,styles.input,{backgroundColor: themeStyle[theme].primary,borderColor:inputBorder}]}
                                 placeholder='Password'
                                 value={state.password}
-                                onChangeText={(text)=>setState({
-                                    password: text,
-                                    isSecure: state.isSecure,
-                                    username: state.username,
-                                })}
-                                placeholderTextColor={textDesColor}
                                 secureTextEntry={state.isSecure}
+                                placeholderTextColor={'#ADB9C6'}
+                                returnKeyType='go'
+                                onSubmitEditing={onLogin}
+                                onChangeText={(text)=>{
+                                    handleChange('password',text)
+                                }}
                             />
-                            <TouchableOpacity onPress={()=> setState({isSecure:!state.isSecure,username: state.usernamedfafa,password: state.password,})} style={{position: 'absolute', bottom: 15, right: 15}}>
-                                <Icon name={state.isSecure ? 'eye-off-outline' :'eye-outline'} as={Ionicons} size='sm' />
+                            <TouchableOpacity onPress={()=>handleChange('isSecure',!state.isSecure)} style={{position: 'absolute', bottom: 7, right: 10,borderWidth:0.5,borderRadius:20,width:70,height:30,justifyContent:'center',alignItems:'center',borderColor:startBtn}}>
+                                <Text style={{fontFamily: 'lato', fontSize: 13, color: startBtn}}>{state.isSecure?"View*":"Hide*"}</Text>
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={{marginTop: 10, padding: 7, width: deviceWidth*.4}}>
-                            <Text style={{fontFamily: 'lato', fontSize: 13, color: startBtn}}>Forgot password?</Text>
+                        {state.isValidateForm?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your password</Text>:<View/>}
+                        <TouchableOpacity style={{marginTop:main_padding,alignItems:'flex-end'}}>
+                            <Text style={[style.p,{color: startBtn}]}>Forgot password?</Text>
                         </TouchableOpacity>
                     </View> 
-                    <View style={{flex: 1, width: deviceWidth*.9,justifyContent: 'center'}}>
-                        <TouchableOpacity onPress={()=>handleLogin()} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
-                            <Text style={{color: whiteSmoke, fontFamily:'Lato', fontSize: 16}}>Log In</Text>
+                    <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:insets.bottom}}>
+                        <TouchableOpacity onPress={onLogin} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
+                            <Text style={[style.p,{color:whiteSmoke}]}>Log In</Text>
                         </TouchableOpacity>
-                        <HStack marginTop='2' alignItems='center' justifyContent='center'>
-                            <Text style={{color: textDesColor, fontFamily:'Lato', fontSize: 13}}>Don't have an account? </Text>
+                        <HStack marginTop='3' alignItems='center' justifyContent='center'>
+                            <Text style={style.p}>Don't have an account? </Text>
                             <TouchableOpacity onPress={()=>navigate.navigate('Signup')}>
-                                <Text style={{color: startBtn, fontFamily:'Lato-bold', fontSize: 13}}> Sign up </Text>
+                                <Text style={[style.pBold,{color:startBtn}]}> Sign up </Text>
                             </TouchableOpacity>
                         </HStack>
                     </View> 
                 </VStack>
             </View>
+            <CustomLoading
+                visible={state.loading}
+            />
+            <AlertBox
+                title={'Something went wrong!'}
+                des={"Your username and password is wrong"}
+                btn_cancle={"No"}
+                btn_name={'Register'}
+                onCloseAlert={()=>setIsOpen(false)}
+                onConfirm={onConfirm}
+                isOpen={isOpen}
+            />
         </BaseComponent>
     )
 }
@@ -108,21 +168,19 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
     input: {
-        backgroundColor: '#ffff',
         paddingHorizontal: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
         minHeight: 45,
-        color: "#aaa",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-        elevation: 2,
+        borderWidth:0.5,
+        // shadowColor: "#000",
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 1,
+        // },
+        // shadowOpacity: 0.22,
+        // shadowRadius: 2,
+        // elevation: 2,
+        borderRadius:25
     },
     icon: {
         paddingHorizontal: 5,

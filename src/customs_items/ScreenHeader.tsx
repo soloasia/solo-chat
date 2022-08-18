@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
     },
     title: {
         flex: 1,
-        fontSize: 18,
+        fontSize: 20,
+        fontFamily:'Montserrat-Bold'
         // color: colors.textColor,
     },
     badge: {

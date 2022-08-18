@@ -122,8 +122,6 @@ const ChatListScreen = (props: any) => {
                         >
                         </FlatList>
                     </TouchableWithoutFeedback>
-
-
                     <View style={{ width: deviceWidth, height: deviceHeight * .2 }}>
                         <ChatRecord
                             message={state.message}

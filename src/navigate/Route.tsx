@@ -25,7 +25,9 @@ import EditProfileScreen from "../containers/settings/EditProfileScreen";
 import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
-
+import { useDispatch } from "react-redux";
+import { useAuth } from "../functions/UserAuth";
+import { loadData } from "../functions/LoadData";
 
 
 const Stack = createStackNavigator();
@@ -35,8 +37,24 @@ const Tab = createBottomTabNavigator();
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
+  const dispatch = useDispatch();
+  const auth = useAuth();
+  
   React.useEffect(() => {
-    checkPermissionNotification()
+    checkPermissionNotification();
+	requestMobileToken();
+	if (auth !== null) {
+		const init = async () => {
+		  loadData(dispatch);
+		};
+		init().finally(async () => {
+		//   const timer = setTimeout(() => {
+		// 	setSplash(false)
+		//   }, 3000);
+		//   return () => clearTimeout(timer);
+		  // if (auth.user !== null) await RNBootSplash.hide({fade: true});
+		});
+	  }
   }, [])
 
   const {theme} : any = useContext(ThemeContext);
@@ -52,6 +70,11 @@ const Route = () => {
     // await requestNotifications(['alert', 'badge', 'sound']);
     await messaging().registerDeviceForRemoteMessages();
   };
+  const requestMobileToken = async () => {
+    const token = await messaging().getToken();
+    dispatch({ type: 'LOAD_MOBILE_TOKEN', value: token });
+  };
+
   const requestForNotificationPermission = async () => {
     const granted = await messaging().requestPermission();
     if (granted) {
