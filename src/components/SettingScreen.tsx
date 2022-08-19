@@ -23,7 +23,7 @@ const SettingScreen = () => {
     const navigate:any = useNavigation();
 	const {language} : any = useContext(LanguageContext);
 
-	i18n.locale= language;
+	i18n.locale = language;
     const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
     const [isOpen, setIsOpen] = React.useState(false);
