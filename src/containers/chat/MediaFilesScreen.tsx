@@ -21,7 +21,7 @@ const MediaFilesScreen = () => {
                     onPress={() => setHeaderIdx(index)}
                     style={{
                         backgroundColor: index == headerIdx ? baseColor : whiteColor,
-                        borderRadius: index == headerIdx ? 20 : 0,
+                        borderRadius:20 ,
                         alignItems: 'center', padding: 5
                     }}
                 >

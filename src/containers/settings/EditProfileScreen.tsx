@@ -114,7 +114,6 @@ const EditProfileScreen = () => {
         }
     }
 
-    reactotron.log(theme)
 
     const onConfirm = () => {
         // setIsOpen(false);

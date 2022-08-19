@@ -5,7 +5,7 @@ import { View, StyleSheet, TouchableOpacity, FlatList, Platform, Appearance } fr
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { main_padding } from '../../config/settings';
 import { textDesColor, startBtn, whiteSmoke, bgChat, baseColor, backgroundDark, borderDivider } from '../../config/colors';
-import { FlatListHorizontal, makeid } from '../../customs_items/Components';
+import { FlatListHorizontal, makeid, TextItem } from '../../customs_items/Components';
 import { themeData } from '../../temp_data/ThemeBackground';
 import { deviceWidth } from '../../styles';
 import { useDispatch, useSelector } from 'react-redux';
@@ -65,19 +65,17 @@ const AppearanceScreen = () => {
         <BaseComponent {...baseComponentData} title='Appearance'>
             <View style={{ paddingVertical: main_padding }}>
                 <View style={{ paddingVertical: main_padding - 5, paddingHorizontal: main_padding + 5 }}>
-                    <Text color={textDesColor} fontSize='xs' fontFamily='lato'>THEME CHAT</Text>
+                    <TextItem style={{fontSize: 12}}>THEME CHAT {theme=='dark'? '(NIGHT MODE)' :''}</TextItem>
                 </View>
                 <Box alignItems="center">
                     <Box maxW="90%" rounded="lg" overflow="hidden"
                         borderColor={borderDivider} borderWidth="1"
                         backgroundColor={themeStyle[theme].backgroundColor}
-                       
                     >
                         <Box>
                             <AspectRatio w="100%" ratio={16 / 8}>
-                                <Image source={{
-                                    uri: themeAppearance.themurl
-                                }} alt="image" />
+                                <Image source={{ uri: themeAppearance.themurl}} alt="image" />
+                                
                             </AspectRatio>
                             <View style={{ position: 'absolute', backgroundColor: '#ECF1FDE7', top: 7, left: 10, ...styles.chatBody, borderTopLeftRadius: 15, borderBottomRightRadius: 15, borderTopRightRadius: 15 }}>
                                 <View style={{ ...styles.chatBack }}>
@@ -107,7 +105,7 @@ const AppearanceScreen = () => {
                     </Box>
                 </Box>
                 <View style={{ paddingVertical: main_padding, paddingHorizontal: main_padding + 5 }}>
-                    <Text color={textDesColor} fontSize='xs' fontFamily='lato'>TEXT SIZE  ({size}pixels)</Text>
+                    <TextItem style={{fontSize: 12}}>TEXT SIZE  ({size}pixels)</TextItem>
                 </View>
                 <Box alignItems="center">
                     <Box maxW="90%" rounded="lg" overflow="hidden"
@@ -116,8 +114,8 @@ const AppearanceScreen = () => {
                        
                     >
                         <Stack p="4" space={3}>
-                            <View style={{ width: deviceWidth, flexDirection: 'row', paddingVertical: 5 }}>
-                                <Text style={{ marginRight: 15, fontSize: 13, fontFamily: 'lato' }}>A</Text>
+                            <View style={{ width: deviceWidth, flexDirection: 'row',alignItems: 'center' }}>
+                                <TextItem style={{ marginRight: 15, fontSize: 13}}>A</TextItem>
                                 <Slider maxW="300" defaultValue={size}
                                     minValue={13} colorScheme={baseColor}
                                     maxValue={23} accessibilityLabel="text size"
@@ -130,7 +128,7 @@ const AppearanceScreen = () => {
                                     </Slider.Track>
                                     <Slider.Thumb bg={baseColor} size={5} />
                                 </Slider>
-                                <Text style={{ paddingLeft: 10, fontSize: 23, fontFamily: 'lato' }}>A</Text>
+                                <TextItem style={{ paddingLeft: 10, fontSize: 23 }}>A</TextItem>
                             </View>
                         </Stack>
                     </Box>

@@ -1,7 +1,7 @@
 import React, { useState, useContext,createRef } from 'react'
 import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { HStack, VStack } from 'native-base';
-import { textDesColor, startBtn, whiteSmoke, bgChat, borderColor, offlineColor } from '../../config/colors';
+import { textDesColor, startBtn, whiteSmoke, bgChat, borderColor, offlineColor, textColor } from '../../config/colors';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import Lottie from 'lottie-react-native';
 import style, { deviceWidth } from '../../styles';
@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import CustomLoading from '../../customs_items/CustomLoading';
 import { GET, POST } from '../../functions/BaseFuntion';
-import { AlertBox } from '../../customs_items/Components';
+import { AlertBox, TextItem } from '../../customs_items/Components';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import { loadUser } from '../../actions/User';
 
@@ -102,7 +102,7 @@ const LoginScreen = (props: any) => {
                             <VStack>
                                 <TextInput
                                     ref={usernameRef}
-                                    style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder }]}
+                                    style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder, color: themeStyle[theme].textColor }]}
                                     placeholder='Username'
                                     value={state.username}
                                     placeholderTextColor={'#ADB9C6'}
@@ -117,7 +117,7 @@ const LoginScreen = (props: any) => {
                             <View style={{ marginTop: 20 }}>
                                 <TextInput
                                     ref={passwordRef}
-                                    style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder }]}
+                                    style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder, color: themeStyle[theme].textColor }]}
                                     placeholder='Password'
                                     value={state.password}
                                     secureTextEntry={state.isSecure}
@@ -143,7 +143,7 @@ const LoginScreen = (props: any) => {
                             <Text style={[style.p,{color:whiteSmoke}]}>Log In</Text>
                         </TouchableOpacity>
                         <HStack marginTop='3' alignItems='center' justifyContent='center'>
-                            <Text style={[style.p,{fontSize:12}]}>Don't have an account? </Text>
+                            <TextItem style={[style.p,{fontSize:12}]}>Don't have an account? </TextItem>
                             <TouchableOpacity onPress={()=>navigate.navigate('Signup')}>
                                 <Text style={[style.p,{color:startBtn}]}> Sign Up here</Text>
                             </TouchableOpacity>

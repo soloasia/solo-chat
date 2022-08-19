@@ -126,28 +126,29 @@ const ChatProfileScreen = (props: any) => {
                 visible={isVisible}
                 animationType="slide"
                 onDismiss={() => console.log('on dismiss')}>
-                <View style={{ margin: main_padding, marginTop: large_padding }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <TouchableOpacity onPress={() => setIsvisible(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16, fontFamily: 'lato' }}>Cancel</Text></TouchableOpacity>
-                        <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'lato', color: textDesColor }}>Create new group</Text>
-                        <View />
-                        <View/>
+                <View style={{flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
+                    <View style={{ margin: main_padding, marginTop: large_padding }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <TouchableOpacity onPress={() => setIsvisible(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16, fontFamily: 'lato' }}>Cancel</Text></TouchableOpacity>
+                            <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'Montserrat-Regular', color: theme == 'dark' ? whiteSmoke : textDesColor }}>Create new group</Text>
+                            <View />
+                            <View/>
+                        </View>
                     </View>
-                </View>
-                <View style={{paddingHorizontal: main_padding }}>
-                    <TextInput
-                        style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
-                        placeholder='Group name...'
-                        placeholderTextColor={textDesColor}
+                    <View style={{paddingHorizontal: main_padding }}>
+                        <TextInput
+                            style={{ fontSize: 14, fontFamily: 'Montserrat-Regular', borderRadius: 7, color: theme == 'dark' ? whiteSmoke : textDesColor }}
+                            placeholder='Group name...'
+                            placeholderTextColor={theme == 'dark' ? whiteSmoke : textDesColor}
+                        />
+                    </View>
+                    <SearchBox
+                        onChangeText={(text: any) => onChangeText(text)}
+                        onSearch={onConfirmSearch}
                     />
-                </View>
-                <SearchBox
-                    onChangeText={(text: any) => onChangeText(text)}
-                    onSearch={onConfirmSearch}
-                />
 
-                <CreateGroup isUserProfile={true} userChat={chatItem} />
-                
+                    <CreateGroup isUserProfile={true} userChat={chatItem} />
+                </View>
             </Modal>
         </View>
     );
