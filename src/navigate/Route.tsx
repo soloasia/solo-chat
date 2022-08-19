@@ -32,6 +32,7 @@ import { loadData } from "../functions/LoadData";
 import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
+import ScanQrScreen from "../containers/contact/ScanQrScreen";
 
 
 
@@ -121,7 +122,7 @@ const Route = () => {
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
         <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
-
+        <Stack.Screen name="ScanQr" component={ScanQrScreen} />
       </Stack.Navigator>
     );
   }
