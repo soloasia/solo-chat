@@ -50,20 +50,17 @@ const LanguageScreen = () => {
         )
     }
 
-    const getLanguage = async () => {
+
+
+    const getLanguage = async (data : []) => {
         try {
             const value = await AsyncStorage.getItem("language");
-            if(value != null) {
-                console.log("value",value);
-                console.log("language data",languageData.length);
-                if(languageData.length > 0) {
-                    const result = languageData.find((e : any) => e.code.toLowerCase() == value.toLowerCase());
-                    console.log("result",result);
-                    const index = languageData.indexOf(result);
-                    console.log("language index: ",index);
+            if(value != null && data.length > 0) {
+                const result = data.find((e : any) => e.code.toLowerCase() == value.toLowerCase());
+                if(result != undefined){
+                    const index = data.indexOf(result);        
                     setSelectedIndex(index);
                 }
-              
             }
         } catch(e) {
             // error reading value
@@ -78,10 +75,8 @@ const LanguageScreen = () => {
             var lang = documentSnapshot.data();
             if(lang != null || lang != undefined) {
                 setLanguageData(lang["language"]);
-                console.log("language data",languageData.length);
-                getLanguage();
+                getLanguage(lang["language"]);
             }
-            
         });
       return () => subscriber();
     }, []);

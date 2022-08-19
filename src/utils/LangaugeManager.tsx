@@ -23,7 +23,7 @@ const LanguageManager = ({children} : any) => {
     const getLanguage = async () => {
         i18n.translations = {en, zh, ar, th};
         try {
-            const value = await AsyncStorage.getItem("language")
+            const value = await AsyncStorage.getItem("language");
             if(value != null) {
                 i18n.locale = value ?? "en";
             }
