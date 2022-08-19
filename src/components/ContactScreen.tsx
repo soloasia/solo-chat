@@ -9,7 +9,6 @@ import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items
 import { UserData } from '../temp_data/Contact';
 import { large_padding, main_padding } from '../config/settings';
 import style, { deviceHeight, deviceWidth } from '../styles';
-import QRCodeScanner from 'react-native-qrcode-scanner';
 import themeStyle from '../styles/theme';
 import { ThemeContext } from '../utils/ThemeManager';
 import { useDispatch, useSelector } from 'react-redux';
@@ -19,12 +18,15 @@ import { loadContact } from '../actions/Contact';
 import _ from 'lodash'
 import Lottie from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
+import AddContactScreen from '../containers/contact/AddContactScreen';
+import reactotron from 'reactotron-react-native';
+import FastImage from 'react-native-fast-image';
 
 let lastDoc: any = 1;
 
 const ContactScreen = () => {
 	const [state, setState] = useState<any>({searchText: ''});
-	const [username, setUsername] = useState("");
+	// const [username, setUsername] = useState("");
 	const [showModal,setShowModal] = useState(false);
 	const [showQR,setShowQr] = useState(false);
 	const [loading,setLoading] = useState(true);
@@ -58,9 +60,6 @@ const ContactScreen = () => {
 		.catch(e => {
 			setLoading(false)
 		});
-	}
-	const onShearchFriend = () =>{
-
 	}
 	const renderFooter: any = () => {
         if (!isMoreLoading) return true;
@@ -117,6 +116,13 @@ const ContactScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	const onClose = () =>{
+		setShowModal(false)
+	}
+	const onScanQr = () =>{
+		setShowModal(false)
+        navigation.navigate('ScanQr')
+	}
 	const onChangeText = (text:any) =>{
 		handleChange('searchText',text)
 	}
@@ -127,13 +133,12 @@ const ContactScreen = () => {
 			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
-						<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+						<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 					</UserAvatar>
 					<VStack space={1} flex={1}>
-						<TextItem style={{fontSize:16}}>{item.name}</TextItem>
+						<Text style={style.p}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
 						<HStack alignItems={'center'}>
-							<View style={{width:12,height:12,borderRadius:10,backgroundColor:item.status =='online'? onlineColor:offlineColor}}/>
-							<TextItem style={{textAlign:'center',fontSize:13,color:item.status =='online'? onlineColor:offlineColor,paddingLeft: 5,}}>{item.status}</TextItem>
+							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
 						</HStack>
 						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					</VStack>
@@ -141,7 +146,6 @@ const ContactScreen = () => {
 			</TouchableOpacity>
 		)
 	}
-
 	return (
 		<BaseComponent {...baseComponentData} title={'Contacts'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
@@ -178,52 +182,11 @@ const ContactScreen = () => {
 					}}
 				/>
 			}
-			<Modal
-                presentationStyle="formSheet"
-                visible ={showModal}
-				animationType="slide"
-				hardwareAccelerated ={true}
-                onDismiss={() => console.log('on dismiss')}>
-				<View style = {{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
-					<View style={{margin : main_padding , marginTop : large_padding}}>
-						<View style={{flexDirection : 'row',justifyContent: 'space-between'}}>
-							<TouchableOpacity onPress={()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-							<TextItem style={{fontWeight :'700',fontSize :16}}>Add Contact</TextItem>
-							<TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : username != "" ? baseColor : "grey"}}>Add</Text></TouchableOpacity>
-						</View>
-						<View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
-						<TextInput 
-							style={{...styles.input,marginTop : main_padding,backgroundColor : themeStyle[theme].primary,color : themeStyle[theme].textColor}}
-							placeholder='Enter Username'
-							placeholderTextColor={'#ADB9C6'}
-							value={username}
-							onChangeText={(text)=> setUsername(text)}
-						/>
-						<TouchableOpacity onPress={() => {setShowModal(false); setShowQr(true); console.log(showQR)}}><Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/></TouchableOpacity>
-					</View>
-					<Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>
-					</View>
-				</View>
-            </Modal>
-			<Modal
-                presentationStyle="formSheet"
-                visible ={showQR}
-				animationType="slide"
-				hardwareAccelerated ={true}
-                onDismiss={() => console.log('on dismiss')}>
-				<View style={{flex : 1,backgroundColor : themeStyle[theme].backgroundColor}}>
-					<QRCodeScanner
-						onRead={(e)=>{setShowQr(false); setShowModal(true); setUsername(e.data);}}
-						topViewStyle={{flexDirection :'row',justifyContent : 'space-between', flex : 1,alignItems:'flex-start',margin : main_padding}}
-						topContent={
-							<View style ={{flexDirection :'row',justifyContent : 'space-between',flex : 1,alignItems:'flex-start'}}>
-								<TouchableOpacity onPress={()=> {setShowQr(false);setShowModal(true)}}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-								<View><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}></Text></View>
-							</View>
-						}
-					/>
-				</View>
-            </Modal>
+			<AddContactScreen
+				onOpen={showModal}
+				onClose={onClose}
+				onScanQr={onScanQr}
+			/>
 			<CustomLoading
                 visible={loading}
             />
