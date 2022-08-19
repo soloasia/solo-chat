@@ -59,4 +59,4 @@ export const ThemeProvider = ({ children } : any) => {
       {children}
     </ThemeContext.Provider>
   );
-};
+}

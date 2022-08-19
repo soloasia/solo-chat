@@ -3,6 +3,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseColor } from "../config/colors"
+import i18n from "i18n-js";
 
 export const data = [
     // {
@@ -12,7 +13,7 @@ export const data = [
     //     to:'AuthOption'
     // },
     {
-        name: 'QR Code',
+        name: i18n.t("qr_code"),
         icon: 'qr-code-outline',
         color: "#1772F7",
         to:'QRcode'
@@ -27,25 +28,25 @@ export const data = [
 
 export const seconddata = [
     {
-        name: 'Notifications',
+        name: i18n.t("notification"),
         icon: 'notifications-outline',
         color: "#E88A96",
         to:''
     },
     {
-        name: 'Appearance',
+        name: i18n.t("appearance"),
         icon: 'color-palette-outline',
         color: "#1772F7",
         to:'Appearance'
     },
     {
-        name: 'Language',
+        name: i18n.t("language"),
         icon: 'globe-outline',
         color: baseColor, //"#8F9AA8",
         to:'Language'
     },
     {
-        name: 'Privacy',
+        name: i18n.t("privacy"),
         icon: 'shield-checkmark-outline',
         color: "#F0D671",
         to:''

@@ -13,26 +13,22 @@ import { data } from '../../temp_data/Language';
 import firestore from '@react-native-firebase/firestore';
 import i18n from 'i18n-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 // create a component
 const LanguageScreen = () => {
     const [languageData, setLanguageData] = useState<any>([]);
     const [selectedIndex,setSelectedIndex] = useState(0);
+    const {language, userChangeLanguage} : any = useContext(LanguageContext)
     const selectedLanguage = async (index : number) => {
+
         setSelectedIndex(index);
-        i18n.locale = languageData[index].code.toLowerCase();
-        await storeLanguage(languageData[index].code.toLowerCase());
+        userChangeLanguage(languageData[index].code);
+        // i18n.locale = languageData[index].code.toLowerCase();
+        // await storeLanguage(languageData[index].code.toLowerCase());
     }
 
-    const storeLanguage = async (value : string) => {
-        try {
-            await AsyncStorage.setItem("language", value);
-        
-        } catch (e) {
-            // saving error
-            
-        }
-    }
+  
     const _renderItem = ({item,index}:any) => {
         return (
             <TouchableOpacity onPress={() => selectedLanguage(index)}>
@@ -54,8 +50,6 @@ const LanguageScreen = () => {
             </TouchableOpacity>
         )
     }
-
-
 
     const getLanguage = async (data : []) => {
         try {
@@ -89,7 +83,6 @@ const LanguageScreen = () => {
     return (
         <BaseComponent {...baseComponentData} title={i18n.t('language')} is_main={false} >
             <View style ={[styles.container,{}]}>
-            {/* <TextItem>{i18n.t('language')}</TextItem> */}
             <FlatListVertical
                 style={{paddingTop : main_padding}}
                 data={languageData}

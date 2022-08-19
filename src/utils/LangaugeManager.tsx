@@ -1,45 +1,109 @@
 //import liraries
-import React, { Component, useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import * as RNLocalize from "react-native-localize";
+import React, { createContext, useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
 import i18n from 'i18n-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import firestore from '@react-native-firebase/firestore';
 
-const en = {
-    language: "Language"
-};
-const zh = {
-    language: "语"
-};
-const ar = {
-    language: "لغة"
-};
-const th = {
-    language: "ภาษา"
-};
+let translation  = {
+    en : {
+        language: "Language",
+        settings : "Settings",
+        edit: "Edit",
+        dark_mode : "Dark Mode",
+        qr_code : "QR Code",
+        notification : "Notification",
+        appearance : "Appearance",
+        privacy : "Privacy",
+    },
+    zh : {
+        language: "语",
+        settings : "设置",
+        edit: "Edit",
+        dark_mode : "Dark Mode",
+        qr_code : "QR Code",
+        notification : "Notification",
+        appearance : "Appearance",
+        privacy : "Privacy",
+    },
+    ar : {
+        language: "لغة",
+        settings : "إعدادات",
+        edit: "Edit",
+        dark_mode : "Dark Mode",
+        notification : "Notification",
+        appearance : "Appearance",
+        privacy : "Privacy",
+    },
+    th : {
+        language: "ภาษา",
+        settings : "การตั้งค่า",
+        edit: "Edit",
+        dark_mode : "Dark Mode",
+        notification : "Notification",
+        appearance : "Appearance",
+        privacy : "Privacy",
+    }
+}
+
+export const LanguageContext = createContext({});
 
 // create a component
 const LanguageManager = ({children} : any) => {
-    const getLanguage = async () => {
-        i18n.translations = {en, zh, ar, th};
+    const [language, setLanguage] = useState(i18n.locale);
+    const getLanguage = async (data : {}) => {
+        i18n.translations = data;
         try {
             const value = await AsyncStorage.getItem("language");
-            if(value != null) {
-                i18n.locale = value ?? "en";
-            }
+            // i18n.locale = value ?? "en";
+            setLanguage(value??"en");
         } catch(e) {
-            // error reading value
+
         }
     }
+
+    // const addLanguageJson = async () => {
+    //     await firestore().collection("translations").doc("json").set(translation);
+    // }
+
+
+    const storeLanguage = async (value : string) => {
+        try {
+            await AsyncStorage.setItem("language", value);
+        
+        } catch (e) {
+            // saving error
+            
+        }
+    }
+
+    const userChangeLanguage = async (langCode : string) => {
+        console.log(langCode);
+        setLanguage(langCode.toLowerCase());
+        i18n.locale = langCode;
+        await storeLanguage(langCode.toLowerCase());
+    }
+
     useEffect(() => {
         i18n.fallbacks = true;
-        getLanguage();
+        const subscriber = firestore()
+        .collection('translations')
+        .doc('json')
+        .onSnapshot(documentSnapshot => {
+            var map = documentSnapshot.data();
+            if(map != null || map != undefined) {
+               getLanguage(map);
+            }
+        });
+       
+        // addLanguageJson();
+        return () => subscriber();
     }, []);
 
     return (
-        <>
+        <LanguageContext.Provider value={{language,userChangeLanguage}}>
             {children}
-        </>
+        </LanguageContext.Provider>
     );
 };
 
