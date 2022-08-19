@@ -63,7 +63,7 @@ const ScanQrScreen = (props:any) => {
 				showMarker
 				onRead={(e)=>onAddFriend(e.data)}
 				cameraStyle={{ height: deviceHeight}}
-				reactivate={true}
+				// reactivate={true}
 				vibrate={Platform.OS == "android"}
 				flashMode={isFlash?RNCamera.Constants.FlashMode.torch: RNCamera.Constants.FlashMode.off}
 				customMarker={
@@ -95,7 +95,7 @@ const ScanQrScreen = (props:any) => {
 						<View style={styles.bottomOverlay} />
 					</View>
 				}
-				topViewStyle={{marginTop :Platform.OS ==='ios'? insets.top:70}}
+				topViewStyle={{marginTop :Platform.OS ==='ios'? insets.top + 40:70}}
 				topContent={
 					<View style ={{justifyContent : 'center',alignItems:'center',height:50,position:'absolute',bottom:-5,left:10}}>
 						<TouchableOpacity onPress={()=>navigate.goBack()}>

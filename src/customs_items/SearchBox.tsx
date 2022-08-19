@@ -7,14 +7,15 @@ import style from '../styles';
 import { ThemeContext } from '../utils/ThemeManager';
 import { color } from 'react-native-reanimated';
 import themeStyle from '../styles/theme';
+import reactotron from 'reactotron-react-native';
 const SearchBox = (props:any) => {
-    const {onChangeText,onSearch } = props
+    const {onChangeText,onClear,value } = props
     const [state, setstate] = useState("");
     const {theme} : any = useContext(ThemeContext);
 	return (
 		<View style={styles.headerContainer}>
             <View style={{...styles.searchBox,backgroundColor : themeStyle[theme].primary}}>
-                <TouchableOpacity onPress={onSearch} activeOpacity={activeOpacity}>
+                <TouchableOpacity  activeOpacity={activeOpacity}>
                     <Ionicons style={styles.searchIcon} name="search" />
                 </TouchableOpacity>
                 <TextInput
@@ -22,6 +23,7 @@ const SearchBox = (props:any) => {
                     returnKeyType="search"
                     autoCapitalize="none"
                     autoCorrect={false}
+                    value={value}
                     placeholderTextColor={'#ADB9C6'}
                     placeholder={"Search"}
                     onChangeText={(value) => {
@@ -30,7 +32,7 @@ const SearchBox = (props:any) => {
                     }}
                 />
                 {
-                    state && <TouchableOpacity onPress={()=>console.log("clear")} activeOpacity={activeOpacity}>
+                    state && <TouchableOpacity onPress={onClear} activeOpacity={activeOpacity}>
                         <Ionicons style={styles.searchIcon} name="close-circle"/>
                     </TouchableOpacity>
                 }

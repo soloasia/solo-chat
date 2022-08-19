@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "655127706535",
+    "firebase_url": "https://chat-app-dbd2e-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "chat-app-dbd2e",
+    "storage_bucket": "chat-app-dbd2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:655127706535:android:560c481f973f56237b5482",
+        "android_client_info": {
+          "package_name": "com.solochat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "655127706535-gvd7o8b41gqmc8flkvpl9hrrq3o21amo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvkvRJbCjyLaStja8OPq6f_c4GoA8Kh0w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "655127706535-gvd7o8b41gqmc8flkvpl9hrrq3o21amo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "655127706535-cl7kp810ui9hauuufl4s9oitgd1jkicf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.testingchat.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

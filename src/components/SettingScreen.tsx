@@ -83,7 +83,6 @@ const SettingScreen = () => {
             serLoading(false)
         }, 2000);
 	}
-
     return (
 		<BaseComponent {...baseComponentData} title={i18n.t('settings')} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
