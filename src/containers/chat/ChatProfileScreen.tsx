@@ -16,6 +16,7 @@ import SearchBox from '../../customs_items/SearchBox';
 import CreateGroup from './CreateGroup';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import { useSelector } from 'react-redux';
 
 // create a component
 const ChatProfileScreen = (props: any) => {
@@ -101,12 +102,12 @@ const ChatProfileScreen = (props: any) => {
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
                         <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
-                            <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                            <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
                         </View>
                     </LinearGradient>
                     <View style={{ paddingVertical: main_padding }}>
-                        <TextItem style={{ fontSize: 16, fontWeight: '600' }}>{chatItem.name.toString().toUpperCase()}</TextItem>
-                        <TextItem style={{ fontSize: 13, paddingTop: main_padding - 10, color: '#797979E8' }}>Bio: smilling </TextItem>
+                        <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem>
+                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
                     </View>
                 </View>
                 <View style={{ flex: 4.5, width: deviceWidth, paddingHorizontal: main_padding, }}>
