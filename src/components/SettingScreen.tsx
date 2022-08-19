@@ -15,10 +15,15 @@ import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import CustomLoading from '../customs_items/CustomLoading';
-import reactotron from 'reactotron-react-native';
+import i18n from "i18n-js";
+import { LanguageContext } from '../utils/LangaugeManager';
+
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
+	const {language} : any = useContext(LanguageContext);
+
+	i18n.locale= language;
     const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
     const [isOpen, setIsOpen] = React.useState(false);
@@ -61,7 +66,7 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>Edit</Text>
+				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{i18n.t('edit')}</Text>
 			</TouchableOpacity>
 		)
 	}
@@ -79,19 +84,15 @@ const SettingScreen = () => {
         }, 2000);
 	}
     return (
-		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={i18n.t('settings')} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
-				{/* {
-				isDarkMode && <View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: 'themeStyle[theme].backgroundColor'}} />
-				} */}
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
-				<FlatListScroll style={{padding: main_padding,}}>
+				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
 							{userInfo.profile_photo!=null ? 
 								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
-							:<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
-							
+							: <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
 						</UserAvatar>
 						<TextItem style={{fontSize:18,paddingTop: 10}}>{userInfo.first_name +' ' + userInfo.last_name}</TextItem>
 						<TouchableOpacity onPress={() => Clipboard.setString(userInfo.username)}><Text style={{paddingTop: 5,color:chatText, fontFamily: 'Montserrat-Regular', fontSize: 15}}>{userInfo.username}</Text></TouchableOpacity>
@@ -104,7 +105,7 @@ const SettingScreen = () => {
 									:
 									<Ionicons name={'moon-outline'} size={25} style={{color: "white"}}/>
 								}
-								<TextItem >Dark Mode</TextItem>
+								<TextItem>{i18n.t('dark_mode')}</TextItem>
 							</HStack>
 							<Switch 
 								value={theme == "dark"} 

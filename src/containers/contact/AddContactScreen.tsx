@@ -15,12 +15,13 @@ import _ from 'lodash'
 import FastImage from 'react-native-fast-image';
 import { useDispatch } from 'react-redux';
 import { loadContact } from '../../actions/Contact';
+import reactotron from 'reactotron-react-native';
 const AddContactScreen = (props:any) => {
     const { onOpen,onClose,onScanQr } = props;
     const navigate: any = useNavigation();
     const insets = useSafeAreaInsets();
 	const dispatch:any = useDispatch();
-    const [currentIndex, setIndex] = useState(null)
+    const [currentIndex, setIndex] = useState<any>([])
 	const {theme} : any = useContext(ThemeContext);
     const [state, setState] = useState<any>({
         username: '',
@@ -30,7 +31,7 @@ const AddContactScreen = (props:any) => {
     useEffect(()=>{
         handleChange("username",'');
         handleChange("userData",[]);
-        setIndex(null);
+        setIndex([]);
     },[onOpen])
 
     const handleChange = (stateName: string, value: any) => {
@@ -45,16 +46,6 @@ const AddContactScreen = (props:any) => {
                 if(result.status){
                     handleChange("userData",result.data)
                     handleChange("loading",false)
-                    if(currentIndex){
-                        GET(`me/contact?page=1`)
-                        .then(async (result: any) => {
-                            if(result.status){
-                                dispatch(loadContact(result.data.data))
-                            }
-                        })
-                        .catch(e => {
-                        });
-                    }
                 }
             })
             .catch(e => {
@@ -70,12 +61,21 @@ const AddContactScreen = (props:any) => {
         POST('contact/add', formdata)
         .then(async (result: any) => {
             if (result.status) {
-                setIndex(item.id)
+                setIndex((currentIndex:any) => [...currentIndex, {id:item.id}])
+                GET(`me/contact?page=1`)
+                .then(async (result: any) => {
+                    if(result.status){
+                        dispatch(loadContact(result.data.data))
+                    }
+                })
+                .catch(e => {
+                });
             } else {
             }
         })
     }
     const _renderContactView = ({item,index}:any) =>{
+        let statusAdd = _.filter(currentIndex, { id: item.id })[0]
 		return(
 			<TouchableOpacity style={{padding:5,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack alignItems="center">
@@ -90,7 +90,7 @@ const AddContactScreen = (props:any) => {
 				        <Divider marginTop={2} color={borderDivider}  _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					</VStack>
                     <TouchableOpacity onPress={()=>onAddFriend(item)} style={{position:'absolute',top:10,bottom:0,right:0}}>
-                        {currentIndex ==item.id?
+                        {statusAdd && statusAdd.id ==item.id?
 							<Text style={[style.p,{fontSize:12,color:baseColor}]}>Friends</Text>
                             :
                             <Ionicons name={"person-add-outline"} size={20} color={baseColor}/>

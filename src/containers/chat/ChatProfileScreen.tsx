@@ -97,8 +97,7 @@ const ChatProfileScreen = (props: any) => {
                     <LinearGradient
                         colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                         start={{ x: 0, y: 0 }}
-
-                        end={{ x: 1, y: 1 }}
+                        end={{ x: 1, y: 0 }}
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
                         <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>

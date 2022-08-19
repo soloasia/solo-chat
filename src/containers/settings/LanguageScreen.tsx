@@ -10,40 +10,78 @@ import { main_padding } from '../../config/settings';
 import { FlatListVertical, TextItem } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { data } from '../../temp_data/Language';
+import firestore from '@react-native-firebase/firestore';
+import i18n from 'i18n-js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 // create a component
 const LanguageScreen = () => {
-    const [languageData, setLanguageData] = useState<any>();
+    const [languageData, setLanguageData] = useState<any>([]);
     const [selectedIndex,setSelectedIndex] = useState(0);
-    const selectedLanguage = (index : number) => {
+    const {language, userChangeLanguage} : any = useContext(LanguageContext)
+    const selectedLanguage = async (index : number) => {
+
         setSelectedIndex(index);
+        userChangeLanguage(languageData[index].code);
+        // i18n.locale = languageData[index].code.toLowerCase();
+        // await storeLanguage(languageData[index].code.toLowerCase());
     }
+
+  
     const _renderItem = ({item,index}:any) => {
         return (
             <TouchableOpacity onPress={() => selectedLanguage(index)}>
                 <HStack justifyContent={'space-between'} flex={1} style ={{alignItems : 'center',margin : 0}}>
                     <View>
-                        <TextItem style = {{fontWeight: 'bold',fontSize : 16}}>{item.name}</TextItem> 
+                        <TextItem style = {{fontWeight: 'bold',fontSize : 14}}>{item.label}</TextItem> 
                         <View style = {{height: 4}}></View>
-                        <TextItem style ={{color: chatText,fontSize : 14}}>{item.language}</TextItem> 
+                        <TextItem style ={{color: chatText,fontSize : 12, textTransform: 'uppercase'}}>{item.code}</TextItem> 
                     </View>
                     { index == selectedIndex ? <Ionicons name={'checkmark-circle'} size={25} style={{color:baseColor}}/> : <></>}
                 </HStack>
-                {
+
+               <Divider marginTop={main_padding} marginBottom={main_padding} color={borderDivider}/>
+
+                {/* {
                   index == data.length - 1 ? <></> : <Divider marginTop={main_padding} marginBottom={main_padding} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
-                }
+                } */}
+
             </TouchableOpacity>
         )
     }
 
+    const getLanguage = async (data : []) => {
+        try {
+            const value = await AsyncStorage.getItem("language");
+            if(value != null && data.length > 0) {
+                const result = data.find((e : any) => e.code.toLowerCase() == value.toLowerCase());
+                if(result != undefined){
+                    const index = data.indexOf(result);        
+                    setSelectedIndex(index);
+                }
+            }
+        } catch(e) {
+            // error reading value
+        }
+    }
 
     useEffect(() => { 
-        setLanguageData(data);
+        const subscriber = firestore()
+        .collection('translations')
+        .doc('languages')
+        .onSnapshot(documentSnapshot => {
+            var lang = documentSnapshot.data();
+            if(lang != null || lang != undefined) {
+                setLanguageData(lang["language"]);
+                getLanguage(lang["language"]);
+            }
+        });
+      return () => subscriber();
     }, []);
     
-
     return (
-        <BaseComponent {...baseComponentData} title={'Language'} is_main={false} >
+        <BaseComponent {...baseComponentData} title={i18n.t('language')} is_main={false} >
             <View style ={[styles.container,{}]}>
             <FlatListVertical
                 style={{paddingTop : main_padding}}

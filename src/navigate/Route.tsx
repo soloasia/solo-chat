@@ -25,6 +25,7 @@ import EditProfileScreen from "../containers/settings/EditProfileScreen";
 import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
+
 import { useDispatch } from "react-redux";
 import { useAuth } from "../functions/UserAuth";
 import { loadData } from "../functions/LoadData";
@@ -32,6 +33,7 @@ import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
+
 
 
 const Stack = createStackNavigator();
@@ -128,9 +130,10 @@ const Route = () => {
     return (
       <Tab.Navigator
         backBehavior="initialRoute"
-        initialRouteName={"Chat"}
+        initialRouteName="Chat"
         screenOptions={({ route }) => ({
           headerShown: false,
+          resetOnBlur : false,
           tabBarHideOnKeyboard: true,
           tabBarStyle: {
             height:Platform.OS ==='ios'? 90:50,
@@ -189,32 +192,6 @@ const Route = () => {
     );
   }
   LogBox.ignoreAllLogs();
-  const LightTheme = {
-    ...DefaultTheme,
-    colors: {
-      ...DefaultTheme.colors,
-      primary: baseColor,
-      background: 'rgb(242, 242, 242)',
-      card: 'rgb(255, 255, 255)',
-      text: "black",
-      border: 'rgb(199, 199, 204)',
-      notification: 'rgb(255, 69, 58)',
-    },
-  };
-  
-  const MyDarkTheme = {
-    dark: true,
-    colors: {
-      ...DarkTheme.colors,
-      primary: baseColor,
-      background: backgroundDark,
-      card: 'rgb(255, 255, 255)',
-      text: "white",
-      border: 'rgb(199, 199, 204)',
-      notification: 'rgb(255, 69, 58)',
-    },
-  };
-
   return (
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   

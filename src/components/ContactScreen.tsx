@@ -19,36 +19,28 @@ import _ from 'lodash'
 import Lottie from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
 import AddContactScreen from '../containers/contact/AddContactScreen';
-import reactotron from 'reactotron-react-native';
 import FastImage from 'react-native-fast-image';
+import reactotron from 'reactotron-react-native';
 
 let lastDoc: any = 1;
-
 const ContactScreen = () => {
 	const [state, setState] = useState<any>({searchText: ''});
-	// const [username, setUsername] = useState("");
 	const [showModal,setShowModal] = useState(false);
-	const [showQR,setShowQr] = useState(false);
-	const [loading,setLoading] = useState(true);
+	const [loading,setLoading] = useState(false);
 	const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [isRefresh, setIsRefresh] = useState(false);
-
+    const [value, setValue] = useState('');
+	
     const navigation:any = useNavigation();
 	const dispatch:any = useDispatch();
 	const {theme} : any = useContext(ThemeContext);
 	const mycontact = useSelector((state: any) => state.mycontact);
-    const user = useSelector((state: any) => state.user);
-	
+
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
 	};
-
-	useEffect(()=>{
-		getData();
-    },[user])
-
 	function getData() {
 		GET(`me/contact?page=${lastDoc}`)
 		.then(async (result: any) => {
@@ -124,9 +116,19 @@ const ContactScreen = () => {
         navigation.navigate('ScanQr')
 	}
 	const onChangeText = (text:any) =>{
-		handleChange('searchText',text)
-	}
-	const onConfirmSearch = () =>{
+		setValue(text)
+		if(text != ''){
+			GET(`search/contact?value=${text}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadContact(result.data))
+				}
+			})
+			.catch(e => {
+			});
+		}else{
+			getData()
+		}
 	}
 	const _renderContactView = ({item,index}:any) =>{
 		return(
@@ -150,7 +152,8 @@ const ContactScreen = () => {
 		<BaseComponent {...baseComponentData} title={'Contacts'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
 				onChangeText={(text:any)=> onChangeText(text)}
-				onSearch={onConfirmSearch}
+				onClear = {(text:any)=> onChangeText('')}
+				value = {value}
 			/>
 			{_.isEmpty(mycontact)?
 				<View style={{width: deviceWidth, height: deviceHeight*0.6, }}>
