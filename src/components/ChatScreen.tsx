@@ -16,6 +16,8 @@ import { ThemeContext } from '../utils/ThemeManager';
 import themeStyle from '../styles/theme';
 import Feather from 'react-native-vector-icons/Feather';
 import { textSecondColor } from '../config/colors';
+import { useSelector } from 'react-redux';
+import FastImage from 'react-native-fast-image';
 
 
 const ChatScreen = () => {
@@ -23,6 +25,7 @@ const ChatScreen = () => {
 	const [showModal,setShowModal] = useState(false);
 	const [createGroup,setCreateGroup] = useState(false);
 	const {theme} : any = useContext(ThemeContext);
+	const mycontact = useSelector((state: any) => state.mycontact);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
@@ -74,26 +77,24 @@ const ChatScreen = () => {
 		)
 	}
 
-	const _renderContactView = ({ item, index }: any) => {
-		return (
-			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10}}>
+	const _renderContactView = ({item,index}:any) =>{
+		return(
+			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
-						<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+						<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 					</UserAvatar>
 					<VStack space={1} flex={1}>
-						<TextItem style={{ fontSize: 16 }}>{item.name}</TextItem>
+						<Text style={{...style.p,color:themeStyle[theme].textColor}}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
 						<HStack alignItems={'center'}>
-							<View style={{ width: 12, height: 12, borderRadius: 10, backgroundColor: item.status == 'online' ? onlineColor : offlineColor }} />
-							<TextItem style={{ textAlign: 'center', fontSize: 13, color: item.status == 'online' ? onlineColor : offlineColor, paddingLeft: 5, }}>{item.status}</TextItem>
+							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
 						</HStack>
-						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider }} _dark={{ bg: whiteColor }} />
+						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
 		)
 	}
-
 	return (
 		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
@@ -152,7 +153,7 @@ const ChatScreen = () => {
 								<FlatListVertical
 									style={{padding:main_padding}}
 									renderItem={_renderContactView}
-									data={UserData}
+									data={mycontact}
 									ListFooterComponent={
 										<>
 											<Footer />

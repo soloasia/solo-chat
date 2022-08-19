@@ -62,6 +62,10 @@ const LanguageManager = ({children} : any) => {
         }
     }
 
+    const tr = (data : string) : string =>  {
+        return i18n.t(data);
+    }
+
     // const addLanguageJson = async () => {
     //     await firestore().collection("translations").doc("json").set(translation);
     // }
@@ -93,6 +97,7 @@ const LanguageManager = ({children} : any) => {
             var map = documentSnapshot.data();
             if(map != null || map != undefined) {
                getLanguage(map);
+               console.log("snapshot");
             }
         });
        
@@ -101,7 +106,7 @@ const LanguageManager = ({children} : any) => {
     }, []);
 
     return (
-        <LanguageContext.Provider value={{language,userChangeLanguage}}>
+        <LanguageContext.Provider value={{tr,userChangeLanguage}}>
             {children}
         </LanguageContext.Provider>
     );

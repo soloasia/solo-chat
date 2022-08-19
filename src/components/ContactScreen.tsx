@@ -136,7 +136,7 @@ const ContactScreen = () => {
 						<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 					</UserAvatar>
 					<VStack space={1} flex={1}>
-						<Text style={style.p}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
+						<Text style={{...style.p,color:themeStyle[theme].textColor}}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
 						<HStack alignItems={'center'}>
 							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
 						</HStack>
