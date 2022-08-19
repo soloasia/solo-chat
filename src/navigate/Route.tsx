@@ -139,7 +139,7 @@ const Route = () => {
             paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
             backgroundColor: themeStyle[theme].backgroundColor,
             position: 'absolute',
-            borderTopWidth: 0,
+            borderStartWidth:1
         },
       })}
       >

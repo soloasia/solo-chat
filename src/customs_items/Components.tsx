@@ -144,7 +144,7 @@ export function FlatListScroll(props:any) {
                     <Text style={style.pBold}>{props.title}</Text>
                 </AlertDialog.Header>
                 <AlertDialog.Body>
-                    <TextItem>{props.des}</TextItem>
+                    <Text style={style.p}>{props.des}</Text>
                 </AlertDialog.Body>
                 <AlertDialog.Footer>
                     <NButton

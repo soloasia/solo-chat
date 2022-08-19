@@ -15,6 +15,7 @@ import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import CustomLoading from '../customs_items/CustomLoading';
+import reactotron from 'reactotron-react-native';
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
@@ -77,7 +78,6 @@ const SettingScreen = () => {
             serLoading(false)
         }, 2000);
 	}
-
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>

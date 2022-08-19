@@ -1,14 +1,18 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { StyleSheet, Text, TouchableOpacity } from 'react-native'
 import { Actionsheet } from 'native-base'
 import ImagePicker from 'react-native-image-crop-picker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import { textColor, startBtn } from '../config/colors';
+import { textColor, startBtn, backgroundDark, whiteSmoke } from '../config/colors';
 import { deviceWidth } from '../styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { ThemeContext } from '../utils/ThemeManager';
+import { TextItem } from './Components';
 
 
 const SelectImagePicker = ({ visible, onChange, onClose,photo }:any) => {
+    const { theme }: any = useContext(ThemeContext);
+
     const onSelectImage = (type:any) => {
         ImagePicker.openPicker(
             {
@@ -32,27 +36,27 @@ const SelectImagePicker = ({ visible, onChange, onClose,photo }:any) => {
         )
     }
     return (
-        <Actionsheet isOpen={visible} onClose={onClose}>
-            <Actionsheet.Content>
-                <Text style={[{
+        <Actionsheet isOpen={visible} onClose={onClose} >
+            <Actionsheet.Content style={{backgroundColor: theme=='dark' ? backgroundDark:whiteSmoke}}>
+                <TextItem style={[{
                     color:textColor,
                     fontSize: 16,
                     textAlign: 'center',
-                    marginBottom: 5,fontFamily: 'lato'
-                }]}>Choose an image</Text>
+                    marginBottom: 5,
+                }]}>Choose an image</TextItem>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={onCamera}
                     style={styles.buttonChooseImage}>
-                    <Ionicons name='camera-outline' size={22} color={'#534C4C'} />
-                    <Text style={[styles.textChooseImage]}>Camera</Text>
+                    <Ionicons name='camera-outline' size={22} color={'#7C7C7C'} />
+                    <TextItem style={[styles.textChooseImage]}>Camera</TextItem>
                 </TouchableOpacity>
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={() => onSelectImage("image")}
                     style={styles.buttonChooseImage}>
                     <MaterialIcons name='photo-size-select-actual' size={22} color={startBtn} />
-                    <Text style={[styles.textChooseImage]}>Gallery</Text>
+                    <TextItem style={[styles.textChooseImage]}>Gallery</TextItem>
                 </TouchableOpacity>
             </Actionsheet.Content>
         </Actionsheet>
@@ -74,6 +78,6 @@ const styles = StyleSheet.create({
         color: '#757373',
         marginLeft: 10,
         fontSize: 15,
-        fontFamily: 'lato'
+        // fontFamily: 'lato'
     },
 })
