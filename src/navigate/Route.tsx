@@ -15,7 +15,6 @@ import AuthOptionScreen from "../components/AuthOptionScreen";
 import LoginScreen from '../containers/auth/LoginScreen';
 import SignupScreen from "../containers/auth/SignupScreen";
 import messaging from '@react-native-firebase/messaging';
-import reactotron from "reactotron-react-native";
 import AppearanceScreen from "../containers/settings/AppearanceScreen";
 import QRcodeScreen from '../containers/settings/QRcodeScreen';
 import ChatProfileScreen from '../containers/chat/ChatProfileScreen';
@@ -27,6 +26,15 @@ import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
 
+import { useDispatch } from "react-redux";
+import { useAuth } from "../functions/UserAuth";
+import { loadData } from "../functions/LoadData";
+import SplashScreen from "../components/SplashScreen";
+import FullImageDisplay from '../components/ShowFullImage';
+import { main_padding } from '../config/settings';
+
+
+
 const Stack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();
@@ -34,8 +42,25 @@ const Tab = createBottomTabNavigator();
 export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
+  const dispatch = useDispatch();
+  const auth = useAuth();
+  const [splashscreen,setSplash] = useState(true)
+  
   React.useEffect(() => {
-    checkPermissionNotification()
+    checkPermissionNotification();
+	requestMobileToken();
+	if (auth !== null) {
+		const init = async () => {
+		  loadData(dispatch);
+		};
+		init().finally(async () => {
+		  const timer = setTimeout(() => {
+			  setSplash(false)
+		  }, 1500);
+		  return () => clearTimeout(timer);
+		  // if (auth.user !== null) await RNBootSplash.hide({fade: true});
+		});
+	  }
   }, [])
 
   const {theme} : any = useContext(ThemeContext);
@@ -51,6 +76,11 @@ const Route = () => {
     // await requestNotifications(['alert', 'badge', 'sound']);
     await messaging().registerDeviceForRemoteMessages();
   };
+  const requestMobileToken = async () => {
+    const token = await messaging().getToken();
+    dispatch({ type: 'LOAD_MOBILE_TOKEN', value: token });
+  };
+
   const requestForNotificationPermission = async () => {
     const granted = await messaging().requestPermission();
     if (granted) {
@@ -59,7 +89,6 @@ const Route = () => {
       console.log('User declined messaging permissions :(');
     }
   };
-
   function MainStack() {
     return (
       <Stack.Navigator
@@ -68,8 +97,18 @@ const Route = () => {
           // cardStyleInterpolator:
           //   CardStyleInterpolators.forFadeFromBottomAndroid,
         }}>
-        <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
-        <Stack.Screen name="Main" component={MainTab} />
+        {auth.user ? 
+          <>
+            <Stack.Screen name="Main" component={MainTab} />
+            <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
+          </>
+            :
+            <>
+              <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
+              <Stack.Screen name="Main" component={MainTab} />
+            </>
+          }
+        {/* <Stack.Screen name="Main" component={MainTab} /> */}
         <Stack.Screen name="ChatList" component={ChatListScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Signup" component={SignupScreen} />
@@ -81,6 +120,7 @@ const Route = () => {
         <Stack.Screen name="Language" component={LanguageScreen} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} />
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
+        <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
 
       </Stack.Navigator>
     );
@@ -93,10 +133,12 @@ const Route = () => {
         screenOptions={({ route }) => ({
           headerShown: false,
           resetOnBlur : false,
+          tabBarHideOnKeyboard: true,
           tabBarStyle: {
-            height: 90,
+            height:Platform.OS ==='ios'? 90:50,
             paddingHorizontal: 5,
             paddingTop: 0,
+            paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
             backgroundColor: themeStyle[theme].backgroundColor,
             position: 'absolute',
             borderTopWidth: 0,
@@ -104,7 +146,7 @@ const Route = () => {
       })}
       >
         <Tab.Screen
-          name="Contacts"
+          name="Contact"
           component={ContactScreen}
           options={{
             headerShown: false,
@@ -118,7 +160,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Chats"
+          name="Chat"
           component={ChatScreen}
           options={{
             headerShown: false,
@@ -132,7 +174,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Settings"
+          name="Setting"
           component={SettingScreen}
           options={{
             headerShown: false,
@@ -153,17 +195,8 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-            {/* <SafeAreaView
-              // edges={['left', 'right', 'top']}
-              style={[
-                style.safeAreaContainer,
-                {
-                  backgroundColor: '#fff',
-                },
-              ]}> */}
-            <MainStack />
-            {/* </SafeAreaView> */}
-          </NavigationContainer>
+          {splashscreen? <SplashScreen/>:<MainStack />}
+        </NavigationContainer>
     </SafeAreaProvider>
   );
 };

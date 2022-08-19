@@ -1,10 +1,10 @@
 //import liraries
 import { AspectRatio, Box, Center, Heading, HStack, Icon, Image, Slider, Stack, Text } from 'native-base';
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useContext } from 'react';
 import { View, StyleSheet, TouchableOpacity, FlatList, Platform, Appearance } from 'react-native';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { main_padding } from '../../config/settings';
-import { textDesColor, startBtn, whiteSmoke, bgChat, baseColor } from '../../config/colors';
+import { textDesColor, startBtn, whiteSmoke, bgChat, baseColor, backgroundDark, borderDivider } from '../../config/colors';
 import { FlatListHorizontal, makeid } from '../../customs_items/Components';
 import { themeData } from '../../temp_data/ThemeBackground';
 import { deviceWidth } from '../../styles';
@@ -13,13 +13,16 @@ import { appearance, textSize } from '../../actions/appearanceAction';
 import reactotron from 'reactotron-react-native';
 import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import _ from 'lodash';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 // create a component
 const AppearanceScreen = () => {
     const textsize = useSelector((state: any) => state.textSizeChange);
     const appearanceTheme = useSelector((state: any) => state.appearance);
+	const {theme} : any = useContext(ThemeContext);
 
-    const [theme, setTheme] = useState(_.isEmpty(appearanceTheme) ? themeData[0] : appearanceTheme)
+    const [themeAppearance, setTheme] = useState(_.isEmpty(appearanceTheme) ? themeData[0] : appearanceTheme)
     const dispatch: any = useDispatch();
     const [size, setSize] = useState(textsize != false ? textsize : 13)
 
@@ -42,8 +45,8 @@ const AppearanceScreen = () => {
                 style={{
                     width: 80, height: 102, borderRadius: 7,
                     marginLeft: index > 0 ? 10 : 0,
-                    borderWidth: theme.themurl == item.themurl ? 3 : 0,
-                    borderColor: theme.textColor, overflow: 'hidden'
+                    borderWidth: themeAppearance.themurl == item.themurl ? 3 : 0,
+                    borderColor: themeAppearance.textColor, overflow: 'hidden'
                 }}
             >
                 <Image source={{
@@ -66,21 +69,14 @@ const AppearanceScreen = () => {
                 </View>
                 <Box alignItems="center">
                     <Box maxW="90%" rounded="lg" overflow="hidden"
-                        borderColor="coolGray.200" borderWidth="1"
-                        _dark={{
-                            borderColor: "coolGray.600",
-                            backgroundColor: "gray.700"
-                        }} _web={{
-                            shadow: 2,
-                            borderWidth: 0
-                        }} _light={{
-                            backgroundColor: "gray.50"
-                        }}
+                        borderColor={borderDivider} borderWidth="1"
+                        backgroundColor={themeStyle[theme].backgroundColor}
+                       
                     >
                         <Box>
                             <AspectRatio w="100%" ratio={16 / 8}>
                                 <Image source={{
-                                    uri: theme.themurl
+                                    uri: themeAppearance.themurl
                                 }} alt="image" />
                             </AspectRatio>
                             <View style={{ position: 'absolute', backgroundColor: '#ECF1FDE7', top: 7, left: 10, ...styles.chatBody, borderTopLeftRadius: 15, borderBottomRightRadius: 15, borderTopRightRadius: 15 }}>
@@ -89,7 +85,7 @@ const AppearanceScreen = () => {
                                     <Text style={{ fontFamily: 'lato', fontSize: size }}>Good Morning!</Text>
                                 </View>
                             </View>
-                            <View style={{ position: 'absolute', backgroundColor: theme.textColor, top: 100, right: 10, ...styles.chatBody, borderTopLeftRadius: 15, borderBottomLeftRadius: 15, borderTopRightRadius: 15 }}>
+                            <View style={{ position: 'absolute', backgroundColor: themeAppearance.textColor, top: 100, right: 10, ...styles.chatBody, borderTopLeftRadius: 15, borderBottomLeftRadius: 15, borderTopRightRadius: 15 }}>
                                 <View style={{ ...styles.chatBack }}>
                                     <Text color='text.50' fontSize={size}>Good Morning! Morning!</Text>
                                 </View>
@@ -115,16 +111,9 @@ const AppearanceScreen = () => {
                 </View>
                 <Box alignItems="center">
                     <Box maxW="90%" rounded="lg" overflow="hidden"
-                        borderColor="coolGray.200" borderWidth="1"
-                        _dark={{
-                            borderColor: "coolGray.600",
-                            backgroundColor: "gray.700"
-                        }} _web={{
-                            shadow: 2,
-                            borderWidth: 0
-                        }} _light={{
-                            backgroundColor: "gray.50"
-                        }}
+                        borderColor={borderDivider} borderWidth="1"
+                        backgroundColor={themeStyle[theme].backgroundColor}
+                       
                     >
                         <Stack p="4" space={3}>
                             <View style={{ width: deviceWidth, flexDirection: 'row', paddingVertical: 5 }}>

@@ -8,13 +8,17 @@
  * @format
  */
  import { extendTheme, NativeBaseProvider } from 'native-base';
+
  import React, { useState } from 'react';
+
+
  import { View } from 'react-native';
  import { Provider } from 'react-redux';
  import Route from './src/navigate/Route';
  import store from './src/store';
  import { ThemeProvider } from './src/utils/ThemeManager';
  import LanguageManager from './src/utils/LangaugeManager';
+ import { ProvideAuth } from './src/functions/UserAuth';
 
  
  const theme = extendTheme({
@@ -33,12 +37,14 @@
     <ThemeProvider>
       <LanguageManager>
         <Provider store={store}>
+        <ProvideAuth>
           <NativeBaseProvider theme={theme}>
               <View style={{flex:1}}>
                   <Route />
               </View>
           </NativeBaseProvider>
-        </Provider>
+        </ProvideAuth>
+      </Provider>
       </LanguageManager>
     </ThemeProvider>
    );

@@ -1,31 +1,36 @@
 //import liraries
 import { Divider, HStack, Icon, VStack } from 'native-base';
-import React, { Component, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput } from 'react-native';
+import React, { Component, useContext, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput, Share } from 'react-native';
 import { large_padding, main_padding } from '../../config/settings';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import colors, { boxColor, textSecondColor, whiteColor } from '../../config/colors';
+import colors, { borderDivider, boxColor, textSecondColor, whiteColor } from '../../config/colors';
 import { useNavigation } from '@react-navigation/native';
-import { FlatListHorizontal, UserAvatar, FlatListVertical } from '../../customs_items/Components';
+import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem } from '../../customs_items/Components';
 import LinearGradient from 'react-native-linear-gradient';
 import { actionChatProfile } from '../../temp_data/Setting';
-import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor } from '../../config/colors';
+import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor, backgroundDark } from '../../config/colors';
 import { TransitioningView } from 'react-native-reanimated';
 import SearchBox from '../../customs_items/SearchBox';
 import CreateGroup from './CreateGroup';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 // create a component
 const ChatProfileScreen = (props: any) => {
+	const {theme} : any = useContext(ThemeContext);
+
     const navigate: any = useNavigation();
     const { chatItem } = props.route.params;
     const [isNotification, setNotification] = useState(false)
     const [isVisible, setIsvisible] = useState(false)
     const ref = useRef<TransitioningView>(null);
-const [state, setState] = useState<any>({
+    const [state, setState] = useState<any>({
 		searchText: ''
 	});
 
+    
     const selectedRoute = ({ item, index }: any) => {
         index == 0 ?
             setIsvisible(true)
@@ -56,7 +61,7 @@ const [state, setState] = useState<any>({
                             <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
                         </View>
                         <View style={{ marginHorizontal: main_padding - 5, borderBottomColor: labelColor, paddingVertical: 10 }}>
-                            <Text style={{ fontSize: 15, fontFamily: 'lato' }}>{item.title}</Text>
+                            <TextItem style={{ fontSize: 15,}}>{item.title}</TextItem>
                         </View>
                     </HStack>
                     {item.title == 'Notification' ?
@@ -74,38 +79,38 @@ const [state, setState] = useState<any>({
                         : <View />}
 
                 </HStack>
-                <Divider marginTop={2} marginLeft={main_padding * 3} color={boxColor} _light={{ bg: boxColor }} _dark={{ bg: whiteColor }} />
+                <Divider marginTop={2} marginLeft={main_padding * 3} color={borderDivider} _light={{ bg: borderDivider }} _dark={{ bg: whiteColor }} />
             </TouchableOpacity>
         )
     }
 
     return (
-        <View style={styles.container}>
+        <View style={{...styles.container, backgroundColor: themeStyle[theme].backgroundColor}}>
             <TouchableOpacity
                 activeOpacity={0.8}
                 onPress={() => navigate.goBack()}
                 style={{ padding: main_padding - 5 }}>
-                <Ionicons name='chevron-back' size={25} color={colors.textColor} />
+                <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
             </TouchableOpacity>
             <VStack justifyContent='space-between' flex={1}>
                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
                     <LinearGradient
-                        colors={['#17C8FF', '#329BFF', '#5A6BDBD2', '#4A62EBBE', '#002FFFB0']}
+                        colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
-                        <View style={{ margin: 3, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 99, height: 99, }}>
-                            <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 99, height: 99, overflow: 'hidden' }} />
+                        <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
+                            <Image source={require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
                         </View>
                     </LinearGradient>
                     <View style={{ paddingVertical: main_padding }}>
-                        <Text style={{ fontFamily: 'lato', fontSize: 14, fontWeight: '600' }}>{chatItem.name.toString().toUpperCase()}</Text>
-                        <Text style={{ fontFamily: 'lato', fontSize: 13, paddingTop: main_padding - 10, color: '#797979E8' }}>Bio: smilling </Text>
+                        <TextItem style={{ fontSize: 16, fontWeight: '600' }}>{chatItem.name.toString().toUpperCase()}</TextItem>
+                        <TextItem style={{ fontSize: 13, paddingTop: main_padding - 10, color: '#797979E8' }}>Bio: smilling </TextItem>
                     </View>
                 </View>
                 <View style={{ flex: 4.5, width: deviceWidth, paddingHorizontal: main_padding, }}>
-                    <Text style={{ fontFamily: 'lato', fontSize: 15, color: colors.textColor, fontWeight: '700' }}>More Actions</Text>
+                    <TextItem style={{ fontSize: 15, color: colors.textColor, fontWeight: '700' }}>More Actions</TextItem>
                     <View style={{ paddingVertical: main_padding - 5, marginTop: 10, borderRadius: 10 }}>
                         <FlatListVertical
                             scrollEnabled={false}

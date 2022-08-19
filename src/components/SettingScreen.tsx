@@ -4,19 +4,26 @@ import React, { useContext, useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, boxColor, chatText, discountColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
+import { useSelector } from 'react-redux';
+import { baseColor, borderDivider, boxColor, chatText, discountColor, offlineColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../config/colors';
 import { main_padding } from '../config/settings';
-import { FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
+import { AlertBox, FlatListScroll, FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import style from '../styles';
 import themeStyle from '../styles/theme';
 import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
-import i18n from 'i18n-js';
+import AsynceStorage from '@react-native-async-storage/async-storage'
+import CustomLoading from '../customs_items/CustomLoading';
+
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
+    const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
+    const [isOpen, setIsOpen] = React.useState(false);
+    const [loading,serLoading] = useState(false)
+
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
 	const [isNotificationOn, setisNotificationOn] = useState(false);
@@ -58,6 +65,19 @@ const SettingScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	
+	const handleLogout = () => {
+		setIsOpen(false)
+        serLoading(true)
+        setTimeout( async () => {
+            await AsynceStorage.setItem('@token', '');
+            navigate.reset({
+                index: 0,
+                routes: [{ name: 'Login' }]
+            })
+            serLoading(false)
+        }, 2000);
+	}
 
     return (
 		<BaseComponent {...baseComponentData} title={'Settings'} is_main={true} rightIcon={rightIcon}>
@@ -66,10 +86,13 @@ const SettingScreen = () => {
 				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
-							<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+							{userInfo.profile_photo!=null ? 
+								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
+							:<Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
+							
 						</UserAvatar>
-						<TextItem style={{fontSize:18,paddingTop: 10}}>Big Boss</TextItem>
-						<TouchableOpacity onPress={() => Clipboard.setString("@bigboss")}><TextItem style={{paddingTop: 5,color:chatText}}>@bigboss</TextItem></TouchableOpacity>
+						<TextItem style={{fontSize:18,paddingTop: 10}}>{userInfo.first_name +' ' + userInfo.last_name}</TextItem>
+						<TouchableOpacity onPress={() => Clipboard.setString(userInfo.username)}><Text style={{paddingTop: 5,color:chatText, fontFamily: 'Montserrat-Regular', fontSize: 15}}>{userInfo.username}</Text></TouchableOpacity>
 					</View>
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>
@@ -95,24 +118,36 @@ const SettingScreen = () => {
 							/>
 						</HStack>
 					</TouchableOpacity>
-					<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+					<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					<FlatListVertical
 						style={{paddingTop:main_padding}}
 						data={data}
 						renderItem={_renderItem}
 					/>
-					<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+					<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
 					<FlatListVertical
 						style={{paddingTop:main_padding}}
 						data={seconddata}
 						renderItem={_renderItem}
 					/>
-					<TouchableOpacity onPress={()=>navigate.navigate('AuthOption')} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center'}}>
-						<TextItem style={{color:discountColor,textAlign:'center',fontSize:18,fontFamily:'Lato-Regular'}}>Log Out</TextItem>
+					<TouchableOpacity onPress={()=>setIsOpen(true)} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center',alignItems:'center'}}>
+						<Text style={[style.pBold,{color:offlineColor}]}>Log Out</Text>
 					</TouchableOpacity>
 					<Footer />
 				</FlatListScroll>
 			</Transitioning.View>
+			<CustomLoading
+                visible={loading}
+            />
+			<AlertBox
+                title={'Log Out!'}
+                des={"Are you sure you want to log out?"}
+                btn_cancle={"No"}
+                btn_name={'Yes'}
+                onCloseAlert={() => setIsOpen(false)}
+                onConfirm={handleLogout}
+                isOpen={isOpen}
+            />
 		</BaseComponent>
     );
 };

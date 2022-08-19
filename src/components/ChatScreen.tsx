@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View,Image, Modal, TextInput, Animated } from 'react-native';
-import { Divider, HStack,VStack } from 'native-base';
-import colors, { bageColor, baseColor, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated } from 'react-native';
+import { Divider, HStack, VStack } from 'native-base';
+import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import SearchBox from '../customs_items/SearchBox';
@@ -14,6 +14,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
 import { ThemeContext } from '../utils/ThemeManager';
 import themeStyle from '../styles/theme';
+import Feather from 'react-native-vector-icons/Feather';
+import { textSecondColor } from '../config/colors';
 
 
 const ChatScreen = () => {
@@ -26,35 +28,35 @@ const ChatScreen = () => {
 	});
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
-		setState({...state});
+		setState({ ...state });
 	};
-  	const onChangeText = (text:any) =>{
-		handleChange('searchText',text)
+	const onChangeText = (text: any) => {
+		handleChange('searchText', text)
 	}
-	const onConfirmSearch = () =>{
+	const onConfirmSearch = () => {
 	}
 
-	const onSelectChat = (item:any) =>{
-        navigate.navigate('ChatList',{chatItem:item});
+	const onSelectChat = (item: any) => {
+		navigate.navigate('ChatList', { chatItem: item });
 	}
-	const rightIcon = () =>{
-		return(
-			<TouchableOpacity style={style.containerCenter} onPress={()=>setShowModal(true)}>
-				<FontAwesome name="edit" size={25} color={baseColor}/>
+	const rightIcon = () => {
+		return (
+			<TouchableOpacity style={style.containerCenter} onPress={() => setShowModal(true)}>
+				<Feather name="edit" size={20} color={baseColor} />
 			</TouchableOpacity>
 		)
 	}
 	const _renderChatView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:boxColor}}>
+			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack space={3} alignItems="center">
 						<UserAvatar>
-							<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+							<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
 						</UserAvatar>
 						<VStack space={1}>
-							<TextItem style={{fontSize:16}}>{item.name}</TextItem>
-							<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>{item.text}</TextItem>
+							<TextItem style={{ fontSize: 16 }}>{item.name}</TextItem>
+							<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
 						</VStack>
 					</HStack>
 					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -65,27 +67,27 @@ const ChatScreen = () => {
 							</View>
 							:
 							<></>
-						}	
+						}
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
 		)
 	}
 
-	const _renderContactView = ({item,index}:any) =>{
-		return(
-			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
-				<HStack  alignItems="center" space={4}>
+	const _renderContactView = ({ item, index }: any) => {
+		return (
+			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10}}>
+				<HStack alignItems="center" space={4}>
 					<UserAvatar>
-						<Image source={item.icon} resizeMode='cover' style={{width:'100%',height:'100%'}}/>
+						<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
 					</UserAvatar>
 					<VStack space={1} flex={1}>
-						<TextItem style={{fontSize:16}}>{item.name}</TextItem>
+						<TextItem style={{ fontSize: 16 }}>{item.name}</TextItem>
 						<HStack alignItems={'center'}>
-							<View style={{width:12,height:12,borderRadius:10,backgroundColor:item.status =='online'? onlineColor:offlineColor}}/>
-							<TextItem style={{textAlign:'center',fontSize:13,color:item.status =='online'? onlineColor:offlineColor,paddingLeft: 5,}}>{item.status}</TextItem>
+							<View style={{ width: 12, height: 12, borderRadius: 10, backgroundColor: item.status == 'online' ? onlineColor : offlineColor }} />
+							<TextItem style={{ textAlign: 'center', fontSize: 13, color: item.status == 'online' ? onlineColor : offlineColor, paddingLeft: 5, }}>{item.status}</TextItem>
 						</HStack>
-						<Divider marginTop={2} color={boxColor} _light={{ bg: boxColor}} _dark={{bg:whiteColor}}/>
+						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider }} _dark={{ bg: whiteColor }} />
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
@@ -95,7 +97,7 @@ const ChatScreen = () => {
 	return (
 		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
-				onChangeText={(text:any)=> onChangeText(text)}
+				onChangeText={(text: any) => onChangeText(text)}
 				onSearch={onConfirmSearch}
 			/>
 			<FlatListVertical
@@ -108,8 +110,8 @@ const ChatScreen = () => {
 				}
 			/>
 			<Modal
-                presentationStyle="formSheet"
-                visible ={showModal}
+				presentationStyle="formSheet"
+				visible={showModal}
 				animationType="slide"
 				transparent={true}
                 onDismiss={() => console.log('on dismiss')}>
@@ -172,14 +174,14 @@ const styles = StyleSheet.create({
 		justifyContent: "center"
 	},
 	input: {
-        backgroundColor: inputColor, 
-        height: 45,width: '100%', 
-        borderRadius: 25, 
-        paddingHorizontal: main_padding, 
-        color: textDesColor, 
-        fontFamily: 'lato', 
-        fontSize: 13
-    },
+		backgroundColor: inputColor,
+		height: 45, width: '100%',
+		borderRadius: 25,
+		paddingHorizontal: main_padding,
+		color: textDesColor,
+		fontFamily: 'lato',
+		fontSize: 13
+	},
 });
 
 export default ChatScreen;

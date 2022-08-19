@@ -137,10 +137,4 @@ export const actionChatProfile = [
         type: Ionicons,
         to: 'ProfileNoti'
     },
-    {
-        title: 'Share contact',
-        icon: 'ios-share-social-outline',
-        type: Ionicons,
-        to: ''
-    },
 ]

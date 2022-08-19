@@ -1,6 +1,8 @@
 import { combineReducers } from "redux";
 import Language from "./Language";
 import Appearance from './Appearance';
+import { User } from "./User";
+import { Contact } from "./Contact";
 
 const LoadingStyles = (
   state = [],
@@ -16,8 +18,6 @@ const LoadingStyles = (
   }
   return state;
 };
-
-
 const noConnection = (state = false, action: { type: any; value: any; error: any; }) => {
   switch (action.type) {
     case 'LOAD_NO_CONNECTION':
@@ -40,13 +40,40 @@ const textSizeChange = (state = 14, action: { type: any; size: any; error: any; 
   }
   return state;
 }
+const mobileToken = (state = [], action: { type: any; value: any; error: any; }) => {
+  switch (action.type) {
+      case 'LOAD_MOBILE_TOKEN':
+          return action.value
+      case 'LOAD__LOAD_MOBILE_TOKEN_ERROR':
+          return action.error;
+      default:
+          break;
+  }
+  return state;
+}
+
+const userToken = (state = [], action: { type: any; value: any; error: any; }) => {
+  switch (action.type) {
+      case 'LOAD_USER_TOKEN':
+          return action.value
+      case 'LOAD_USER_TOKEN_ERROR':
+          return action.error;
+      default:
+          break;
+  }
+  return state;
+}
 
 const rootReducers = combineReducers({
   no_connection: noConnection,
   style: LoadingStyles,
   lang: Language,
   appearance: Appearance,
-  textSizeChange: textSizeChange
+  textSizeChange: textSizeChange,
+  mobile_token:mobileToken,
+  token:userToken,
+  user : User,
+  mycontact : Contact
 });
 
 export type ReducerState = ReturnType<typeof rootReducers>
