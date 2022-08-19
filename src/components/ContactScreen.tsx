@@ -130,22 +130,29 @@ const ContactScreen = () => {
 			getData()
 		}
 	}
+
+	const _handleLiveChat = ({item,index}:any) => {
+		navigation.navigate('ChatList', { chatItem: item });
+
+	}
 	const _renderContactView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
-				<HStack alignItems="center" space={4}>
-					<UserAvatar>
-						<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
-					</UserAvatar>
-					<VStack space={1} flex={1}>
-						<Text style={style.p}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
-						<HStack alignItems={'center'}>
-							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
-						</HStack>
-						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
-					</VStack>
-				</HStack>
-			</TouchableOpacity>
+			item.contact_user ? 
+				<TouchableOpacity onPress={()=>_handleLiveChat({item,index})} style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+					<HStack alignItems="center" space={4}>
+						<UserAvatar>
+							<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+						</UserAvatar>
+						<VStack space={1} flex={1}>
+							<Text style={style.p}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
+							<HStack alignItems={'center'}>
+								<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
+							</HStack>
+							<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
+						</VStack>
+					</HStack>
+				</TouchableOpacity>
+			:null
 		)
 	}
 	return (
@@ -174,7 +181,6 @@ const ContactScreen = () => {
 						<>
 							{isMoreLoading && lastDoc !== 0 && renderFooter()}
 							<Footer />
-
 						</>
 					}
 					onTouchMove={_onScroll}
