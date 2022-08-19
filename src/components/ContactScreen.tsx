@@ -46,6 +46,7 @@ const ContactScreen = () => {
 	useEffect(()=>{
 		getData();
     },[user])
+
 	function getData() {
 		GET(`me/contact?page=${lastDoc}`)
 		.then(async (result: any) => {
@@ -57,6 +58,9 @@ const ContactScreen = () => {
 		.catch(e => {
 			setLoading(false)
 		});
+	}
+	const onShearchFriend = () =>{
+
 	}
 	const renderFooter: any = () => {
         if (!isMoreLoading) return true;
