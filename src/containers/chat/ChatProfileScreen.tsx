@@ -28,7 +28,8 @@ const ChatProfileScreen = (props: any) => {
     const [isVisible, setIsvisible] = useState(false)
     const ref = useRef<TransitioningView>(null);
     const [state, setState] = useState<any>({
-		searchText: ''
+		searchText: '',
+        isProfileClick: false
 	});
 
     
