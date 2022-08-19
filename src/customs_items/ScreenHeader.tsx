@@ -31,7 +31,7 @@ const ScreenHeader: React.FC<propsType> = (props) => {
         <View style={[styles.header, {flexDirection:'row',alignItems:'center',backgroundColor : themeStyle[theme].backgroundColor}]}>
             {is_main  ?
                 <View style={[style.buttonHeader]}>
-                    <Text style={[style.pBold,{fontSize:25,color : themeStyle[theme].textColor}]}>{title}</Text>
+                    <Text style={[style.pBold,{fontSize:20,color : themeStyle[theme].textColor}]}>{title}</Text>
                 </View>
                 :
                 <TouchableOpacity

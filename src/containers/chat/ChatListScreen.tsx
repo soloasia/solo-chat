@@ -37,8 +37,8 @@ const ChatListScreen = (props: any) => {
     const rightIcon = () => {
         return (
             <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
-                <UserAvatar style={{ width: 35, height: 35 }}>
-                    <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+                <UserAvatar style={{ width: 40, height: 40 }}>
+                    <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                 </UserAvatar>
             </TouchableOpacity>
         )
@@ -83,7 +83,7 @@ const ChatListScreen = (props: any) => {
 
 
     return (
-        <BaseComponent {...baseComponentData} title={chatItem.name} is_main={false} rightIcon={rightIcon}>
+        <BaseComponent {...baseComponentData} title={chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name} is_main={false} rightIcon={rightIcon}>
 
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>

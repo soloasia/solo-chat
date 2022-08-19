@@ -14,16 +14,18 @@ import { deviceWidth } from '../../styles/index';
 import { ChatData } from '../../temp_data/Contact';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useSelector } from 'react-redux';
 
 // create a component
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { userChat, isUserProfile } =  props
     const [selectUser, setSelectUser] = useState([userChat])
+	const mycontact = useSelector((state: any) => state.mycontact);
+
     const _removeObj = ({ item, index }: any) => {
         // if(item.uniqueId != userChat.uniqueId){
-            const filterDupplicate = selectUser.filter(element => element.uniqueId != item.uniqueId);
-            
+            const filterDupplicate = selectUser.filter(element => element.contact_user_id != item.contact_user_id);
             setSelectUser(filterDupplicate)
         // }
 
@@ -32,7 +34,7 @@ const CreateGroup = (props: any) => {
         return (
             <VStack alignItems='center' style={{ marginLeft: 10, justifyContent: 'center', }}>
                 <UserAvatar style={{ width: 65, height: 65, borderWidth: 2, borderColor: baseColor}}>
-                    <Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+                    <Image source={item.contact_user.profile_photo ? {uri: item.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                 </UserAvatar>
                 <TouchableOpacity 
                     onPress={() => _removeObj({ item, index })} 
@@ -44,29 +46,29 @@ const CreateGroup = (props: any) => {
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.name}</TextItem>
+                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user.first_name+' '+item.contact_user.last_name}</TextItem>
             </VStack>
         )
     }
 
     const _handleAddPeople = ({ item, index }: any) => {
-        const filterDupplicate = selectUser.filter(element => element.uniqueId === item.uniqueId);
+        const filterDupplicate = selectUser.filter(element => element.contact_user_id === item.contact_user_id);
         if (_.isEmpty(filterDupplicate)) {
             setSelectUser([...selectUser, item])
         }
     }
 
     const _renderUsers = ({ item, index }: any) => {
-        var filterIsadded = selectUser.filter(element => element.uniqueId === item.uniqueId);
+        var filterIsadded = selectUser.filter(element => element.contact_user_id === item.contact_user_id);
         return (
             <TouchableOpacity onPress={() => _handleAddPeople({ item, index })} style={{ paddingVertical: main_padding - 5, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: borderDivider }}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar style={{ width: 50, height: 50, }}>
-                            <Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+                            <Image source={item.contact_user.profile_photo ? {uri: item.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.name}</TextItem>
+                            <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.contact_user.first_name+' '+item.contact_user.last_name}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -93,7 +95,7 @@ const CreateGroup = (props: any) => {
                     <TextItem style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>Add people</TextItem>
                     <FlatListVertical
                         renderItem={_renderUsers}
-                        data={ChatData}
+                        data={mycontact}
                         ListFooterComponent={
                             <>
                                 <Footer />
