@@ -1,6 +1,6 @@
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Divider, HStack } from 'native-base';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -15,19 +15,17 @@ import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import CustomLoading from '../customs_items/CustomLoading';
-import i18n from "i18n-js";
 import { LanguageContext } from '../utils/LangaugeManager';
 
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
-	const {language} : any = useContext(LanguageContext);
-
-	i18n.locale= language;
+	const {tr} : any = useContext(LanguageContext);
     const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
     const [isOpen, setIsOpen] = React.useState(false);
-    const [loading,serLoading] = useState(false)
+    const [loading,serLoading] = useState(false);
+	
 
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
@@ -66,7 +64,7 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{i18n.t('edit')}</Text>
+				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{tr('edit')}</Text>
 			</TouchableOpacity>
 		)
 	}
@@ -84,7 +82,7 @@ const SettingScreen = () => {
         }, 2000);
 	}
     return (
-		<BaseComponent {...baseComponentData} title={i18n.t('settings')} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={tr('settings')} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
 				<FlatListScroll style={{padding: main_padding}}>
@@ -105,7 +103,7 @@ const SettingScreen = () => {
 									:
 									<Ionicons name={'moon-outline'} size={25} style={{color: "white"}}/>
 								}
-								<TextItem>{i18n.t('dark_mode')}</TextItem>
+								<TextItem>{tr('dark_mode')}</TextItem>
 							</HStack>
 							<Switch 
 								value={theme == "dark"} 

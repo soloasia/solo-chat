@@ -20,7 +20,7 @@ import { useSelector } from 'react-redux';
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { userChat, isUserProfile } =  props
-    const [selectUser, setSelectUser] = useState([userChat])
+    const [selectUser, setSelectUser] = useState(isUserProfile ?[userChat] :[])
 	const mycontact = useSelector((state: any) => state.mycontact);
 
     const _removeObj = ({ item, index }: any) => {
@@ -81,7 +81,7 @@ const CreateGroup = (props: any) => {
     return (
         <View style={styles.container}>
             <View style={{ flex: 1, paddingHorizontal: main_padding }}>
-                {!isUserProfile ? 
+                {!isUserProfile && _.isEmpty(selectUser) ? 
                     <View/>
                 :
                     <View style={{ justifyContent: 'center', paddingBottom: 10}}>
