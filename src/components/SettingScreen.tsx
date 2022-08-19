@@ -46,14 +46,14 @@ const SettingScreen = () => {
 						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
-						{item.name == "Notifications" && <Switch 
+						{index== "Notification" && <Switch 
 							value={isNotificationOn} 
 							trackColor= {{true : baseColor}}
 							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
 							onValueChange={() => { 
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
-						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
+						{item.name != "Notification" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
 					</HStack>			
 				</HStack>
 			</TouchableOpacity>

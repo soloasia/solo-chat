@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
 import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
@@ -8,7 +8,7 @@ import SearchBox from '../customs_items/SearchBox';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
-import style from '../styles';
+import style, { deviceHeight, deviceWidth } from '../styles';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
@@ -18,6 +18,9 @@ import Feather from 'react-native-vector-icons/Feather';
 import { textSecondColor } from '../config/colors';
 import { useSelector } from 'react-redux';
 import FastImage from 'react-native-fast-image';
+import _ from 'lodash';
+import Lottie from 'lottie-react-native';
+import { LanguageContext } from '../utils/LangaugeManager';
 
 
 const ChatScreen = () => {
@@ -25,10 +28,15 @@ const ChatScreen = () => {
 	const [showModal,setShowModal] = useState(false);
 	const [createGroup,setCreateGroup] = useState(false);
 	const {theme} : any = useContext(ThemeContext);
+	const {tr} : any = useContext(LanguageContext);
 	const mycontact = useSelector((state: any) => state.mycontact);
+	const myChatList = useSelector((state: any) => state.myChatList);
+	const userInfo = useSelector((state: any) => state.user);
+
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
+	
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({ ...state });
@@ -40,7 +48,7 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		navigate.navigate('ChatList', { chatItem: item });
+		// navigate.navigate('ChatList', { chatItem: item });
 	}
 	const rightIcon = () => {
 		return (
@@ -49,16 +57,33 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	
+	const getName = (item : any) : string => {
+		var name = ""
+		const isIndividual : boolean = item.type === "individual";
+		if(isIndividual) {
+			const found = item.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+			name = found.user.first_name + " " + found.user.last_name;
+		} else {
+			name = item.name;
+		}
+
+	   return name;
+	}
+
+	
 	const _renderChatView = ({item,index}:any) =>{
 		return(
 			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack space={3} alignItems="center">
 						<UserAvatar>
-							<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+							{
+								item.icon == null ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :	<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+							}
 						</UserAvatar>
 						<VStack space={1}>
-							<TextItem style={{ fontSize: 16 }}>{item.name}</TextItem>
+							<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
 							<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
 						</VStack>
 					</HStack>
@@ -95,21 +120,31 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+
 	return (
-		<BaseComponent {...baseComponentData} title={'Chats'} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={tr('chats')} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
 				onChangeText={(text: any) => onChangeText(text)}
 				onSearch={onConfirmSearch}
 			/>
-			<FlatListVertical
-				renderItem={_renderChatView}
-				data={ChatData}
-				ListFooterComponent={
-					<>
-						<Footer />
-					</>
-				}
-			/>
+			{_.isEmpty(myChatList)?
+				<View style={{width: deviceWidth, height: deviceHeight*0.6, }}>
+					<Lottie
+						source={require('../assets/no-data.json')} 
+						autoPlay loop 
+					/> 
+				</View>
+				:	
+				<FlatListVertical
+					renderItem={_renderChatView}
+					data={myChatList}
+					ListFooterComponent={
+						<>
+							<Footer />
+						</>
+					}
+				/>
+			}
 			<Modal
 				presentationStyle="formSheet"
 				visible={showModal}

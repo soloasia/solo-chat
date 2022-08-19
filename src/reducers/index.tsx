@@ -3,6 +3,7 @@ import Language from "./Language";
 import Appearance from './Appearance';
 import { User } from "./User";
 import { Contact } from "./Contact";
+import  {ListChat}  from "./ListChat";
 
 const LoadingStyles = (
   state = [],
@@ -73,7 +74,8 @@ const rootReducers = combineReducers({
   mobile_token:mobileToken,
   token:userToken,
   user : User,
-  mycontact : Contact
+  mycontact : Contact,
+  myChatList : ListChat,
 });
 
 export type ReducerState = ReturnType<typeof rootReducers>

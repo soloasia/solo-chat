@@ -97,7 +97,6 @@ const LanguageManager = ({children} : any) => {
             var map = documentSnapshot.data();
             if(map != null || map != undefined) {
                getLanguage(map);
-               console.log("snapshot");
             }
         });
        
