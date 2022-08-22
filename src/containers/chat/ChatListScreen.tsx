@@ -13,8 +13,6 @@ import ChatRecord from './ChatRecord';
 import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
-import I18n from 'i18n-js';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { main_padding } from '../../config/settings';
 
 const ChatListScreen = (props: any) => {
@@ -23,8 +21,10 @@ const ChatListScreen = (props: any) => {
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
     const { chatItem } = props.route.params;
+    reactotron.log(chatItem)
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
+    const userInfo = useSelector((state: any) => state.user);
     const [state, setState] = useState<any>({
         message: '',
         loadSendMess: false,
@@ -38,7 +38,8 @@ const ChatListScreen = (props: any) => {
         return (
             <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
-                    <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                    {getDisplayProfile(chatItem)}
+                    {/* <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} /> */}
                 </UserAvatar>
             </TouchableOpacity>
         )
@@ -80,11 +81,40 @@ const ChatListScreen = (props: any) => {
         </>
     );
 
+    const getName = (item : any) : string => {
+		var name = ""
+		const isIndividual : boolean = item.type === "individual";
+		if(isIndividual) {
+			const found = item.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+			name = found.user.first_name + " " + found.user.last_name;
+		} else {
+			name = item.name;
+		}
+
+	   return name;
+	}
+
+	const getDisplayProfile = (data : any) => {
+		const isIndividual : boolean = data.type === "individual";
+		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		const isGroupPhotoNull = data.profile_photo == null;
+		return (
+			<>
+				{
+					isIndividual 
+					? isFilterUserProfileNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+
+				}
+			</>
+		)
+	}
+
 
 
     return (
-        <BaseComponent {...baseComponentData} title={chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name} is_main={false} rightIcon={rightIcon}>
-
+        <BaseComponent {...baseComponentData} title={getName(chatItem)} is_main={false} rightIcon={rightIcon}>
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <TouchableWithoutFeedback accessible={false} >

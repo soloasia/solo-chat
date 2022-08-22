@@ -55,7 +55,7 @@ const LanguageManager = ({children} : any) => {
         i18n.translations = data;
         try {
             const value = await AsyncStorage.getItem("language");
-            // i18n.locale = value ?? "en";
+            i18n.locale = value ?? "en";
             setLanguage(value??"en");
         } catch(e) {
 
@@ -97,7 +97,6 @@ const LanguageManager = ({children} : any) => {
             var map = documentSnapshot.data();
             if(map != null || map != undefined) {
                getLanguage(map);
-               console.log("snapshot");
             }
         });
        

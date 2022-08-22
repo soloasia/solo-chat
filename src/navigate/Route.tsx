@@ -46,6 +46,7 @@ const Route = () => {
   const dispatch = useDispatch();
   const auth = useAuth();
   const [splashscreen,setSplash] = useState(true)
+  const {theme} : any = useContext(ThemeContext);
   
   React.useEffect(() => {
     checkPermissionNotification();
@@ -64,7 +65,6 @@ const Route = () => {
 	  }
   }, [])
 
-  const {theme} : any = useContext(ThemeContext);
 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;

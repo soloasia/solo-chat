@@ -9,7 +9,7 @@ import colors, { borderDivider, boxColor, textSecondColor, whiteColor } from '..
 import { useNavigation } from '@react-navigation/native';
 import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem } from '../../customs_items/Components';
 import LinearGradient from 'react-native-linear-gradient';
-import { actionChatProfile } from '../../temp_data/Setting';
+import { actionChatProfile, actionGroupChatProfile } from '../../temp_data/Setting';
 import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor, backgroundDark } from '../../config/colors';
 import { TransitioningView } from 'react-native-reanimated';
 import SearchBox from '../../customs_items/SearchBox';
@@ -17,6 +17,8 @@ import CreateGroup from './CreateGroup';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
 import { useSelector } from 'react-redux';
+import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
+import Feather from 'react-native-vector-icons/Feather';
 
 // create a component
 const ChatProfileScreen = (props: any) => {
@@ -34,9 +36,7 @@ const ChatProfileScreen = (props: any) => {
 
     
     const selectedRoute = ({ item, index }: any) => {
-        index == 0 ?
-            setIsvisible(true)
-        :navigate.navigate(item.to, { userChat: chatItem })
+        index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem })
     }
     const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
@@ -81,29 +81,32 @@ const ChatProfileScreen = (props: any) => {
         )
     }
 
+    const rightIcon = () => {
+		return (
+			<TouchableOpacity style={style.containerCenter}>
+			    <Text style = {{color : baseColor, fontSize : 16,fontWeight : '800'}}>Edit</Text>
+			</TouchableOpacity>
+		)
+	}
+
     return (
-        <View style={{...styles.container, backgroundColor: themeStyle[theme].backgroundColor}}>
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => navigate.goBack()}
-                style={{ padding: main_padding - 5 }}>
-                <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
-            </TouchableOpacity>
-            <VStack justifyContent='space-between' flex={1}>
-                <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
-                    <LinearGradient
+        <BaseComponent {...baseComponentData}  rightIcon={rightIcon}>
+
+        <VStack justifyContent='space-between' flex={1}>
+                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
+                     <LinearGradient
                         colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
                         <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
-                            <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                            {/* <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} /> */}
                         </View>
                     </LinearGradient>
                     <View style={{ paddingVertical: main_padding }}>
-                        <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem>
-                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
+                        {/* <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem> */}
+                        {/* <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem> */}
                     </View>
                 </View>
                 <View style={{ flex: 4.5, width: deviceWidth, paddingHorizontal: main_padding, }}>
@@ -112,7 +115,7 @@ const ChatProfileScreen = (props: any) => {
                         <FlatListVertical
                             scrollEnabled={false}
                             renderItem={_renderItem}
-                            data={actionChatProfile}
+                            data={chatItem.type === "individual" ? actionChatProfile : actionGroupChatProfile}
                         />
                     </View>
                 </View>
@@ -135,7 +138,8 @@ const ChatProfileScreen = (props: any) => {
                     <CreateGroup isUserProfile={true} userChat={chatItem} />
                 </View>
             </Modal>
-        </View>
+       
+        </BaseComponent>
     );
 };
 

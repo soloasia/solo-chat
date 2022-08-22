@@ -125,7 +125,7 @@ const CreateGroup = (props: any) => {
             if (result.status) {
                 // const formdata = new FormData();
                 // formdata.append("token", result.access_token);
-                reactotron.log(result)
+                // reactotron.log(result)
 
                 // navigate.reset({
                 //     index: 0,

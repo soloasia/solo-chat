@@ -25,7 +25,6 @@ const SettingScreen = () => {
 	const ref = useRef<TransitioningView>(null);
     const [isOpen, setIsOpen] = React.useState(false);
     const [loading,serLoading] = useState(false);
-	
 
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
@@ -47,14 +46,14 @@ const SettingScreen = () => {
 						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
-						{item.name == "Notifications" && <Switch 
+						{index== "Notification" && <Switch 
 							value={isNotificationOn} 
 							trackColor= {{true : baseColor}}
 							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
 							onValueChange={() => { 
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
-						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
+						{item.name != "Notification" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
 					</HStack>			
 				</HStack>
 			</TouchableOpacity>
@@ -81,6 +80,7 @@ const SettingScreen = () => {
             serLoading(false)
         }, 2000);
 	}
+
     return (
 		<BaseComponent {...baseComponentData} title={tr('settings')} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
@@ -88,7 +88,7 @@ const SettingScreen = () => {
 				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
-							{userInfo.profile_photo!=null ? 
+							{userInfo.profile_photo != null ? 
 								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
 							: <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
 						</UserAvatar>
@@ -98,7 +98,7 @@ const SettingScreen = () => {
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>
 							<HStack alignItems={'center'} space={3}>
-								{theme === "light"?
+								{theme === "light" ?
 									<Ionicons name={'sunny-outline'} size={25} style={{color: "black"}}/>
 									:
 									<Ionicons name={'moon-outline'} size={25} style={{color: "white"}}/>

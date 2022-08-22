@@ -20,8 +20,6 @@ export const ThemeProvider = ({ children } : any) => {
       StatusBar.setBarStyle("dark-content");
       await storeTheme("light");
     }
-    console.log("set theme ",theme);
-
   };
 
 
