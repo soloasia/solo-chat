@@ -33,6 +33,7 @@ import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
+import TestScreen from "../components/TestScreen";
 
 
 
@@ -196,7 +197,8 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          {splashscreen? <SplashScreen/>:<MainStack />}
+          <TestScreen/>
+          {/* {splashscreen? <SplashScreen/>:<MainStack />} */}
         </NavigationContainer>
     </SafeAreaProvider>
   );
