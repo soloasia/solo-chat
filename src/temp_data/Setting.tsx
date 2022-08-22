@@ -144,7 +144,7 @@ export const actionGroupChatProfile = [
         title: 'Members',
         icon: 'account-group',
         type: MaterialCommunityIcons,
-        to:''
+        to:'Members'
     },
     {
         title: 'Media, files & links',

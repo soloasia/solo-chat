@@ -120,7 +120,6 @@ const AddContactScreen = (props:any) => {
                                 width: 20
                             }}
                         />
-                        {/* <TouchableOpacity onPress={()=> console.log("add")}><Text style={{fontSize : 16,fontWeight : '700',color : baseColor}}>Add</Text></TouchableOpacity> */}
                     </View>
                     <View style = {{flexDirection : "row",justifyContent : 'center' ,alignItems: "center",marginHorizontal : main_padding,marginTop : main_padding }}>
                         <TextInput 

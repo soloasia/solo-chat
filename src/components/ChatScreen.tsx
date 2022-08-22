@@ -50,6 +50,7 @@ const ChatScreen = () => {
 	const onSelectChat = (item: any) => {
 		navigate.navigate('ChatList', { chatItem: item });
 	}
+
 	const rightIcon = () => {
 		return (
 			<TouchableOpacity style={style.containerCenter} onPress={() => setShowModal(true)}>
@@ -76,7 +77,6 @@ const ChatScreen = () => {
 		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
 		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
 		const isGroupPhotoNull = data.profile_photo == null;
-		console.log("isFilter null",isFilterUserProfileNull);
 		return (
 			<>
 				{
