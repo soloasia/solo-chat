@@ -43,12 +43,7 @@ const ChatProfileScreen = (props: any) => {
 		setState({...state});
 	};
 
-    const onChangeText = (text:any) =>{
-		handleChange('searchText',text)
-	}
-	const onConfirmSearch = () =>{
-	}
-
+   
 
     const _renderItem = ({ item, index }: any) => {
         return (
@@ -137,18 +132,6 @@ const ChatProfileScreen = (props: any) => {
                             <View/>
                         </View>
                     </View>
-                    <View style={{paddingHorizontal: main_padding }}>
-                        <TextInput
-                            style={{ fontSize: 14, fontFamily: 'Montserrat-Regular', borderRadius: 7, color: theme == 'dark' ? whiteSmoke : textDesColor }}
-                            placeholder='Group name...'
-                            placeholderTextColor={theme == 'dark' ? whiteSmoke : textDesColor}
-                        />
-                    </View>
-                    <SearchBox
-                        onChangeText={(text: any) => onChangeText(text)}
-                        onSearch={onConfirmSearch}
-                    />
-
                     <CreateGroup isUserProfile={true} userChat={chatItem} />
                 </View>
             </Modal>

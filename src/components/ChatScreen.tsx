@@ -124,23 +124,24 @@ const ChatScreen = () => {
 							<View></View>
 						</View>
 					</View>
-					<SearchBox
-						onChangeText={(text: any) => onChangeText(text)}
-						onSearch={onConfirmSearch}
-					/>
+					
 					{createGroup ?
 						<>
-							<View style={{ paddingHorizontal: main_padding, marginBottom: main_padding }}>
+							{/* <View style={{ paddingHorizontal: main_padding, marginBottom: main_padding }}>
 								<TextInput
 									style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
 									placeholder='Group name...'
 									placeholderTextColor={textDesColor}
 								/>
-							</View>
+							</View> */}
 							<CreateGroup isUserProfile={false} userChat={ChatData[0]} />
 						</>
 						:
 						<>
+							<SearchBox
+								onChangeText={(text: any) => onChangeText(text)}
+								onSearch={onConfirmSearch}
+							/>
 							<TouchableOpacity onPress={() => setCreateGroup(true)} style={{ marginVertical: main_padding, flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', marginHorizontal: main_padding }}>
 								<View style={{ flexDirection: "row", justifyContent: 'center', alignItems: 'center' }}>
 									<Ionicons name='people-outline' size={25} color={themeStyle[theme].textColor} />
