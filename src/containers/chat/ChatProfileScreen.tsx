@@ -7,7 +7,7 @@ import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import colors, { borderDivider, boxColor, greyDark, textSecondColor, whiteColor } from '../../config/colors';
 import { useNavigation } from '@react-navigation/native';
-import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem } from '../../customs_items/Components';
+import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem, AlertBox } from '../../customs_items/Components';
 import LinearGradient from 'react-native-linear-gradient';
 import { actionChatProfile, actionGroupChatProfile } from '../../temp_data/Setting';
 import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor, backgroundDark } from '../../config/colors';
@@ -16,34 +16,37 @@ import SearchBox from '../../customs_items/SearchBox';
 import CreateGroup from './CreateGroup';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import FastImage from 'react-native-fast-image';
+import { GET, POST } from '../../functions/BaseFuntion';
+import { loadListChat } from '../../actions/ListChat';
 
 
 // create a component
 const ChatProfileScreen = (props: any) => {
 	const {theme} : any = useContext(ThemeContext);
-
     const navigate: any = useNavigation();
     const { chatItem } = props.route.params;
-    const [isNotification, setNotification] = useState(false)
-    const [isVisible, setIsvisible] = useState(false)
+    const [isNotification, setNotification] = useState(false);
+    const [isVisible, setIsvisible] = useState(false);
+    const [showLogout, setShowLogout] = useState(false);
     const ref = useRef<TransitioningView>(null);
+    const dispatch:any = useDispatch();
     const userInfo = useSelector((state: any) => state.user);
     const [state, setState] = useState<any>({
 		searchText: '',
         isProfileClick: false
 	});
 
-    
     const selectedRoute = ({ item, index }: any) => {
-        chatItem.contact_user && index == 0 ?
-            setIsvisible(true)
-        :
-        navigate.navigate(item.to, { userChat: chatItem })
-        console.log("navigate",chatItem);
-        navigate.navigate(item.to, { userChat: chatItem });
+        if(item.title == 'Notification') {
+            console.log("notification");
+        }else if (item.title == "Leave Group"){
+            setShowLogout(true);
+        } else {
+            chatItem.contact_user && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
+        }
     }
     const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
@@ -52,9 +55,9 @@ const ChatProfileScreen = (props: any) => {
 
     const _renderItem = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={() => item.title == 'Notification' ? null :selectedRoute({ item, index })} style={{ padding: 7, justifyContent: 'center', marginTop: 7 }}>
+            <TouchableOpacity onPress={() => selectedRoute({ item, index })} style={{ padding: 7, justifyContent: 'center', marginTop: 7 }}>
                 <HStack alignItems='center' justifyContent='space-between'>
-                    <HStack>
+                    <HStack> 
                         <View style={{
                             width: 35, height: 35, borderRadius: 30,
                             backgroundColor: baseColor, alignItems: 'center',
@@ -63,7 +66,7 @@ const ChatProfileScreen = (props: any) => {
                             <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
                         </View>
                         <View style={{ marginHorizontal: main_padding - 5, borderBottomColor: labelColor, paddingVertical: 10 }}>
-                            <TextItem style={{ fontSize: 15,}}>{item.title}</TextItem>
+                            {item.title == "Leave Group" ? <Text style={{color: "red",fontWeight : '600'}}>{item.title}</Text>  : <TextItem style={{ fontSize: 15,}}>{item.title}</TextItem>}
                         </View>
                     </HStack>
                     {item.title == 'Notification' ?
@@ -125,6 +128,32 @@ const ChatProfileScreen = (props: any) => {
 		)
 	}
 
+    const _handleLeaveGroup = () => {
+        setShowLogout(false);
+        const formdata = new FormData();
+        formdata.append("group_id", chatItem.id);
+        POST('group/leave', formdata)
+        .then(async (result: any) => {
+            if(result.status) {
+                setShowLogout(false);
+                GET(`me/chatrooms?page=1`)
+                .then(async (result) => {
+                    if(result.status) {
+                        dispatch(loadListChat(result.data.data))
+                    }
+                })
+                .catch(e => {
+                });
+                navigate.reset({
+                    index: 0,
+                    routes: [{ name: 'Main' }]
+                })
+
+            }
+        })
+    
+    }
+
 
     return (
         <BaseComponent {...baseComponentData} rightIcon={rightIcon}>    
@@ -169,9 +198,8 @@ const ChatProfileScreen = (props: any) => {
             
             </VStack>
 
-
-        
             <Modal
+                transparent
                 presentationStyle="formSheet"
                 visible={isVisible}
                 animationType="slide"
@@ -188,6 +216,16 @@ const ChatProfileScreen = (props: any) => {
                     <CreateGroup isUserProfile={true} userChat={chatItem} />
                 </View>
             </Modal>
+
+            <AlertBox
+                title={'Leave Group'}
+                des={"Are you sure you want to leave group ?"}
+                btn_cancle={'Close'}
+                btn_name={'Leave'}
+                onCloseAlert={() => setShowLogout(false)}
+                onConfirm={_handleLeaveGroup}
+                isOpen={showLogout}
+            />
         </BaseComponent>
     );
 };

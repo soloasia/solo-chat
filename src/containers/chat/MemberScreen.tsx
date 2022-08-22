@@ -5,7 +5,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { borderDivider, chatText, textDesColor, whiteColor } from '../../config/colors';
+import { baseColor, borderDivider, chatText, textDesColor, whiteColor } from '../../config/colors';
 import { large_padding, main_padding } from '../../config/settings';
 import { AlertBox, FlatListVertical, Footer, TextItem, UserAvatar } from '../../customs_items/Components';
 import SearchBox from '../../customs_items/SearchBox';
@@ -13,9 +13,12 @@ import BaseComponent, { baseComponentData } from '../../functions/BaseComponent'
 import themeStyle from '../../styles/theme';
 import { ThemeContext } from '../../utils/ThemeManager';
 import Lottie from 'lottie-react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import style, { deviceHeight, deviceWidth } from '../../styles';
 import { GET, POST } from '../../functions/BaseFuntion';
+import { loadContact } from '../../actions/Contact';
+
+let lastDoc: any = 1;
 
 // create a component
 const MemberScreen = (props: any) => {
@@ -25,6 +28,8 @@ const MemberScreen = (props: any) => {
     const [showModal, setshowModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [successMsg,setSuccessMsg] = useState("");
+    const [value, setValue] = useState('');
+    const dispatch:any = useDispatch();
     const mycontact = useSelector((state: any) => state.mycontact);
     const _renderMemberView = ({ item, index }: any) => {
         return(
@@ -44,7 +49,7 @@ const MemberScreen = (props: any) => {
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
                         {
-                            item.is_admin == 1 ? <TextItem style={{textAlign:'center',fontSize:14,color: chatText}}>Admin</TextItem> : <Text></Text>
+                            item.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
                         }
                     </VStack>
                 </HStack>
@@ -106,6 +111,35 @@ const MemberScreen = (props: any) => {
         });
     }
 
+    function getData() {
+		GET(`me/contact?page=${lastDoc}`)
+		.then(async (result: any) => {
+			if(result.status){
+				dispatch(loadContact(result.data.data))
+				// setLoading(false)
+			}
+		})
+		.catch(e => {
+			// setLoading(false)
+		});
+	}
+
+    const onChangeText = (text:any) =>{
+		setValue(text)
+		if(text != ''){
+			GET(`search/contact?value=${text}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadContact(result.data))
+				}
+			})
+			.catch(e => {
+			});
+		}else{
+			getData()
+		}
+	}
+
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
@@ -114,8 +148,8 @@ const MemberScreen = (props: any) => {
     return (
         <BaseComponent {...baseComponentData} title={"Members"}>
             <TouchableOpacity style = {{flexDirection : "row",padding : main_padding}} onPress ={() => setshowModal(true)}> 
-                <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={themeStyle[theme].textColor} size= {18} />
-                <TextItem >Add member</TextItem>
+                <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
+                <Text style={{color:baseColor,fontSize: 16}}>Add member</Text>
             </TouchableOpacity>
             <FlatListVertical
                 renderItem={_renderMemberView}
@@ -139,12 +173,13 @@ const MemberScreen = (props: any) => {
                                 <TouchableOpacity onPress={() => setshowModal(false)}><TextItem>Cancel</TextItem></TouchableOpacity>
                                 <TextItem>Contacts</TextItem>
                                 <View style = {{paddingHorizontal: main_padding}}></View>
-                                
-                                {/* <TouchableOpacity onPress={createGroup ?() => setCreateGroup(!createGroup) : ()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-                                {createGroup ? <TextItem style={{fontWeight :'600',fontSize :16}}>Create new group</TextItem> : <TextItem style={{fontWeight :'600',fontSize :16}}>New Message</TextItem>} */}
                             </View>
                         </View>
-                        <SearchBox></SearchBox>
+                        <SearchBox
+                            onChangeText={(text:any)=> onChangeText(text)}
+                            onClear = {(text:any)=> onChangeText('')}
+                            value = {value}
+                        />
                         {_.isEmpty(mycontact)?
                             <View style={{width: deviceWidth, height: deviceHeight*0.6, }}>
                                 <Lottie
@@ -188,9 +223,6 @@ const MemberScreen = (props: any) => {
                 onConfirm={() => setIsOpen(false)}
                 isOpen={isOpen}
             />
-
-
-            
         </BaseComponent>
     );
 };

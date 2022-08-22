@@ -26,7 +26,6 @@ const SettingScreen = () => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [loading,serLoading] = useState(false);
 
-	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
 	const [isNotificationOn, setisNotificationOn] = useState(false);
 	const transition = (
