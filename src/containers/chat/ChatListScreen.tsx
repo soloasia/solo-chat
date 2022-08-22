@@ -38,8 +38,9 @@ const ChatListScreen = (props: any) => {
         return (
             <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
-                    {getDisplayProfile(chatItem)}
-                    {/* <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} /> */}
+                    {chatItem.contact_user ? 
+                    <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                    :getDisplayProfile(chatItem)}
                 </UserAvatar>
             </TouchableOpacity>
         )
@@ -87,7 +88,9 @@ const ChatListScreen = (props: any) => {
 		if(isIndividual) {
 			const found = item.chatroom_users.find((element : any) => element.user_id != userInfo.id);
 			name = found.user.first_name + " " + found.user.last_name;
-		} else {
+		} else if (chatItem.contact_user) {
+            name = chatItem.contact_user.first_name + ' ' + chatItem.contact_user.last_name
+        } else {
 			name = item.name;
 		}
 

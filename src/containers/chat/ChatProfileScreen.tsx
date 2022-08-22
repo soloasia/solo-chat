@@ -37,9 +37,10 @@ const ChatProfileScreen = (props: any) => {
 
     
     const selectedRoute = ({ item, index }: any) => {
-        index == 0 ?
+        chatItem.contact_user && index == 0 ?
             setIsvisible(true)
-        :navigate.navigate(item.to, { userChat: chatItem })
+        :
+        navigate.navigate(item.to, { userChat: chatItem })
         console.log("navigate",chatItem);
         navigate.navigate(item.to, { userChat: chatItem });
         // index == 0 ? chatItem.type === "individual" ?  setIsvisible(true) : ()=>  navigate.navigate(item.to, { userChat: chatItem }) : navigate.navigate(item.to, { userChat: chatItem })
@@ -139,20 +140,21 @@ const ChatProfileScreen = (props: any) => {
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
                         <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
-                            {getDisplayProfile(chatItem)}
-                            {/* <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} /> */}
+                            {chatItem.contact_user ? 
+                            <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                            :getDisplayProfile(chatItem)}
                         </View>
                     </LinearGradient>
                     { 
 
-                       chatItem.type === "individual"? 
+                       chatItem.type === "individual" || chatItem.contact_user? 
                         <View style={{ paddingVertical: main_padding }}>
                             <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem>
                             <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
                         </View> : 
                         <View style={{ paddingVertical: main_padding }}>
                             <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> 
-                            <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10,textAlign: 'center',color : greyDark }}>{chatItem.chatroom_users.length + " members"}</TextItem>
+                            <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10,textAlign: 'center',color : greyDark }}>{chatItem.contact_user ? '' :chatItem.chatroom_users.length + " members"}</TextItem>
                         </View>
                     }
                 </View>
@@ -162,7 +164,7 @@ const ChatProfileScreen = (props: any) => {
                         <FlatListVertical
                             scrollEnabled={false}
                             renderItem={_renderItem}
-                            data={chatItem.type === "individual"? actionChatProfile : actionGroupChatProfile}
+                            data={chatItem.type === "individual" || chatItem.contact_user? actionChatProfile : actionGroupChatProfile}
                         />
                     </View>
                 </View>

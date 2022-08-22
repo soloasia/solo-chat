@@ -14,18 +14,20 @@ import { deviceWidth } from '../../styles/index';
 import { ChatData } from '../../temp_data/Contact';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import SearchBox from '../../customs_items/SearchBox';
 import { POST } from '../../functions/BaseFuntion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loadData } from '../../functions/LoadData';
 
 // create a component
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
+    const dispatch = useDispatch();
 
-    const { userChat, isUserProfile,onClose } = props
+    const { userChat, isUserProfile, onClose } = props
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
     const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user.id] : [])
@@ -104,16 +106,20 @@ const CreateGroup = (props: any) => {
         const formdata = new FormData();
         formdata.append("name", state.groupName);
         formdata.append("group_user_ids[]", userIds);
-    
-        POST('group/create', formdata).then(async (result: any) => {
-            if (result.status) {
-                navigate.navigate('ChatList', { chatItem: result.data[0] });
-                onClose()
-            } else {
-                // handleChange('loading', false);
-                // setIsOpen(true)
-            }
-        })
+        if (state.groupName != '') {
+            POST('group/create', formdata).then(async (result: any) => {
+                if (result.status) {
+                    navigate.navigate('ChatList', { chatItem: result.data[0] });
+		            loadData(dispatch);
+
+                    onClose()
+                } else {
+                    Alert.alert('Something went wrong!\n', 'Please try again later')
+                }
+            })
+        }else {
+            Alert.alert('Sorry!\n', 'Group name field is required.')
+        }
     }
 
     const onChangeText = (text: any) => {

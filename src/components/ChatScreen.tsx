@@ -115,7 +115,7 @@ const ChatScreen = () => {
 							</VStack>
 						</HStack>
 						<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-							<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>Now</TextItem>
+							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>Now</TextItem>
 							{item.status ==1?
 								<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
 									<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>
