@@ -42,6 +42,8 @@ export async function GET(end_point) {
     myHeader.append('Accept','application/json');
     myHeader.append('Content-Type','multipart/form-data');
     myHeader.append('Authorization', `Bearer ${token}`);
+    console.log(`${base_url}${end_point}`);
+    console.log("form data :",form_data);
     return new Promise(async (resolve, reject) => {
       try {
         await fetch(`${base_url}${end_point}`, {

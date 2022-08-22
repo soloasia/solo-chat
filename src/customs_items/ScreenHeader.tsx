@@ -38,7 +38,7 @@ const ScreenHeader: React.FC<propsType> = (props) => {
                     activeOpacity={0.8}
                     onPress={()=>navigate.goBack()}
                     style={[style.buttonHeader]}>
-                    <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
+                    <Ionicons name='chevron-back' size={28} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
             <TextItem style={[style.pBold, styles.title, {textAlign: 'center',color : themeStyle[theme].textColor}]} numberOfLines={1}>{is_main? '':title}</TextItem>
