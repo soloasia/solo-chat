@@ -48,7 +48,7 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		// navigate.navigate('ChatList', { chatItem: item });
+		navigate.navigate('ChatList', { chatItem: item });
 	}
 	const rightIcon = () => {
 		return (
@@ -71,34 +71,60 @@ const ChatScreen = () => {
 	   return name;
 	}
 
+	const getDisplayProfile = (data : any) => {
+		const isIndividual : boolean = data.type === "individual";
+		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		const isGroupPhotoNull = data.profile_photo == null;
+		console.log("isFilter null",isFilterUserProfileNull);
+		return (
+			<>
+				{
+					isIndividual 
+					? isFilterUserProfileNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+
+				}
+			</>
+		)
+	}
+
 	
 	const _renderChatView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
-				<HStack justifyContent={'space-between'}>
-					<HStack space={3} alignItems="center">
-						<UserAvatar>
-							{
-								item.icon == null ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :	<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+		   <>
+		   	 {
+				item.type == "individual" && _.isEmpty(item.last_chatroom_messages)
+				?  <></>
+				: 
+					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+					<HStack justifyContent={'space-between'}>
+						<HStack space={3} alignItems="center">
+							<UserAvatar>
+								{getDisplayProfile(item)}
+								{/* {
+									item.profile_photo == null ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :	<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+								} */}
+							</UserAvatar>
+							<VStack space={1}>
+								<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
+								<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
+							</VStack>
+						</HStack>
+						<VStack space={2} alignItems={'center'} justifyContent={'center'}>
+							<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>Now</TextItem>
+							{item.status ==1?
+								<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
+									<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>
+								</View>
+								:
+								<></>
 							}
-						</UserAvatar>
-						<VStack space={1}>
-							<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
-							<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
 						</VStack>
 					</HStack>
-					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-						<TextItem style={{textAlign:'center',fontSize:14,color:chatText}}>Now</TextItem>
-						{item.status ==1?
-							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
-								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>
-							</View>
-							:
-							<></>
-						}
-					</VStack>
-				</HStack>
-			</TouchableOpacity>
+				</TouchableOpacity>
+				}
+		   </>
 		)
 	}
 

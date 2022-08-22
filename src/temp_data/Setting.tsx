@@ -139,3 +139,23 @@ export const actionChatProfile = [
         to: 'ProfileNoti'
     },
 ]
+export const actionGroupChatProfile = [
+    {
+        title: 'Members',
+        icon: 'account-group',
+        type: MaterialCommunityIcons,
+        to:''
+    },
+    {
+        title: 'Media, files & links',
+        icon: 'photo-size-select-actual',
+        type: MaterialIcons,
+        to: 'Mediafile'
+    },
+    {
+        title: 'Notification',
+        icon: 'notifications',
+        type: Ionicons,
+        to: 'ProfileNoti'
+    },
+]
