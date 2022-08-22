@@ -158,4 +158,10 @@ export const actionGroupChatProfile = [
         type: Ionicons,
         to: 'ProfileNoti'
     },
+    {
+        title: 'Leave Group',
+        icon: 'log-out-outline',
+        type: Ionicons,
+        to: ''
+    },
 ]
