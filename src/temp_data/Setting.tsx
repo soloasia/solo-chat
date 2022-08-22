@@ -124,7 +124,27 @@ export const actionChatProfile = [
         title: 'Create group chat',
         icon: 'account-group',
         type: MaterialCommunityIcons,
-        to:'CreateGroup'
+        to:''
+    },
+    {
+        title: 'Media, files & links',
+        icon: 'photo-size-select-actual',
+        type: MaterialIcons,
+        to: 'Mediafile'
+    },
+    {
+        title: 'Notification',
+        icon: 'notifications',
+        type: Ionicons,
+        to: 'ProfileNoti'
+    },
+]
+export const actionGroupChatProfile = [
+    {
+        title: 'Members',
+        icon: 'account-group',
+        type: MaterialCommunityIcons,
+        to:'Members'
     },
     {
         title: 'Media, files & links',

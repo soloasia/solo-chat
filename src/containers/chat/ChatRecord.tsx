@@ -14,6 +14,10 @@ import themeStyle from '../../styles/theme';
 import { makeid } from '../../customs_items/Components';
 import style from '../../styles';
 import LottieView from 'lottie-react-native';
+import ImagePicker from 'react-native-image-crop-picker';
+import DocumentPicker from 'react-native-document-picker';
+import reactotron from 'reactotron-react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 let audioRecorderPlayer:any = null;
 const dirs = RNFetchBlob.fs.dirs;
@@ -23,12 +27,26 @@ const path = Platform.select({
 });
 
 const ChatRecord = (props: any) => {
-    const { onOpen, onSend, message, onChangeMessage, loading } = props;
+    const { onOpen, onSend, message, onChangeMessage,onOpenGallery } = props;
     const textsize = useSelector((state: any) => state.textSizeChange);
     const {theme} : any = useContext(ThemeContext);
     const [isRecord, setIsRecord] = useState(false);
     const [duration, setDuration] = useState<any>("00:00");
     const [totalDuration, setTotalDuration] = useState(0);
+    const [singleFile, setSingleFile] = useState<any>('');
+
+    const onCamera = () => {
+        // onClose()
+        ImagePicker.openCamera({
+            maxHeight: 512,
+            maxWidth: 512,
+            cropping: false,
+            includeBase64: true,
+        }).then(response => {
+            // onChange(response);
+        });
+    }
+
     const onStartRecord = async () => {
         audioRecorderPlayer = new AudioRecorderPlayer()
         const result = await audioRecorderPlayer.startRecorder(path,audioSet);
@@ -68,16 +86,70 @@ const ChatRecord = (props: any) => {
             type: Platform.OS == "ios" ? "audio/m4a" : "audio/mp3",
         }
     }
+    const selectOneFile = async () => {
+		//Opening Document Picker for selection of one file
+		try {
+		  const res:any = await DocumentPicker.pick({
+			type: [DocumentPicker.types.plainText,DocumentPicker.types.pdf,DocumentPicker.types.zip,DocumentPicker.types.csv,
+			DocumentPicker.types.doc,DocumentPicker.types.docx,DocumentPicker.types.ppt,DocumentPicker.types.pptx,DocumentPicker.types.xls,DocumentPicker.types.xlsx],
+		  });
+          setSingleFile(res[0])
+		} catch (err) {
+		  if (DocumentPicker.isCancel(err)) {
+			//If user canceled the document selection
+		  } else {
+			//For Unknown Error
+			throw err;
+		  }
+		}
+	};
+    const getExtention = (filename:any) => {
+        return /[.]/.exec(filename) ? /[^.]+$/.exec(filename) : undefined;
+    };
     return (
         <View style={[styles.input,{backgroundColor : themeStyle[theme].backgroundColor}]}>
-            {isRecord?
+            {isRecord || message || singleFile?
                 <></>
                 :
-                <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={() => onOpen()}>
+                <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={selectOneFile}>
                     <Entypo name={"attachment"} size={18} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
+            {isRecord || message || singleFile?
+                <></>
+                :
+                <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={onOpenGallery}>
+                    <Ionicons name={"image-outline"} size={18} color={themeStyle[theme].textColor} />
+                </TouchableOpacity>
+            }
             {
+                singleFile?
+                <HStack style={{ height: 40, alignItems: 'center',flex:6,backgroundColor:'#ADB9C6',borderRadius:20,paddingLeft:20,justifyContent:'space-between'}}>
+                    <HStack>
+                        <FontAwesome name={
+                            getExtention(singleFile.name)![0] == 'pdf'? 
+                                "file-pdf-o"
+                                : getExtention(singleFile.name)![0] == 'xls' || getExtention(singleFile.name)![0] == 'xlsx'?
+                                    'file-excel-o'
+                                    :
+                                        getExtention(singleFile.name)![0] == 'ppt' || getExtention(singleFile.name)![0] == 'pptx' || getExtention(singleFile.name)![0] == 'csv'?
+                                        'file-powerpoint-o'
+                                        :
+                                        getExtention(singleFile.name)![0] == 'doc' || getExtention(singleFile.name)![0] == 'docx'?
+                                            'file-word-o'
+                                            :
+                                                getExtention(singleFile.name)![0] == 'zip'?
+                                                    'file-zip-o'
+                                                    :
+                                                        'file-text-o'
+                            } size={18} color={themeStyle[theme].textColor} />
+                        <Text style={[style.p,{paddingLeft:10}]}>{singleFile.name}</Text>
+                    </HStack>
+                    <TouchableOpacity style={[styles.icon, { marginRight: 10}]} onPress={() => setSingleFile('')} >
+                        <Ionicons name={"close-circle-outline"}  size={25} color={offlineColor}/>
+                    </TouchableOpacity>
+                </HStack> 
+                :
                 !isRecord ?  
                 <TextInput
                     value={message}
@@ -88,7 +160,7 @@ const ChatRecord = (props: any) => {
                     scrollEnabled
                     placeholder={"Type a message..."}
                     onChangeText={(_text) =>  onChangeMessage(_text) }
-                    style={{ flex: message? 5:2.5, height: 40 ,color:textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize}}
+                    style={{ flex: message? 5:2, height: 40 ,color:textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize}}
                 />
                 :
                 <HStack style={{ height: 40, alignItems: 'center',flex:6,backgroundColor:'#ADB9C6',justifyContent:'space-between',borderRadius:20,paddingLeft:20}}>
@@ -106,18 +178,18 @@ const ChatRecord = (props: any) => {
                     </TouchableOpacity>
                     :
                     <>
-                        {isRecord?
+                        {isRecord || singleFile?
                         <></>
                             :
-                            <TouchableOpacity style={[styles.icon, { marginRight: 10}]} onPress={() => onStartRecord()} >
+                            <TouchableOpacity style={styles.icon} onPress={() => onStartRecord()} >
                                 <Ionicons name={"ios-mic-outline"}  size={25} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
                         }
                        
-                        {isRecord ?
+                        {isRecord || singleFile?
                             <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
                             :
-                            <TouchableOpacity onPress={onSend}  style={[styles.icon]}>
+                            <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
                                 <Ionicons name="ios-camera-outline"  size={25} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
 
@@ -126,6 +198,7 @@ const ChatRecord = (props: any) => {
                     </>
                 }
             </HStack>
+            
         </View >
     )
 }

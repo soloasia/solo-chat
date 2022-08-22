@@ -6,14 +6,16 @@ import { baseColor, placeholderDarkTextColor, placeholderTextColor, whiteColor, 
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import { FlatListVertical, Footer } from '../customs_items/Components';
-import style from '../styles';
-import DocumentPicker from 'react-native-document-picker';
-import { Alert } from 'native-base';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import reactotron from 'reactotron-react-native';
+import style from '../styles';
+import Video from 'react-native-video';
 
 const TestScreen = (props:any) => {
+    const navigate: any = useNavigation();
+    const insets = useSafeAreaInsets();
     const sheetRef = React.useRef<any>(null);
-	const [singleFile, setSingleFile] = useState('');
+	const [data, setData] = useState<any>([]);
 	const [state, setState] = useState<any>({
         image: null,
 		index: null
@@ -22,43 +24,42 @@ const TestScreen = (props:any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
     };
-	// useEffect(() => {
-	// 	selectOneFile()
-	// }, []);
 
-	const selectOneFile = async () => {
-		//Opening Document Picker for selection of one file
-		try {
-		  const res:any = await DocumentPicker.pick({
-			type: [DocumentPicker.types.plainText,DocumentPicker.types.pdf,DocumentPicker.types.zip,DocumentPicker.types.csv,
-				DocumentPicker.types.doc,DocumentPicker.types.docx,DocumentPicker.types.ppt,DocumentPicker.types.pptx,DocumentPicker.types.xls,DocumentPicker.types.xlsx],
-			//There can me more options as well
-			// DocumentPicker.types.allFiles
-			// DocumentPicker.types.images
-			// DocumentPicker.types.plainText
-			// DocumentPicker.types.audio
-			// DocumentPicker.types.pdf
-		  });
-		  //Printing the log realted to the file
-		  reactotron.log('res : ' + JSON.stringify(res));
-		//   reactotron.log('URI : ' + res.uri);
-		//   reactotron.log('Type : ' + res.type);
-		//   reactotron.log('File Name : ' + res.name);
-		//   reactotron.log('File Size : ' + res.size);
-		  //Setting the state to show single file attributes
-		  setSingleFile(res);
-		} catch (err) {
-		  //Handling any exception (If any)
-		  if (DocumentPicker.isCancel(err)) {
-			//If user canceled the document selection
-		  } else {
-			//For Unknown Error
-			throw err;
-		  }
-		}
-	  };
-
+	const getPhotos = () => {
+		CameraRoll.getPhotos({
+			first: 1000,
+			assetType: 'All',
+			include: ['filename', 'fileSize','imageSize','playableDuration']
+		}).then((res) => {
+			setData(res.edges);
+		})
+		.catch((error) => {
+			console.log(error);
+		});
+	};
 	
+	const askPermission = async () => {
+		if (Platform.OS === 'android') {
+			const result = await PermissionsAndroid.request(
+				PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+				{
+					title : 'Permission Explanation',
+					message: 'ReactNativeForYou would like to access your photos!',
+				},
+			);
+			if (result !== 'granted') {
+				return;
+			} else {
+				getPhotos();
+			}
+			} else {
+			getPhotos();
+			}
+	};
+	
+	useEffect(() => {
+		askPermission();
+	}, []);
 
 	function onSelectImage (item:any,index:any){
 		handleChange('index',index)
@@ -92,7 +93,16 @@ const TestScreen = (props:any) => {
 		)
 	}
     const renderInner = () => (
-		<></>
+		<FlatListVertical
+			renderItem={_renderView}
+			numColumns={3}
+			data={data}
+			ListFooterComponent={
+				<>
+					<Footer />
+				</>
+			}
+		/>
     )
 	const onSend = () =>{
 		handleChange('image','')
@@ -114,7 +124,17 @@ const TestScreen = (props:any) => {
     )
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={selectOneFile}>
+            <BottomSheet
+				ref={sheetRef}
+				snapPoints={['50%', '95%', 0]}
+				overdragResistanceFactor={1}
+				renderContent={renderInner}
+				renderHeader={renderHeader}
+				initialSnap={2}
+				enabledInnerScrolling={true}
+				enabledContentGestureInteraction={false}
+            />
+            <TouchableOpacity onPress={() => sheetRef.current.snapTo(0)}>
                 <View style={{width:100,height:40,backgroundColor:'red',marginTop:100,justifyContent:'center',alignItems:'center' }}>
                 </View>
             </TouchableOpacity>

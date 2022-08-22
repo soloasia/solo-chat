@@ -7320,6 +7320,13 @@ react-native-country-picker-modal@^2.0.0:
     prop-types "15.7.2"
     react-async-hook "3.6.1"
 
+react-native-document-picker@^8.1.1:
+  version "8.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-document-picker/-/react-native-document-picker-8.1.1.tgz#642bbe25752cc428b96416318f8dc07cef29ee10"
+  integrity sha512-mH0oghd7ndgU9/1meVJdqts1sAkOfUQW1qbrqTTsvR5f2K9r0BAj/X02dve5IBMOMZvlGd7qWrNVuIFg5AUXWg==
+  dependencies:
+    invariant "^2.2.4"
+
 react-native-fast-image@^8.5.11:
   version "8.5.11"
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.5.11.tgz#e3dc969d0e4e8df026646bf18194465aa55cbc2b"

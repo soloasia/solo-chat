@@ -1,6 +1,6 @@
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Divider, HStack } from 'native-base';
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -15,19 +15,16 @@ import { data, seconddata } from '../temp_data/Setting';
 import { ThemeContext } from '../utils/ThemeManager';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import CustomLoading from '../customs_items/CustomLoading';
-import i18n from "i18n-js";
 import { LanguageContext } from '../utils/LangaugeManager';
 
 
 const SettingScreen = () => {
     const navigate:any = useNavigation();
-	const {language} : any = useContext(LanguageContext);
-
-	i18n.locale= language;
+	const {tr} : any = useContext(LanguageContext);
     const userInfo = useSelector((state: any) => state.user);
 	const ref = useRef<TransitioningView>(null);
     const [isOpen, setIsOpen] = React.useState(false);
-    const [loading,serLoading] = useState(false)
+    const [loading,serLoading] = useState(false);
 
 	// const [isDarkMode, setDarkMode] = useState(false);
 	const {theme, toggleTheme} : any  = useContext(ThemeContext);
@@ -49,14 +46,14 @@ const SettingScreen = () => {
 						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
-						{item.name == "Notifications" && <Switch 
+						{index== "Notification" && <Switch 
 							value={isNotificationOn} 
 							trackColor= {{true : baseColor}}
 							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
 							onValueChange={() => { 
 								setisNotificationOn(!isNotificationOn)
 							}}></Switch>}
-						{item.name != "Notifications" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
+						{item.name != "Notification" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
 					</HStack>			
 				</HStack>
 			</TouchableOpacity>
@@ -66,7 +63,7 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{i18n.t('edit')}</Text>
+				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{tr('edit')}</Text>
 			</TouchableOpacity>
 		)
 	}
@@ -83,14 +80,15 @@ const SettingScreen = () => {
             serLoading(false)
         }, 2000);
 	}
+
     return (
-		<BaseComponent {...baseComponentData} title={i18n.t('settings')} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={tr('settings')} is_main={true} rightIcon={rightIcon}>
 			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
 				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
-							{userInfo.profile_photo!=null ? 
+							{userInfo.profile_photo != null ? 
 								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
 							: <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
 						</UserAvatar>
@@ -100,12 +98,12 @@ const SettingScreen = () => {
 					<TouchableOpacity style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10,marginTop:main_padding}}>
 						<HStack justifyContent={'space-between'}>
 							<HStack alignItems={'center'} space={3}>
-								{theme === "light"?
+								{theme === "light" ?
 									<Ionicons name={'sunny-outline'} size={25} style={{color: "black"}}/>
 									:
 									<Ionicons name={'moon-outline'} size={25} style={{color: "white"}}/>
 								}
-								<TextItem>{i18n.t('dark_mode')}</TextItem>
+								<TextItem>{tr('dark_mode')}</TextItem>
 							</HStack>
 							<Switch 
 								value={theme == "dark"} 

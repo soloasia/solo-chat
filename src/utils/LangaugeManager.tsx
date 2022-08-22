@@ -55,11 +55,15 @@ const LanguageManager = ({children} : any) => {
         i18n.translations = data;
         try {
             const value = await AsyncStorage.getItem("language");
-            // i18n.locale = value ?? "en";
+            i18n.locale = value ?? "en";
             setLanguage(value??"en");
         } catch(e) {
 
         }
+    }
+
+    const tr = (data : string) : string =>  {
+        return i18n.t(data);
     }
 
     // const addLanguageJson = async () => {
@@ -78,7 +82,7 @@ const LanguageManager = ({children} : any) => {
     }
 
     const userChangeLanguage = async (langCode : string) => {
-        console.log(langCode);
+
         setLanguage(langCode.toLowerCase());
         i18n.locale = langCode;
         await storeLanguage(langCode.toLowerCase());
@@ -101,7 +105,7 @@ const LanguageManager = ({children} : any) => {
     }, []);
 
     return (
-        <LanguageContext.Provider value={{language,userChangeLanguage}}>
+        <LanguageContext.Provider value={{tr,userChangeLanguage}}>
             {children}
         </LanguageContext.Provider>
     );

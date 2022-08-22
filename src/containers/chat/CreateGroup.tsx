@@ -1,8 +1,8 @@
 //import liraries
 import { useNavigation } from '@react-navigation/native';
 import { HStack, Icon, Input, VStack } from 'native-base';
-import React, { Component, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import React, { Component, useContext, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import reactotron from 'reactotron-react-native';
 import colors, { borderDivider, boxColor, iconColor, whiteColor } from '../../config/colors';
@@ -14,39 +14,62 @@ import { deviceWidth } from '../../styles/index';
 import { ChatData } from '../../temp_data/Contact';
 import _ from 'lodash';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { ThemeContext } from '../../utils/ThemeManager';
+import SearchBox from '../../customs_items/SearchBox';
+import { POST } from '../../functions/BaseFuntion';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { loadData } from '../../functions/LoadData';
 
 // create a component
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
-    const { userChat, isUserProfile } =  props
-    const [selectUser, setSelectUser] = useState([userChat])
-	const mycontact = useSelector((state: any) => state.mycontact);
+    const { theme }: any = useContext(ThemeContext);
+    const dispatch = useDispatch();
+
+    const { userChat, isUserProfile, onClose } = props
+    const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
+    const mycontact = useSelector((state: any) => state.mycontact);
+    const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user.id] : [])
+    const [state, setState] = useState<any>({
+        searchText: '',
+        groupName: ''
+    });
+
+    const handleChange = (stateName: string, value: any) => {
+        state[`${stateName}`] = value;
+        setState({ ...state });
+    };
+
 
     const _removeObj = ({ item, index }: any) => {
         // if(item.uniqueId != userChat.uniqueId){
-            const filterDupplicate = selectUser.filter(element => element.contact_user_id != item.contact_user_id);
-            setSelectUser(filterDupplicate)
-        // }
+        const filterDupplicate = selectUser.filter(element => element.contact_user_id != item.contact_user_id);
+        setSelectUser(filterDupplicate)
+        const test = userIds.slice(1, index)
+        _.remove(userIds, function (c) {
+            return (c === item.contact_user_id); //remove if color is green
+        });
 
+        setUserIds(userIds)
     }
     const _renderSelectedUserItem = ({ item, index }: any) => {
         return (
             <VStack alignItems='center' style={{ marginLeft: 10, justifyContent: 'center', }}>
-                <UserAvatar style={{ width: 65, height: 65, borderWidth: 2, borderColor: baseColor}}>
-                    <Image source={item.contact_user.profile_photo ? {uri: item.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                <UserAvatar style={{ width: 65, height: 65, borderWidth: 2, borderColor: baseColor }}>
+                    <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                 </UserAvatar>
-                <TouchableOpacity 
-                    onPress={() => _removeObj({ item, index })} 
-                    style={{ 
-                        position: 'absolute', top: 0, right: 0, width: 20, height: 20, 
-                        borderRadius: 10, backgroundColor: iconColor, alignItems: 'center', 
-                        justifyContent: 'center', borderColor: whiteSmoke, borderWidth: 1 
+                <TouchableOpacity
+                    onPress={() => _removeObj({ item, index })}
+                    style={{
+                        position: 'absolute', top: 0, right: 0, width: 20, height: 20,
+                        borderRadius: 10, backgroundColor: iconColor, alignItems: 'center',
+                        justifyContent: 'center', borderColor: whiteSmoke, borderWidth: 1
                     }}
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user.first_name+' '+item.contact_user.last_name}</TextItem>
+                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>
             </VStack>
         )
     }
@@ -55,9 +78,9 @@ const CreateGroup = (props: any) => {
         const filterDupplicate = selectUser.filter(element => element.contact_user_id === item.contact_user_id);
         if (_.isEmpty(filterDupplicate)) {
             setSelectUser([...selectUser, item])
+            setUserIds((userIds: any) => [...userIds, item.contact_user_id])
         }
     }
-
     const _renderUsers = ({ item, index }: any) => {
         var filterIsadded = selectUser.filter(element => element.contact_user_id === item.contact_user_id);
         return (
@@ -65,10 +88,10 @@ const CreateGroup = (props: any) => {
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar style={{ width: 50, height: 50, }}>
-                            <Image source={item.contact_user.profile_photo ? {uri: item.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                            <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.contact_user.first_name+' '+item.contact_user.last_name}</TextItem>
+                            <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -78,13 +101,55 @@ const CreateGroup = (props: any) => {
             </TouchableOpacity>
         )
     }
+
+    const createGroupUser = async () => {
+        const formdata = new FormData();
+        formdata.append("name", state.groupName);
+        formdata.append("group_user_ids[]", userIds);
+        if (state.groupName != '') {
+            POST('group/create', formdata).then(async (result: any) => {
+                if (result.status) {
+                    navigate.navigate('ChatList', { chatItem: result.data[0] });
+		            loadData(dispatch);
+
+                    onClose()
+                } else {
+                    Alert.alert('Something went wrong!\n', 'Please try again later')
+                }
+            })
+        }else {
+            Alert.alert('Sorry!\n', 'Group name field is required.')
+        }
+    }
+
+    const onChangeText = (text: any) => {
+        handleChange('searchText', text)
+    }
+    const onConfirmSearch = () => {
+    }
+
+
     return (
         <View style={styles.container}>
+            <View style={{ paddingHorizontal: main_padding }}>
+                <TextInput
+                    style={{ fontSize: 14, fontFamily: 'Montserrat-Regular', borderRadius: 7, color: theme == 'dark' ? whiteSmoke : textDesColor }}
+                    placeholder='Group name...'
+                    value={state.groupName}
+                    onChangeText={(text) => handleChange('groupName', text)}
+                    placeholderTextColor={theme == 'dark' ? whiteSmoke : textDesColor}
+                />
+            </View>
+            <SearchBox
+                onChangeText={(text: any) => onChangeText(text)}
+                onSearch={onConfirmSearch}
+            />
+
             <View style={{ flex: 1, paddingHorizontal: main_padding }}>
-                {!isUserProfile ? 
-                    <View/>
-                :
-                    <View style={{ justifyContent: 'center', paddingBottom: 10}}>
+                {!isUserProfile && _.isEmpty(selectUser) ?
+                    <View />
+                    :
+                    <View style={{ justifyContent: 'center', paddingBottom: 10 }}>
                         <FlatListHorizontal
                             data={selectUser}
                             renderItem={_renderSelectedUserItem}
@@ -104,9 +169,9 @@ const CreateGroup = (props: any) => {
                     />
                 </View>
             </View>
-            <View style={{ width: deviceWidth, height: 80, padding: main_padding}}>
-                <TouchableOpacity style={{height: 45, backgroundColor: baseColor, borderRadius: 7, alignItems: 'center', justifyContent: 'center',}}>
-                    <Text style={{fontFamily: 'lato', fontSize: 16, fontWeight: '700', color: whiteSmoke }}>CREATE GROUP</Text>
+            <View style={{ width: deviceWidth, height: 80, padding: main_padding }}>
+                <TouchableOpacity disabled={selectUser.length < 2 ? true : false} onPress={createGroupUser} style={{ height: 45, backgroundColor: selectUser.length < 2 ? '#478ECC3F' : baseColor, borderRadius: 7, alignItems: 'center', justifyContent: 'center', }}>
+                    <Text style={{ fontFamily: 'lato', fontSize: 16, fontWeight: '700', color: whiteSmoke }}>CREATE GROUP</Text>
                 </TouchableOpacity>
             </View>
         </View>

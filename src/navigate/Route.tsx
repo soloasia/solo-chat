@@ -34,7 +34,7 @@ import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
 import TestScreen from "../components/TestScreen";
-
+import MemberScreen from "../containers/chat/MemberScreen";
 
 
 const Stack = createStackNavigator();
@@ -47,6 +47,7 @@ const Route = () => {
   const dispatch = useDispatch();
   const auth = useAuth();
   const [splashscreen,setSplash] = useState(true)
+  const {theme} : any = useContext(ThemeContext);
   
   React.useEffect(() => {
     checkPermissionNotification();
@@ -65,7 +66,6 @@ const Route = () => {
 	  }
   }, [])
 
-  const {theme} : any = useContext(ThemeContext);
 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
@@ -124,6 +124,7 @@ const Route = () => {
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
         <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
         <Stack.Screen name="ScanQr" component={ScanQrScreen} />
+        <Stack.Screen name="Members" component={MemberScreen} />
       </Stack.Navigator>
     );
   }
@@ -197,8 +198,8 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          <TestScreen/>
-          {/* {splashscreen? <SplashScreen/>:<MainStack />} */}
+          {/* <TestScreen/> */}
+          {splashscreen? <SplashScreen/>:<MainStack />}
         </NavigationContainer>
     </SafeAreaProvider>
   );
