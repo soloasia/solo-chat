@@ -58,6 +58,9 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	const onClose = () =>{
+		setShowModal(false)
+	}
 	
 	const getName = (item : any) : string => {
 		var name = ""
@@ -128,19 +131,19 @@ const ChatScreen = () => {
 		)
 	}
 
-	const _renderContactView = ({item,index}:any) =>{
-		return(
-			<TouchableOpacity style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+	const _renderContactView = ({ item, index }: any) => {
+		return (
+			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
-						<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+						<FastImage source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 50 }} />
 					</UserAvatar>
 					<VStack space={1} flex={1}>
-						<Text style={{...style.p,color:themeStyle[theme].textColor}}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
+						<Text style={{ ...style.p, color: themeStyle[theme].textColor }}>{item.contact_user.first_name} {item.contact_user.last_name}</Text>
 						<HStack alignItems={'center'}>
-							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.contact_user.username}</Text>
+							<Text style={[style.p, { fontSize: 12, color: textDesColor }]}>{item.contact_user.username}</Text>
 						</HStack>
-						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider}} _dark={{bg:whiteColor}}/>
+						<Divider marginTop={2} color={borderDivider} _light={{ bg: borderDivider }} _dark={{ bg: whiteColor }} />
 					</VStack>
 				</HStack>
 			</TouchableOpacity>
@@ -176,55 +179,54 @@ const ChatScreen = () => {
 				visible={showModal}
 				animationType="slide"
 				transparent={true}
-                onDismiss={() => console.log('on dismiss')}>
-					<View style={{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
-						<View style={{margin : main_padding, marginTop : large_padding,}}>
-							<View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
-								<TouchableOpacity onPress={createGroup ?() => setCreateGroup(!createGroup) : ()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
-								{createGroup ? <TextItem style={{fontWeight :'600',fontSize :16}}>Create new group</TextItem> : <TextItem style={{fontWeight :'600',fontSize :16}}>New Message</TextItem>}
-								<View></View>
-							</View>
+				onDismiss={() => console.log('on dismiss')}>
+				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
+					<View style={{ margin: main_padding, marginTop: large_padding, }}>
+						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+							<TouchableOpacity onPress={createGroup ? () => setCreateGroup(!createGroup) : () => setShowModal(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16 }}>Cancel</Text></TouchableOpacity>
+							{createGroup ? <TextItem style={{ fontWeight: '600', fontSize: 16 }}>Create new group</TextItem> : <TextItem style={{ fontWeight: '600', fontSize: 16 }}>New Message</TextItem>}
+							<View></View>
 						</View>
-						<SearchBox
-							onChangeText={(text:any)=> onChangeText(text)}
-							onSearch={onConfirmSearch}
-						/>
-						{
-							createGroup 
-							?  
-								<>
-									<View style={{paddingHorizontal: main_padding ,marginBottom : main_padding}}>
-										<TextInput
-											style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
-											placeholder='Group name...'
-											placeholderTextColor={textDesColor}
-										/>
-									</View>
-									<CreateGroup isUserProfile={true} userChat={ChatData[0]}/>
-								</>
-							: 
-							<>
-								<TouchableOpacity onPress={()=> setCreateGroup(true)} style= {{marginVertical : main_padding,flexDirection : "row",alignItems:'center',justifyContent: 'space-between',marginHorizontal : main_padding}}>
-									<View style={{flexDirection : "row",justifyContent:'center',alignItems :'center'}}>
-										<Ionicons name='people-outline' size={25} color={themeStyle[theme].textColor} />
-										<TextItem style={{fontWeight :'500',marginLeft : 8}}>Create new group </TextItem>
-									</View>
-									<Ionicons name='chevron-forward' size={20} color={themeStyle[theme].textColor} />
-								</TouchableOpacity>
-								<FlatListVertical
-									style={{padding:main_padding}}
-									renderItem={_renderContactView}
-									data={mycontact}
-									ListFooterComponent={
-										<>
-											<Footer />
-										</>
-									}
-								/>
-							</>
-						}
 					</View>
-            </Modal>
+					
+					{createGroup ?
+						<>
+							{/* <View style={{ paddingHorizontal: main_padding, marginBottom: main_padding }}>
+								<TextInput
+									style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
+									placeholder='Group name...'
+									placeholderTextColor={textDesColor}
+								/>
+							</View> */}
+							<CreateGroup isUserProfile={false} userChat={ChatData[0]} onClose={onClose}/>
+						</>
+						:
+						<>
+							<SearchBox
+								onChangeText={(text: any) => onChangeText(text)}
+								onSearch={onConfirmSearch}
+							/>
+							<TouchableOpacity onPress={() => setCreateGroup(true)} style={{ marginVertical: main_padding, flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', marginHorizontal: main_padding }}>
+								<View style={{ flexDirection: "row", justifyContent: 'center', alignItems: 'center' }}>
+									<Ionicons name='people-outline' size={25} color={themeStyle[theme].textColor} />
+									<TextItem style={{ fontWeight: '500', marginLeft: 8 }}>Create new group </TextItem>
+								</View>
+								<Ionicons name='chevron-forward' size={20} color={themeStyle[theme].textColor} />
+							</TouchableOpacity>
+							<FlatListVertical
+								style={{ padding: main_padding }}
+								renderItem={_renderContactView}
+								data={mycontact}
+								ListFooterComponent={
+									<>
+										<Footer />
+									</>
+								}
+							/>
+						</>
+					}
+				</View>
+			</Modal>
 		</BaseComponent>
 	);
 };

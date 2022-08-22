@@ -31,11 +31,15 @@ const ChatProfileScreen = (props: any) => {
     const ref = useRef<TransitioningView>(null);
     const userInfo = useSelector((state: any) => state.user);
     const [state, setState] = useState<any>({
-		searchText: ''
+		searchText: '',
+        isProfileClick: false
 	});
 
     
     const selectedRoute = ({ item, index }: any) => {
+        index == 0 ?
+            setIsvisible(true)
+        :navigate.navigate(item.to, { userChat: chatItem })
         console.log("navigate",chatItem);
         navigate.navigate(item.to, { userChat: chatItem });
         // index == 0 ? chatItem.type === "individual" ?  setIsvisible(true) : ()=>  navigate.navigate(item.to, { userChat: chatItem }) : navigate.navigate(item.to, { userChat: chatItem })
@@ -45,12 +49,7 @@ const ChatProfileScreen = (props: any) => {
 		setState({...state});
 	};
 
-    const onChangeText = (text:any) =>{
-		handleChange('searchText',text)
-	}
-	const onConfirmSearch = () =>{
-	}
-
+   
 
     const _renderItem = ({ item, index }: any) => {
         return (
@@ -129,11 +128,11 @@ const ChatProfileScreen = (props: any) => {
 
 
     return (
-        <BaseComponent {...baseComponentData}  rightIcon={rightIcon}>
-
-        <VStack justifyContent='space-between' flex={1}>
-                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
-                     <LinearGradient
+        <BaseComponent {...baseComponentData} rightIcon={rightIcon}>
+            
+            <VStack justifyContent='space-between' flex={1}>
+                <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
+                    <LinearGradient
                         colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
@@ -163,7 +162,7 @@ const ChatProfileScreen = (props: any) => {
                         <FlatListVertical
                             scrollEnabled={false}
                             renderItem={_renderItem}
-                            data={chatItem.type === "individual" ? actionChatProfile : actionGroupChatProfile}
+                            data={chatItem.type === "individual"? actionChatProfile : actionGroupChatProfile}
                         />
                     </View>
                 </View>
@@ -183,22 +182,9 @@ const ChatProfileScreen = (props: any) => {
                             <View/>
                         </View>
                     </View>
-                    <View style={{paddingHorizontal: main_padding }}>
-                        <TextInput
-                            style={{ fontSize: 14, fontFamily: 'Montserrat-Regular', borderRadius: 7, color: theme == 'dark' ? whiteSmoke : textDesColor }}
-                            placeholder='Group name...'
-                            placeholderTextColor={theme == 'dark' ? whiteSmoke : textDesColor}
-                        />
-                    </View>
-                    <SearchBox
-                        onChangeText={(text: any) => onChangeText(text)}
-                        onSearch={onConfirmSearch}
-                    />
-
                     <CreateGroup isUserProfile={true} userChat={chatItem} />
                 </View>
             </Modal>
-       
         </BaseComponent>
     );
 };
