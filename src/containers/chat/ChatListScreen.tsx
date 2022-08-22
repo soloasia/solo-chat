@@ -14,6 +14,7 @@ import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
+import FastImage from 'react-native-fast-image';
 
 const ChatListScreen = (props: any) => {
     const navigate: any = useNavigation();
@@ -104,7 +105,7 @@ const ChatListScreen = (props: any) => {
 				{
 					isIndividual 
 					? isFilterUserProfileNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :  <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>
