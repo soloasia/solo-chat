@@ -15,6 +15,7 @@ import { ThemeContext } from '../../utils/ThemeManager';
 import Lottie from 'lottie-react-native';
 import { useSelector } from 'react-redux';
 import style, { deviceHeight, deviceWidth } from '../../styles';
+import { POST } from '../../functions/BaseFuntion';
 
 // create a component
 const MemberScreen = (props: any) => {
@@ -53,8 +54,7 @@ const MemberScreen = (props: any) => {
          ) 
     }
 
-
-    const _renderContactView = ({item,index}:any) =>{
+    const _renderContactView = ({item,index}:any) => {
 		return(
 			item.contact_user ? 
 				<TouchableOpacity onPress={()=>{}} style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
@@ -74,6 +74,29 @@ const MemberScreen = (props: any) => {
 			:null
 		)
 	}
+
+    const _handleAddToGroupChat = (contact_uid : string) => {
+        const formdata = new FormData();
+        formdata.append("group_id", userChat.id);
+        formdata.append("group_user_ids", contact_uid);
+        // formdata.append("last_name", state.lastname);
+        // formdata.append("phone", state.phonenumber);
+        // formdata.append("profile_photo", state.profileImg);
+        POST('me/update', formdata)
+            .then(async (result: any) => {
+                if (result.status) {
+                    // dispatch(loadUser(result.data))
+                    // navigate.goBack()
+                    // // navigate.navigate('Main')
+                    // handleChange('loading', false);
+                } else {
+                    // handleChange('loading', false);
+                }
+            })
+            .catch((e:any) => {
+                // handleChange('loading', false);
+            });
+    }
 
 
 
@@ -104,9 +127,10 @@ const MemberScreen = (props: any) => {
                             <View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
                                 <TouchableOpacity onPress={() => setshowModal(false)}><TextItem>Cancel</TextItem></TouchableOpacity>
                                 <TextItem>Contacts</TextItem>
+                                <Text>""</Text>
+                                
                                 {/* <TouchableOpacity onPress={createGroup ?() => setCreateGroup(!createGroup) : ()=> setShowModal(false)}><Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text></TouchableOpacity>
                                 {createGroup ? <TextItem style={{fontWeight :'600',fontSize :16}}>Create new group</TextItem> : <TextItem style={{fontWeight :'600',fontSize :16}}>New Message</TextItem>} */}
-                                <View></View>
                             </View>
                         </View>
                         <SearchBox></SearchBox>
