@@ -25,7 +25,7 @@ const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
 
-    const { userChat, isUserProfile } = props
+    const { userChat, isUserProfile,onClose } = props
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
     const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user.id] : [])
@@ -101,37 +101,14 @@ const CreateGroup = (props: any) => {
     }
 
     const createGroupUser = async () => {
-        let token = await AsyncStorage.getItem('@token');
-
         const formdata = new FormData();
         formdata.append("name", state.groupName);
         formdata.append("group_user_ids[]", userIds);
-        // reactotron.log(formdata)
-        // fetch('https://chat-app.solo-asia.com/api/group/create', {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json','Content-Type': 'application/json',
-
-        //         Authorization: `Bearer ${token}`
-                
-        //     },
-        //     body: JSON.stringify({
-        //         name: state.groupName,
-        //         group_user_ids: userIds
-        //     })
-        // });
-
+    
         POST('group/create', formdata).then(async (result: any) => {
             if (result.status) {
-                // const formdata = new FormData();
-                // formdata.append("token", result.access_token);
-                // reactotron.log(result)
-
-                // navigate.reset({
-                //     index: 0,
-                //     routes: [{ name: 'Main' }]
-                // })
-                // handleChange('loading', false);
+                navigate.navigate('ChatList', { chatItem: result.data[0] });
+                onClose()
             } else {
                 // handleChange('loading', false);
                 // setIsOpen(true)

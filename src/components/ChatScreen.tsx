@@ -57,6 +57,9 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+	const onClose = () =>{
+		setShowModal(false)
+	}
 	
 	const getName = (item : any) : string => {
 		var name = ""
@@ -195,7 +198,7 @@ const ChatScreen = () => {
 									placeholderTextColor={textDesColor}
 								/>
 							</View> */}
-							<CreateGroup isUserProfile={false} userChat={ChatData[0]} />
+							<CreateGroup isUserProfile={false} userChat={ChatData[0]} onClose={onClose}/>
 						</>
 						:
 						<>

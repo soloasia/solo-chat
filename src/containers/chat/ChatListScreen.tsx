@@ -21,7 +21,7 @@ const ChatListScreen = (props: any) => {
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
     const { chatItem } = props.route.params;
-    reactotron.log(chatItem)
+    // reactotron.log(chatItem)
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
     const userInfo = useSelector((state: any) => state.user);
