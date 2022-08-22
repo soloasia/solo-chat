@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Divider, HStack, useDisclose } from 'native-base';
+import { Box, Divider, HStack, useDisclose } from 'native-base';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform } from 'react-native';
 import { useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
+import FastImage from 'react-native-fast-image';
 
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
@@ -112,7 +113,7 @@ const ChatListScreen = (props: any) => {
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:whiteColor}]}>DONE</Text>:<></>}
+				{state.image?<Text style={[style.p,{color:whiteColor}]}>DONE</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
@@ -197,7 +198,7 @@ const ChatListScreen = (props: any) => {
 				{
 					isIndividual 
 					? isFilterUserProfileNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :  <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>

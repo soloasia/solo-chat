@@ -147,15 +147,19 @@ export function FlatListScroll(props:any) {
                     <Text style={style.p}>{props.des}</Text>
                 </AlertDialog.Body>
                 <AlertDialog.Footer>
-                    <NButton
-                        style={{backgroundColor:greyDark}}
-                        _text={{
-                            ...style.p,
-                            color: textColor
-                        }}
-                        onPress={props.onCloseAlert}>
-                        {props.btn_cancle}
-                    </NButton>
+                   {
+                        props.btn_cancle ==null ? <></> : <NButton
+                            style={{backgroundColor:greyDark}}
+                            _text={{
+                                ...style.p,
+                                color: textColor
+                            }}
+                            onPress={props.onCloseAlert}>
+                            {props.btn_cancle}
+                        </NButton>
+                   }
+
+                    
                     <NButton
                         style={{backgroundColor:baseColor}}
                         _text={{

@@ -18,6 +18,7 @@ import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
 import { useSelector } from 'react-redux';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
+import FastImage from 'react-native-fast-image';
 
 
 // create a component
@@ -43,14 +44,11 @@ const ChatProfileScreen = (props: any) => {
         navigate.navigate(item.to, { userChat: chatItem })
         console.log("navigate",chatItem);
         navigate.navigate(item.to, { userChat: chatItem });
-        // index == 0 ? chatItem.type === "individual" ?  setIsvisible(true) : ()=>  navigate.navigate(item.to, { userChat: chatItem }) : navigate.navigate(item.to, { userChat: chatItem })
     }
     const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
 	};
-
-   
 
     const _renderItem = ({ item, index }: any) => {
         return (
@@ -120,7 +118,7 @@ const ChatProfileScreen = (props: any) => {
 				{
 					isIndividual 
 					? isFilterUserProfileNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :  <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>
@@ -129,8 +127,7 @@ const ChatProfileScreen = (props: any) => {
 
 
     return (
-        <BaseComponent {...baseComponentData} rightIcon={rightIcon}>
-            
+        <BaseComponent {...baseComponentData} rightIcon={rightIcon}>    
             <VStack justifyContent='space-between' flex={1}>
                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
                     <LinearGradient
@@ -168,8 +165,12 @@ const ChatProfileScreen = (props: any) => {
                         />
                     </View>
                 </View>
+
+            
             </VStack>
 
+
+        
             <Modal
                 presentationStyle="formSheet"
                 visible={isVisible}

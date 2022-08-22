@@ -84,8 +84,8 @@ const ChatScreen = () => {
 			<>
 				{
 					isIndividual 
-					? isFilterUserProfileNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					? isFilterUserProfileNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>
@@ -105,9 +105,6 @@ const ChatScreen = () => {
 						<HStack space={3} alignItems="center">
 							<UserAvatar>
 								{getDisplayProfile(item)}
-								{/* {
-									item.profile_photo == null ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :	<Image source={item.icon} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-								} */}
 							</UserAvatar>
 							<VStack space={1}>
 								<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
@@ -191,13 +188,6 @@ const ChatScreen = () => {
 					
 					{createGroup ?
 						<>
-							{/* <View style={{ paddingHorizontal: main_padding, marginBottom: main_padding }}>
-								<TextInput
-									style={{ fontSize: 14, fontFamily: 'lato', borderRadius: 7 }}
-									placeholder='Group name...'
-									placeholderTextColor={textDesColor}
-								/>
-							</View> */}
 							<CreateGroup isUserProfile={false} userChat={ChatData[0]} onClose={onClose}/>
 						</>
 						:
