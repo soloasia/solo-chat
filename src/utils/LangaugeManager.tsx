@@ -82,7 +82,7 @@ const LanguageManager = ({children} : any) => {
     }
 
     const userChangeLanguage = async (langCode : string) => {
-        console.log(langCode);
+
         setLanguage(langCode.toLowerCase());
         i18n.locale = langCode;
         await storeLanguage(langCode.toLowerCase());

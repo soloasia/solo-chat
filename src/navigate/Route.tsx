@@ -33,6 +33,7 @@ import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
+import MemberScreen from "../containers/chat/MemberScreen";
 
 
 
@@ -123,6 +124,7 @@ const Route = () => {
         <Stack.Screen name="ProfileNoti" component={ProfileNotification} />
         <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
         <Stack.Screen name="ScanQr" component={ScanQrScreen} />
+        <Stack.Screen name="Members" component={MemberScreen} />
       </Stack.Navigator>
     );
   }

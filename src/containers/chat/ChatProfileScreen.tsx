@@ -5,11 +5,11 @@ import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInp
 import { large_padding, main_padding } from '../../config/settings';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import colors, { borderDivider, boxColor, textSecondColor, whiteColor } from '../../config/colors';
+import colors, { borderDivider, boxColor, greyDark, textSecondColor, whiteColor } from '../../config/colors';
 import { useNavigation } from '@react-navigation/native';
 import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem } from '../../customs_items/Components';
 import LinearGradient from 'react-native-linear-gradient';
-import { actionChatProfile } from '../../temp_data/Setting';
+import { actionChatProfile, actionGroupChatProfile } from '../../temp_data/Setting';
 import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor, backgroundDark } from '../../config/colors';
 import { TransitioningView } from 'react-native-reanimated';
 import SearchBox from '../../customs_items/SearchBox';
@@ -17,6 +17,8 @@ import CreateGroup from './CreateGroup';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
 import { useSelector } from 'react-redux';
+import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
+
 
 // create a component
 const ChatProfileScreen = (props: any) => {
@@ -27,6 +29,7 @@ const ChatProfileScreen = (props: any) => {
     const [isNotification, setNotification] = useState(false)
     const [isVisible, setIsvisible] = useState(false)
     const ref = useRef<TransitioningView>(null);
+    const userInfo = useSelector((state: any) => state.user);
     const [state, setState] = useState<any>({
 		searchText: '',
         isProfileClick: false
@@ -37,6 +40,9 @@ const ChatProfileScreen = (props: any) => {
         index == 0 ?
             setIsvisible(true)
         :navigate.navigate(item.to, { userChat: chatItem })
+        console.log("navigate",chatItem);
+        navigate.navigate(item.to, { userChat: chatItem });
+        // index == 0 ? chatItem.type === "individual" ?  setIsvisible(true) : ()=>  navigate.navigate(item.to, { userChat: chatItem }) : navigate.navigate(item.to, { userChat: chatItem })
     }
     const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
@@ -81,14 +87,49 @@ const ChatProfileScreen = (props: any) => {
         )
     }
 
+    const rightIcon = () => {
+		return (
+			<TouchableOpacity style={style.containerCenter}>
+			    <Text style = {{color : baseColor, fontSize : 16,fontWeight : '800'}}>Edit</Text>
+			</TouchableOpacity>
+		)
+	}
+
+    const getName = (item : any) : string => {
+		var name = ""
+		const isIndividual : boolean = item.type === "individual";
+		if(isIndividual) {
+			const found = item.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+			name = found.user.first_name + " " + found.user.last_name;
+		} else {
+			name = item.name;
+		}
+
+	   return name;
+	}
+
+
+	const getDisplayProfile = (data : any) => {
+		const isIndividual : boolean = data.type === "individual";
+		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
+		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		const isGroupPhotoNull = data.profile_photo == null;
+		return (
+			<>
+				{
+					isIndividual 
+					? isFilterUserProfileNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+					: isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <Image source={data.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+
+				}
+			</>
+		)
+	}
+
+
     return (
-        <View style={{...styles.container, backgroundColor: themeStyle[theme].backgroundColor}}>
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={() => navigate.goBack()}
-                style={{ padding: main_padding - 5 }}>
-                <Ionicons name='chevron-back' size={25} color={themeStyle[theme].textColor} />
-            </TouchableOpacity>
+        <BaseComponent {...baseComponentData} rightIcon={rightIcon}>
+            
             <VStack justifyContent='space-between' flex={1}>
                 <View style={{ width: deviceWidth, flex: 1.5, paddingHorizontal: main_padding, alignItems: 'center', }}>
                     <LinearGradient
@@ -98,13 +139,22 @@ const ChatProfileScreen = (props: any) => {
                         style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
                     >
                         <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
-                            <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                            {getDisplayProfile(chatItem)}
+                            {/* <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} /> */}
                         </View>
                     </LinearGradient>
-                    <View style={{ paddingVertical: main_padding }}>
-                        <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem>
-                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
-                    </View>
+                    { 
+
+                       chatItem.type === "individual"? 
+                        <View style={{ paddingVertical: main_padding }}>
+                            <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name+' '+chatItem.contact_user.last_name).toUpperCase()}</TextItem>
+                            <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0',textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
+                        </View> : 
+                        <View style={{ paddingVertical: main_padding }}>
+                            <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> 
+                            <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10,textAlign: 'center',color : greyDark }}>{chatItem.chatroom_users.length + " members"}</TextItem>
+                        </View>
+                    }
                 </View>
                 <View style={{ flex: 4.5, width: deviceWidth, paddingHorizontal: main_padding, }}>
                     <TextItem style={{ fontSize: 15, color: colors.textColor, fontWeight: '700' }}>More Actions</TextItem>
@@ -112,7 +162,7 @@ const ChatProfileScreen = (props: any) => {
                         <FlatListVertical
                             scrollEnabled={false}
                             renderItem={_renderItem}
-                            data={actionChatProfile}
+                            data={chatItem.type === "individual"? actionChatProfile : actionGroupChatProfile}
                         />
                     </View>
                 </View>
@@ -135,7 +185,7 @@ const ChatProfileScreen = (props: any) => {
                     <CreateGroup isUserProfile={true} userChat={chatItem} />
                 </View>
             </Modal>
-        </View>
+        </BaseComponent>
     );
 };
 
