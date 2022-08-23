@@ -34,7 +34,6 @@ const MemberScreen = (props: any) => {
     const [admin,setAdmin] = useState<any>();
     const mycontact = useSelector((state: any) => state.mycontact);
 
-
     const _renderMemberView = ({ item, index }: any) => {
         return(         
             <TouchableHighlight style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
@@ -172,7 +171,6 @@ const MemberScreen = (props: any) => {
     };
 
     const onRowDidOpen = (rowKey: any) => {
-        console.log('This row opened', rowKey);
     };
 
     const renderHiddenItem = (data :any , rowMap:any) => (
