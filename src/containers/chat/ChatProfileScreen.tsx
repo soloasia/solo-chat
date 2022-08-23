@@ -280,7 +280,7 @@ const ChatProfileScreen = (props: any) => {
                                 : <View style={{ paddingVertical: main_padding }}>
                                     <TextInput
                                         autoFocus={state.isEdit}
-                                        style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0 }}
+                                        style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0, color:themeStyle[theme].textColor }}
                                         value={state.isEdit ? state.groupName : getName(chatItem)}
                                         editable={state.isEdit}
                                         onChangeText={(text) => handleChange('groupName', text)}
