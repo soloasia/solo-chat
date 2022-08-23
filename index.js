@@ -7,6 +7,7 @@ import {name as appName} from './app.json';
 import {AppRegistry,LogBox,Text,TextInput} from 'react-native';
 
 import 'react-native-gesture-handler';
+import { gestureHandlerRootHOC } from 'react-native-gesture-handler'
 
 LogBox.ignoreLogs(["Require cycle", "Warning"]);
 LogBox.ignoreLogs([
@@ -23,4 +24,4 @@ if(__DEV__) {
     import('./ReactotronConfig').then(() => console.log('Reactotron Configured'))
 }
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => gestureHandlerRootHOC(App));

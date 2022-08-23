@@ -5,7 +5,7 @@ Reactotron
   .setAsyncStorageHandler(AsyncStorage) // AsyncStorage would either come from `react-native` or `@react-native-community/async-storage` depending on where you get it from
   .configure({
     name: "Solo Chat",
-    host:'192.168.31.101'
+    host:'192.168.31.110'
   })
   .useReactNative({
     asyncStorage: false, // there are more options to the async storage.

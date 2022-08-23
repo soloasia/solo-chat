@@ -33,8 +33,8 @@ import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
+import TestScreen from "../components/TestScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
-
 
 
 const Stack = createStackNavigator();
@@ -198,6 +198,7 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
+          {/* <TestScreen/> */}
           {splashscreen? <SplashScreen/>:<MainStack />}
         </NavigationContainer>
     </SafeAreaProvider>
