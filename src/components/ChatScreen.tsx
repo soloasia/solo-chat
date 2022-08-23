@@ -50,7 +50,15 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		navigate.navigate('ChatList', { chatItem: item });
+		GET(`chatroom/detail/${item.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
+
 	}
 
 	const rightIcon = () => {
