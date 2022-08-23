@@ -164,4 +164,10 @@ export const actionGroupChatProfile = [
         type: Ionicons,
         to: ''
     },
+    {
+        title: 'Delete Group',
+        icon: 'close',
+        type: Ionicons,
+        to: ''
+    },
 ]

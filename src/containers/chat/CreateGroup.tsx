@@ -1,7 +1,7 @@
 //import liraries
 import { useNavigation } from '@react-navigation/native';
 import { HStack, Icon, Input, VStack } from 'native-base';
-import React, { Component, useContext, useState } from 'react';
+import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import reactotron from 'reactotron-react-native';
@@ -17,15 +17,19 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import SearchBox from '../../customs_items/SearchBox';
-import { POST } from '../../functions/BaseFuntion';
+import { GET, POST } from '../../functions/BaseFuntion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadData } from '../../functions/LoadData';
+import { loadContact } from '../../actions/Contact';
+
+let lastDoc: any = 1;
 
 // create a component
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
-    const dispatch = useDispatch();
+    const dispatch:any = useDispatch();
+
 
     const { userChat, isUserProfile, onClose } = props
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
@@ -35,6 +39,19 @@ const CreateGroup = (props: any) => {
         searchText: '',
         groupName: ''
     });
+
+    function getData() {
+		GET(`me/contact?page=${lastDoc}`)
+		.then(async (result: any) => {
+			if(result.status){
+				dispatch(loadContact(result.data.data))
+				// setLoading(false)
+			}
+		})
+		.catch(e => {
+			// setLoading(false)
+		});
+	}
 
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
@@ -124,8 +141,18 @@ const CreateGroup = (props: any) => {
 
     const onChangeText = (text: any) => {
         handleChange('searchText', text)
-    }
-    const onConfirmSearch = () => {
+        if(text != ''){
+			GET(`search/contact?value=${text}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadContact(result.data))
+				}
+			})
+			.catch(e => {
+			});
+		}else{
+			getData()
+		}
     }
 
 
@@ -141,8 +168,9 @@ const CreateGroup = (props: any) => {
                 />
             </View>
             <SearchBox
-                onChangeText={(text: any) => onChangeText(text)}
-                onSearch={onConfirmSearch}
+                onChangeText={(text:any)=> onChangeText(text)}
+                onClear = {(text:any)=> onChangeText('')}
+                value = {state.searchText}
             />
 
             <View style={{ flex: 1, paddingHorizontal: main_padding }}>

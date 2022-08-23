@@ -20,6 +20,8 @@ import FastImage from 'react-native-fast-image';
 import _ from 'lodash';
 import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
+import { GET } from '../functions/BaseFuntion';
+import reactotron from 'reactotron-react-native';
 
 
 const ChatScreen = () => {
@@ -47,7 +49,15 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		navigate.navigate('ChatList', { chatItem: item });
+		GET(`chatroom/detail/${item.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
+
 	}
 
 	const rightIcon = () => {
@@ -99,7 +109,7 @@ const ChatScreen = () => {
 				item.type == "individual" && _.isEmpty(item.last_chatroom_messages)
 				?  <></>
 				: 
-					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',borderBottomWidth:1,borderBottomColor:borderDivider}}>
 					<HStack justifyContent={'space-between'}>
 						<HStack space={3} alignItems="center">
 							<UserAvatar>

@@ -35,17 +35,17 @@
  const App = () => {
    return ( 
     <ThemeProvider>
-      <LanguageManager>
         <Provider store={store}>
         <ProvideAuth>
-          <NativeBaseProvider theme={theme}>
-              <View style={{flex:1}}>
-                  <Route />
-              </View>
-          </NativeBaseProvider>
+          <LanguageManager>
+            <NativeBaseProvider theme={theme}>
+                <View style={{flex:1}}>
+                    <Route />
+                </View>
+            </NativeBaseProvider>
+          </LanguageManager>
         </ProvideAuth>
       </Provider>
-      </LanguageManager>
     </ThemeProvider>
    );
  };

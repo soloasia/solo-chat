@@ -30,7 +30,7 @@ export const newMessageColor = '#0091EE'
 export const startBtn = '#598DC7'
 export const inputColor = '#F9F9F9'
 export const chatText = '#BDBCBC'
-export const borderDivider = '#9797976B'
+export const borderDivider = '#94949428'
 
 /** Dark Mode */
 export const backgroundDark = "#222831";
