@@ -17,6 +17,7 @@ import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
+import Lottie from 'lottie-react-native';
 
 let PAGE_SIZE: any = 500;
 const ChatListScreen = (props: any) => {
@@ -29,6 +30,7 @@ const ChatListScreen = (props: any) => {
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
+    const [chatData, setChatData] = useState<any>(chatItem.chatroom_messages.data);
 
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
@@ -240,10 +242,8 @@ const ChatListScreen = (props: any) => {
         } else {
 			name = item.name;
 		}
-
 	   return name;
 	}
-
 	const getDisplayProfile = (data : any) => {
 		const isIndividual : boolean = data.type === "individual";
 		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
@@ -260,47 +260,58 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
-    // reactotron.log(data)
     return (
         <>
         <BaseComponent {...baseComponentData} title={getName(chatItem)} is_main={false} rightIcon={rightIcon}>
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <TouchableWithoutFeedback accessible={false} >
-                        <FlatList
-                            style={{paddingHorizontal: main_padding}}
-                            ref={ref}
-                            listKey={makeid()}
-                            renderItem={Item}
-                            data={message}
-                            showsVerticalScrollIndicator={false}
-                            ListFooterComponent={
-                                <View style={{ height: 20 }}>
+                        {_.isEmpty(chatData)?
+                            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                                <View style={{width: 300, height: 150}}>
+                                    <Lottie
+                                        source={require('../../assets/login.json')}
+                                        autoPlay loop
+                                    />
                                 </View>
-                            }
-                            // refreshControl={
-                            //     <RefreshControl
-                            //         refreshing={refreshing}
-                            //         onRefresh={_handleRefresh}
-                            //         tintColor="black" />
-                            // }
-                            // onContentSizeChange={() => {
-                            //     if (!refreshing) {
+                                <Text>No messages here yet...</Text>
+                            </View>
+                            :
+                            <FlatList
+                                style={{paddingHorizontal: main_padding}}
+                                ref={ref}
+                                listKey={makeid()}
+                                renderItem={Item}
+                                data={chatData}
+                                showsVerticalScrollIndicator={false}
+                                ListFooterComponent={
+                                    <View style={{ height: 20 }}>
+                                    </View>
+                                }
+                                // refreshControl={
+                                //     <RefreshControl
+                                //         refreshing={refreshing}
+                                //         onRefresh={_handleRefresh}
+                                //         tintColor="black" />
+                                // }
+                                // onContentSizeChange={() => {
+                                //     if (!refreshing) {
 
-                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                            //     }
-                            // }}
-                            // onLayout={() => {
-                            //     if (!refreshing) {
+                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                //     }
+                                // }}
+                                // onLayout={() => {
+                                //     if (!refreshing) {
 
-                            //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                            //     }
-                            // }}
-                            scrollEventThrottle={16}
-                            onEndReachedThreshold={0.5}
-                            keyExtractor={(_, index) => index.toString()}
-                        >
-                        </FlatList>
+                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                //     }
+                                // }}
+                                scrollEventThrottle={16}
+                                onEndReachedThreshold={0.5}
+                                keyExtractor={(_, index) => index.toString()}
+                            >
+                            </FlatList>
+                        }
                     </TouchableWithoutFeedback>
                     <View style={{ width: deviceWidth, height: deviceHeight * .2 }}>
                         <ChatRecord
