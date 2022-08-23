@@ -87,14 +87,17 @@ const ChatScreen = () => {
 	const getDisplayProfile = (data : any) => {
 		const isIndividual : boolean = data.type === "individual";
 		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
-		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		
+		const isFilterUserProfileNull = !_.isEmpty(filterUser) ? filterUser.user.profile_photo == null : null
 		const isGroupPhotoNull = data.profile_photo == null;
 		return (
 			<>
-				{
-					isIndividual 
-					? isFilterUserProfileNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+				{isIndividual  ? isFilterUserProfileNull ? 
+					<Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> 
+				: <FastImage source={{uri: filterUser.user.profile_photo}} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+				: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> 
+				: 
+				<FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>
@@ -106,8 +109,7 @@ const ChatScreen = () => {
 		return(
 		   <>
 		   	 {
-				item.type == "individual" && _.isEmpty(item.last_chatroom_messages)
-				?  <></>
+				item.type == "individual" && _.isEmpty(item.last_chatroom_messages) ?  <></>
 				: 
 					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',borderBottomWidth:1,borderBottomColor:borderDivider}}>
 					<HStack justifyContent={'space-between'}>
@@ -137,9 +139,21 @@ const ChatScreen = () => {
 		)
 	}
 
+	const _handleLiveChat = ({item,index}:any) => {
+		GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					onClose()
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
+	}
+
 	const _renderContactView = ({ item, index }: any) => {
 		return (
-			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
+			<TouchableOpacity onPress={()=> _handleLiveChat({item,index})} style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
 						<FastImage source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 50 }} />

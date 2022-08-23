@@ -17,12 +17,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import style, { deviceHeight, deviceWidth } from '../../styles';
 import { GET, POST } from '../../functions/BaseFuntion';
 import { loadContact } from '../../actions/Contact';
+import reactotron from 'reactotron-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
 let lastDoc: any = 1;
 
 // create a component
 const MemberScreen = (props: any) => {
+    const navigate:any = useNavigation();
+
     const { userChat } = props.route.params;
     const [member, setMember] = useState<any>([]);
     const {theme} : any = useContext(ThemeContext);
@@ -33,10 +37,26 @@ const MemberScreen = (props: any) => {
     const dispatch:any = useDispatch();
     const [admin,setAdmin] = useState<any>();
     const mycontact = useSelector((state: any) => state.mycontact);
-
+    const user = useSelector((state: any) => state.user);
+    useEffect(()=>{
+        fetchMemberDetail(userChat.id)
+    },[])
+    function onSelectOnMember (item:any){
+        if(user.id === item.data.user.id ) return false;
+        else {
+            GET(`chatroom/request-id?user_id=${item.data.user.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
+        }
+    }
     const _renderMemberView = ({ item, index }: any) => {
-        return(         
-            <TouchableHighlight style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+        return(
+            <TouchableOpacity onPress={()=>onSelectOnMember(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
@@ -52,7 +72,7 @@ const MemberScreen = (props: any) => {
                         }
                     </VStack>
                 </HStack>
-            </TouchableHighlight>
+            </TouchableOpacity>
          ) 
     }
     
@@ -152,6 +172,7 @@ const MemberScreen = (props: any) => {
 		}
 	}
 
+   
     const closeRow = (rowMap : any, rowKey :any) => {
         if (rowMap[rowKey]) {
             rowMap[rowKey].closeRow();
