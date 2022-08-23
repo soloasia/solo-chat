@@ -5,7 +5,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert, TouchableHighlight } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, borderDivider, chatText, textDesColor, whiteColor } from '../../config/colors';
+import { baseColor, borderDivider, boxColor, chatText, textDesColor, whiteColor } from '../../config/colors';
 import { large_padding, main_padding } from '../../config/settings';
 import { AlertBox, FlatListVertical, Footer, TextItem, UserAvatar } from '../../customs_items/Components';
 import SearchBox from '../../customs_items/SearchBox';
@@ -56,7 +56,7 @@ const MemberScreen = (props: any) => {
     }
     const _renderMemberView = ({ item, index }: any) => {
         return(
-            <TouchableHighlight onPress={()=>onSelectOnMember(item)}   underlayColor={"lightgrey"} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableHighlight onPress={()=>onSelectOnMember(item)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>

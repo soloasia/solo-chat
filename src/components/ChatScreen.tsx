@@ -117,13 +117,17 @@ const ChatScreen = () => {
 							<UserAvatar>
 								{getDisplayProfile(item)}
 							</UserAvatar>
-							<VStack space={1}>
-								<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
+							<View style={{width : deviceWidth * 0.75}}>
+								<View style={{flexDirection: "row",justifyContent : 'space-between',alignItems : 'center'}}>
+									<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
+									<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>{item.created_at}</TextItem>
+								</View>
 								<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
-							</VStack>
+							</View>
 						</HStack>
-						<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>Now</TextItem>
+						
+						{/* <VStack space={2} alignItems={'center'} justifyContent={'center'}>
+							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>{item.created_at}</TextItem>
 							{item.status ==1?
 								<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
 									<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>
@@ -131,7 +135,7 @@ const ChatScreen = () => {
 								:
 								<></>
 							}
-						</VStack>
+						</VStack> */}
 					</HStack>
 				</TouchableOpacity>
 				}
