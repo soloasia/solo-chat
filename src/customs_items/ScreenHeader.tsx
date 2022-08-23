@@ -41,7 +41,7 @@ const ScreenHeader: React.FC<propsType> = (props) => {
                     <Ionicons name='chevron-back' size={28} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
-            <TextItem style={[style.pBold, styles.title, {textAlign: 'center',color : themeStyle[theme].textColor}]} numberOfLines={1}>{is_main? '':title}</TextItem>
+            <TextItem style={[style.pBold, styles.title, {fontSize: 14, textAlign: 'center',color : themeStyle[theme].textColor,}]} numberOfLines={1}>{is_main? '':title}</TextItem>
             {rightIcon ? rightIcon() :
                 <Box
                     style={{

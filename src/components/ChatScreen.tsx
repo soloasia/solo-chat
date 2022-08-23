@@ -119,8 +119,8 @@ const ChatScreen = () => {
 							</UserAvatar>
 							<View style={{width : deviceWidth * 0.75}}>
 								<View style={{flexDirection: "row",justifyContent : 'space-between',alignItems : 'center'}}>
-									<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
-									<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>{item.created_at}</TextItem>
+									<TextItem style={{ fontSize: 14 }}>{getName(item)}</TextItem>
+									<Text style={{textAlign:'center',fontSize:11,color:textDesColor}}>{item.created_at}</Text>
 								</View>
 								<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
 							</View>
