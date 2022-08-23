@@ -21,6 +21,8 @@ import FastImage from 'react-native-fast-image';
 import _ from 'lodash';
 import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
+import { GET } from '../functions/BaseFuntion';
+import reactotron from 'reactotron-react-native';
 
 
 const ChatScreen = () => {
@@ -146,7 +148,6 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
-	console.log(myChatList.length)
 	return (
 		<BaseComponent {...baseComponentData} title={tr('chats')} is_main={true} rightIcon={rightIcon}>
 			<SearchBox

@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { Divider, HStack, useDisclose } from 'native-base';
+import { Box, Divider, HStack, useDisclose } from 'native-base';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
 import reactotron from 'reactotron-react-native';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke } from '../../config/colors';
@@ -14,10 +14,11 @@ import { deviceHeight } from '../../styles/index';
 import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
-import FastImage from 'react-native-fast-image';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
+import FastImage from 'react-native-fast-image';
 
+let PAGE_SIZE: any = 500;
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
     const navigate: any = useNavigation();
@@ -26,19 +27,34 @@ const ChatListScreen = (props: any) => {
     const { chatItem } = props.route.params;
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
+    const [hasScrolled, setHasScrolled] = useState(false);
+    const [isMoreLoading, setIsMoreLoading] = useState(false);
+
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
     const [state, setState] = useState<any>({
         message: '',
         loadSendMess: false,
         image: null,
-		index: null
+		index: null,
+        isEnd :false,
+        endCursor :false
     });
-
-    useEffect(() => {
-		getPhotos();
-	}, []);
-    
+    useEffect(()=>{
+        if(Platform.OS === 'android') hasAndroidPermission();
+    },[])
+    async function hasAndroidPermission() {
+        const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+      
+        const hasPermission = await PermissionsAndroid.check(permission);
+        if (hasPermission) {
+          return true;
+        }
+      
+        const status = await PermissionsAndroid.request(permission);
+        return status === 'granted';
+    }
+      
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
@@ -46,7 +62,7 @@ const ChatListScreen = (props: any) => {
     // function get all gallery from device
     const getPhotos = () => {
 		CameraRoll.getPhotos({
-			first: 1000,
+			first: PAGE_SIZE,
 			assetType: 'All',
 			include: ['filename', 'fileSize','imageSize','playableDuration']
 		}).then((res) => {
@@ -56,6 +72,40 @@ const ChatListScreen = (props: any) => {
 			console.log(error);
 		});
 	};
+
+    // function getPhotosFromDevice(refresh = false) {
+    //     if ((state.isEnd && !refresh)) return;
+    //     const params:any = { first: PAGE_SIZE,include: ['filename', 'fileSize','imageSize','playableDuration'] };
+    //     if (state.endCursor && !refresh) {
+    //       params.after = state.endCursor;
+    //       params.first = parseInt(state.endCursor) + PAGE_SIZE;
+    //     }
+    //     CameraRoll.getPhotos(params).then(
+    //       resp => {
+    //         handleChange('endCursor',resp.page_info.end_cursor);
+    //         handleChange('isEnd',!resp.page_info.has_next_page);
+    //         const imgs = resp?.edges?.map(e => e.node) || []
+    //         const currentImgs = (data || [])
+    //         setData(!refresh ? currentImgs.concat(imgs.filter(img => !currentImgs.find((cImg:any) => cImg.image.uri === img.image.uri))) : (resp?.edges?.map(e => e.node) || []) );
+    //       },
+    //     );
+    // }
+
+    const renderFooter: any = () => {
+        if (!isMoreLoading) return true;
+        return (
+            <ActivityIndicator
+                size={25}
+                color={baseColor}
+                style={{ marginVertical: 15 }}
+            />
+        )
+    };
+	const _onScroll = () => {
+        if (!hasScrolled)
+            setHasScrolled(true)
+    };
+
 	function onSelectImage (item:any,index:any){
 		handleChange('index',index)
 		handleChange('image',item)
@@ -88,16 +138,19 @@ const ChatListScreen = (props: any) => {
 		)
 	}
     const renderInner = () => (
-		<FlatListVertical
-			renderItem={_renderView}
-			numColumns={3}
-			data={data}
-			ListFooterComponent={
-				<>
-					<Footer />
-				</>
-			}
-		/>
+        <View style={{height:'100%',width:'100%',backgroundColor:'white'}}>
+            <FlatListVertical
+                renderItem={_renderView}
+                numColumns={3}
+                data={data}
+                ListFooterComponent={
+                    <>
+                        <Footer />
+                    </>
+                }
+                // onTouchMove={_onScroll}
+            />
+        </View>
     )
 	const onSendImage = () =>{
 		handleChange('image','')
@@ -107,17 +160,19 @@ const ChatListScreen = (props: any) => {
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
-				<Text style={[style.p,{color:whiteColor}]}>CANCEL</Text>
+				<Text style={[style.p,{color:baseColor}]}>CANCEL</Text>
 			</TouchableOpacity>
 			<View style={styles.panelHeader}>
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:whiteColor}]}>DONE</Text>:<></>}
+				{state.image?<Text style={[style.p,{color:baseColor}]}>DONE</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
     const onShefGallery = () =>{
+		getPhotos();
+        // getPhotosFromDevice();
         sheetRefGallery.current.snapTo(0)
     }
     // end function get all gallery from device
@@ -204,6 +259,7 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
+    // reactotron.log(data)
     return (
         <>
         <BaseComponent {...baseComponentData} title={getName(chatItem)} is_main={false} rightIcon={rightIcon}>
@@ -308,7 +364,7 @@ const styles = StyleSheet.create({
         flex:1
       },
       header: {
-        backgroundColor:baseColor,
+        backgroundColor:whiteSmoke,
         shadowColor: '#000000',
         padding:15,
         borderTopLeftRadius: 20,
@@ -325,7 +381,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 8,
         borderRadius: 4,
-        backgroundColor:whiteSmoke,
+        backgroundColor:baseColor,
         marginBottom: 10,
       },
 });

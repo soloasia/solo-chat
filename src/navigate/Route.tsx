@@ -26,7 +26,7 @@ import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../functions/UserAuth";
 import { loadData } from "../functions/LoadData";
 import SplashScreen from "../components/SplashScreen";
@@ -35,6 +35,7 @@ import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
 import TestScreen from "../components/TestScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
+import reactotron from "reactotron-react-native";
 
 
 const Stack = createStackNavigator();
@@ -45,26 +46,27 @@ export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
   const dispatch = useDispatch();
-  const auth = useAuth();
+  const auth:any = useAuth();
+  const user = useSelector((state: any) => state.user);
   const [splashscreen,setSplash] = useState(true)
   const {theme} : any = useContext(ThemeContext);
-  
   React.useEffect(() => {
     checkPermissionNotification();
 	requestMobileToken();
 	if (auth !== null) {
 		const init = async () => {
-		  loadData(dispatch);
+			if(user){
+				loadData(dispatch);
+			}
 		};
 		init().finally(async () => {
 		  const timer = setTimeout(() => {
 			  setSplash(false)
 		  }, 1500);
 		  return () => clearTimeout(timer);
-		  // if (auth.user !== null) await RNBootSplash.hide({fade: true});
 		});
 	  }
-  }, [])
+  }, [user])
 
 
   const checkPermissionNotification = async () => {
@@ -134,18 +136,22 @@ const Route = () => {
         backBehavior="initialRoute"
         initialRouteName="Chat"
         screenOptions={({ route }) => ({
-          headerShown: false,
-          resetOnBlur : false,
-          tabBarHideOnKeyboard: true,
-          tabBarStyle: {
-            height:Platform.OS ==='ios'? 90:50,
-            paddingHorizontal: 5,
-            paddingTop: 0,
-            paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
-            backgroundColor: themeStyle[theme].backgroundColor,
-            position: 'absolute',
-            borderStartWidth:1
-        },
+			headerShown: false,
+			resetOnBlur : false,
+			tabBarHideOnKeyboard: true,
+			tabBarStyle: {
+				height:Platform.OS ==='ios'? 90:50,
+				paddingHorizontal: 5,
+				paddingTop: 0,
+				paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
+				backgroundColor: themeStyle[theme].backgroundColor,
+				position: 'absolute',
+				borderStartWidth:1,
+			},
+			tabBarLabelStyle: {
+				fontSize: 14,
+				fontFamily:'Montserrat-Regular'
+			},
       })}
       >
         <Tab.Screen

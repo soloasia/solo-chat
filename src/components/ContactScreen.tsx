@@ -132,7 +132,14 @@ const ContactScreen = () => {
 	}
 
 	const _handleLiveChat = ({item,index}:any) => {
-		navigation.navigate('ChatList', { chatItem: item });
+		// GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
+		// 	.then(async (result: any) => {
+		// 		// if(result.status){
+		// 		// }
+		// 	})
+		// 	.catch(e => {
+		// });
+		// navigation.navigate('ChatList', { chatItem: item });
 	}
 
 	const _renderContactView = ({item,index}:any) =>{
