@@ -4,6 +4,7 @@ import {useDispatch} from 'react-redux';
 import {loadUser} from '../actions/User';
 import { loadToken } from '../actions/Token';
 import { GET, POST } from './BaseFuntion';
+import reactotron from 'reactotron-react-native';
 const authContext = createContext();
 
 export function ProvideAuth({children}) {
@@ -24,7 +25,6 @@ function useProvideAuth() {
   const [user, setUser] = useState(null);
   async function checkUser() {
     let token = await AsyncStorage.getItem('@token');
-    // dispatch(loadToken(token))
     dispatch({ type: 'LOAD_USER_TOKEN', value: token });
     if (token === null) {
         setUser(false);
