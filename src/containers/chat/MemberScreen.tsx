@@ -17,11 +17,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import style, { deviceHeight, deviceWidth } from '../../styles';
 import { GET, POST } from '../../functions/BaseFuntion';
 import { loadContact } from '../../actions/Contact';
+import reactotron from 'reactotron-react-native';
+import { useNavigation } from '@react-navigation/native';
 
 let lastDoc: any = 1;
 
 // create a component
 const MemberScreen = (props: any) => {
+    const navigate:any = useNavigation();
+
     const { userChat } = props.route.params;
     const [member, setMember] = useState([]);
     const {theme} : any = useContext(ThemeContext);
@@ -31,9 +35,26 @@ const MemberScreen = (props: any) => {
     const [value, setValue] = useState('');
     const dispatch:any = useDispatch();
     const mycontact = useSelector((state: any) => state.mycontact);
+    const user = useSelector((state: any) => state.user);
+    useEffect(()=>{
+        fetchMemberDetail(userChat.id)
+    },[])
+    function onSelectOnMember (item:any){
+        if(user.id === item.user_id ) return false;
+        else {
+            GET(`chatroom/request-id?user_id=${item.user_id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
+        }
+    }
     const _renderMemberView = ({ item, index }: any) => {
         return(
-            <TouchableOpacity style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableOpacity onPress={()=>onSelectOnMember(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
@@ -140,11 +161,7 @@ const MemberScreen = (props: any) => {
 		}
 	}
 
-    useEffect(()=>{
-        fetchMemberDetail(userChat.id)
-    },[])
-    
-
+   
     return (
         <BaseComponent {...baseComponentData} title={"Members"}>
             <TouchableOpacity style = {{flexDirection : "row",padding : main_padding}} onPress ={() => setshowModal(true)}> 
