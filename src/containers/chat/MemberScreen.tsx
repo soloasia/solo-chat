@@ -56,7 +56,7 @@ const MemberScreen = (props: any) => {
     }
     const _renderMemberView = ({ item, index }: any) => {
         return(
-            <TouchableOpacity onPress={()=>onSelectOnMember(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableHighlight onPress={()=>onSelectOnMember(item)}   underlayColor={"lightgrey"} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
@@ -72,7 +72,7 @@ const MemberScreen = (props: any) => {
                         }
                     </VStack>
                 </HStack>
-            </TouchableOpacity>
+            </TouchableHighlight>
          ) 
     }
     
