@@ -247,7 +247,7 @@ const ChatListScreen = (props: any) => {
 	const getDisplayProfile = (data : any) => {
 		const isIndividual : boolean = data.type === "individual";
 		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
-		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		const isFilterUserProfileNull = !_.isEmpty(filterUser) ? filterUser.user.profile_photo == null : null;
 		const isGroupPhotoNull = data.profile_photo == null;
 		return (
 			<>
