@@ -2,7 +2,7 @@
 import _, { result } from 'lodash';
 import { Divider, HStack, VStack } from 'native-base';
 import React, { Component, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert, TouchableHighlight } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseColor, borderDivider, chatText, textDesColor, textSecondColor, whiteColor } from '../../config/colors';
@@ -19,6 +19,7 @@ import { GET, POST } from '../../functions/BaseFuntion';
 import { loadContact } from '../../actions/Contact';
 import reactotron from 'reactotron-react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
 let lastDoc: any = 1;
 
@@ -27,22 +28,24 @@ const MemberScreen = (props: any) => {
     const navigate:any = useNavigation();
 
     const { userChat } = props.route.params;
-    const [member, setMember] = useState([]);
+    const [member, setMember] = useState<any>([]);
     const {theme} : any = useContext(ThemeContext);
     const [showModal, setshowModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     const [successMsg,setSuccessMsg] = useState("");
     const [value, setValue] = useState('');
     const dispatch:any = useDispatch();
+    const [admin,setAdmin] = useState<any>();
     const mycontact = useSelector((state: any) => state.mycontact);
     const user = useSelector((state: any) => state.user);
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
     function onSelectOnMember (item:any){
-        if(user.id === item.user_id ) return false;
+        reactotron.log(item)
+        if(user.id === item.data.user.id ) return false;
         else {
-            GET(`chatroom/request-id?user_id=${item.user_id}`)
+            GET(`chatroom/request-id?user_id=${item.data.user.id}`)
 			.then(async (result: any) => {
 				if(result.status){
 					navigate.navigate('ChatList', { chatItem: result.data });
@@ -58,26 +61,22 @@ const MemberScreen = (props: any) => {
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
-                        <FastImage source={item.user.profile_photo?{uri:item.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
-                            {/* {
-                                item.user.profile_photo == null ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> :	<FastImage source={item.user.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-                            } */}
+                        <FastImage source={item.data.user.profile_photo?{uri:item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 16 }}>{item.user.first_name ?? "" + " "+ item.user.last_name ?? ""}</TextItem>
-                            <Text style={{ textAlign: 'center', fontSize: 12, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.user.username}</Text>
+                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name ?? "" + " "+ item.data.user.last_name ?? ""}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
                         {
-                            item.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
+                            item.data.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
                         }
                     </VStack>
                 </HStack>
             </TouchableOpacity>
          ) 
     }
-
+    
     const _renderContactView = ({item,index}:any) => {
 		return(
 			item.contact_user ? 
@@ -105,7 +104,6 @@ const MemberScreen = (props: any) => {
         formdata.append("group_user_ids[]", [contact_uid]);   
         POST('group/add-users', formdata)
             .then(async (result: any) => {
-                console.log("add user result",result);
                 if (result.status) {
                     fetchMemberDetail(userChat.id);
                     setshowModal(false);
@@ -125,10 +123,26 @@ const MemberScreen = (props: any) => {
     const fetchMemberDetail = (id : string) => {
         GET('chatroom/detail/'+ id)
         .then((result) => {
-            console.log("result",result.data.chatroom_users.length);
-            setMember(result.data.chatroom_users);
+            var admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
+            setAdmin(admin);
+            setMember(Array(result.data.chatroom_users.length)
+            .fill('')
+            .map((_, i) => ({ key: `${i}`, data: result.data.chatroom_users[i]})));
         })
         .catch(() => {
+        });
+    }
+
+    const removeUser = (userID : string) => {
+        const formdata = new FormData();
+        formdata.append("group_id", userChat.id);
+        formdata.append("group_user_ids[]",[userID]);
+        POST('group/remove-users', formdata).then(async (result: any) => {
+            if(result.status){
+                fetchMemberDetail(userChat.id);
+            }
+        }).catch(e => {
+            // Alert.alert('Something went wrong! \n',"your password couldn't change, please try again later")
         });
     }
 
@@ -137,11 +151,9 @@ const MemberScreen = (props: any) => {
 		.then(async (result: any) => {
 			if(result.status){
 				dispatch(loadContact(result.data.data))
-				// setLoading(false)
 			}
 		})
 		.catch(e => {
-			// setLoading(false)
 		});
 	}
 
@@ -162,13 +174,57 @@ const MemberScreen = (props: any) => {
 	}
 
    
+    const closeRow = (rowMap : any, rowKey :any) => {
+        if (rowMap[rowKey]) {
+            rowMap[rowKey].closeRow();
+        }
+    };
+
+    const deleteRow = (rowMap :any, rowKey :any) => {
+        closeRow(rowMap, rowKey);
+        const newData = [...member];
+        const prevIndex = member.findIndex((item:any) => item.key === rowKey);
+       if(admin.user.id != member[prevIndex].data.user.id ) {
+            removeUser(member[prevIndex].data.user.id);
+            newData.splice(prevIndex, 1);      
+            setMember(newData);
+       }
+    
+    };
+
+    const onRowDidOpen = (rowKey: any) => {
+    };
+
+    const renderHiddenItem = (data :any , rowMap:any) => (
+        <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
+            {/* <Text>Left</Text> */}
+            <TouchableOpacity
+                style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                onPress={() => closeRow(rowMap, data.item.key)}
+            >
+                <Text style={styles.backTextWhite}>Close</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                style={[styles.backRightBtn, styles.backRightBtnRight]}
+                onPress={() => deleteRow(rowMap, data.item.key)}
+            >
+                <Text style={styles.backTextWhite}>Delete</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
+    useEffect(()=>{
+        fetchMemberDetail(userChat.id)
+    },[])
+
     return (
         <BaseComponent {...baseComponentData} title={"Members"}>
             <TouchableOpacity style = {{flexDirection : "row",padding : main_padding}} onPress ={() => setshowModal(true)}> 
                 <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
                 <Text style={{color:baseColor,fontSize: 16}}>Add member</Text>
             </TouchableOpacity>
-            <FlatListVertical
+
+            {/* <FlatListVertical
                 renderItem={_renderMemberView}
                 data={member}
                 ListFooterComponent={
@@ -176,14 +232,24 @@ const MemberScreen = (props: any) => {
                         <Footer />
                     </>
                 }
-            />
+            /> */}
 
+            <SwipeListView
+                data={member}
+                renderItem={_renderMemberView}
+                rightOpenValue={-150}
+                renderHiddenItem={renderHiddenItem}
+                previewRowKey={'0'}
+                previewOpenValue={-40}
+                previewOpenDelay={3000}
+                onRowDidOpen={onRowDidOpen}
+            />
             <Modal
 				presentationStyle="formSheet"
 				visible={showModal}
 				animationType="slide"
-				transparent={true}
-                onDismiss={() => console.log('on dismiss')}>
+				transparent={false}
+                >
 					<View style={{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
                         <View style={{margin : main_padding, marginTop : large_padding,}}>
                             <View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
@@ -234,9 +300,7 @@ const MemberScreen = (props: any) => {
             <AlertBox
                 title={'Success'}
                 des={successMsg}
-                // btn_cancle={<></>}
                 btn_name={'Close'}
-                // onCloseAlert={() => setIsOpen(false)}
                 onConfirm={() => setIsOpen(false)}
                 isOpen={isOpen}
             />
@@ -252,7 +316,45 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#2c3e50',
     },
+    backTextWhite: {
+        color: '#FFF',
+    },
+    rowFront: {
+        alignItems: 'center',
+        backgroundColor: '#CCC',
+        borderBottomColor: 'black',
+        borderBottomWidth: 1,
+        justifyContent: 'center',
+        height: 50,
+    },
+    rowBack: {
+        alignItems: 'center',
+        backgroundColor: '#DDD',
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 15,
+    },
+    backRightBtn: {
+        alignItems: 'center',
+        bottom: 0,
+        justifyContent: 'center',
+        position: 'absolute',
+        top: 0,
+        width: 75,
+    },
+    backRightBtnLeft: {
+        backgroundColor: 'blue',
+        right: 75,
+    },
+    backRightBtnRight: {
+        backgroundColor: 'red',
+        right: 0,
+    },
+
+    
 });
+
 
 //make this component available to the app
 export default MemberScreen;

@@ -38,6 +38,8 @@ import MemberScreen from "../containers/chat/MemberScreen";
 import reactotron from "reactotron-react-native";
 
 
+// import MemberScreen from "../containers/chat/MemberScreen";
+
 const Stack = createStackNavigator();
 
 const Tab = createBottomTabNavigator();

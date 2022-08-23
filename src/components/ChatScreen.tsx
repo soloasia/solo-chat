@@ -9,7 +9,6 @@ import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
 import { ThemeContext } from '../utils/ThemeManager';
@@ -198,8 +197,8 @@ const ChatScreen = () => {
 				presentationStyle="formSheet"
 				visible={showModal}
 				animationType="slide"
-				transparent={true}
-				onDismiss={() => console.log('on dismiss')}>
+				transparent={false}
+			>
 				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
 					<View style={{ margin: main_padding, marginTop: large_padding, }}>
 						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
