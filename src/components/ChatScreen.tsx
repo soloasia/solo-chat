@@ -100,7 +100,7 @@ const ChatScreen = () => {
 				item.type == "individual" && _.isEmpty(item.last_chatroom_messages)
 				?  <></>
 				: 
-					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',borderBottomWidth:1,borderBottomColor:borderDivider}}>
 					<HStack justifyContent={'space-between'}>
 						<HStack space={3} alignItems="center">
 							<UserAvatar>

@@ -5,7 +5,7 @@ import React, { Component, useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, Modal } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { baseColor, borderDivider, chatText, textDesColor, whiteColor } from '../../config/colors';
+import { baseColor, borderDivider, chatText, textDesColor, textSecondColor, whiteColor } from '../../config/colors';
 import { large_padding, main_padding } from '../../config/settings';
 import { AlertBox, FlatListVertical, Footer, TextItem, UserAvatar } from '../../customs_items/Components';
 import SearchBox from '../../customs_items/SearchBox';
@@ -44,7 +44,7 @@ const MemberScreen = (props: any) => {
                         </UserAvatar>
                         <VStack space={1}>
                             <TextItem style={{ fontSize: 16 }}>{item.user.first_name ?? "" + " "+ item.user.last_name ?? ""}</TextItem>
-                            {/* <Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text> */}
+                            <Text style={{ textAlign: 'center', fontSize: 12, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.user.username}</Text>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
