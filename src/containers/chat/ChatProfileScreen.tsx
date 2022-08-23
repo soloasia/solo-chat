@@ -184,12 +184,13 @@ const ChatProfileScreen = (props: any) => {
         const filterUser = data.chatroom_users.find((element: any) => element.user_id != userInfo.id);
         const isFilterUserProfileNull = filterUser.user.profile_photo == null;
         const isGroupPhotoNull = data.profile_photo == null;
+        reactotron.log(filterUser.profile_photo)
         return (
             <>
                 {isIndividual ?
                     isFilterUserProfileNull ?
-                        <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-                        : <Image source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
+                        <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 50 }} />
+                        : <Image source={{uri: filterUser.user.profile_photo}} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius: 50 }} />
                     : isGroupPhotoNull ? <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
                         : <FastImage source={data.profile_photo ? { uri: data.profile_photo } : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 50 }} />
 
