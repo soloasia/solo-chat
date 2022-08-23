@@ -35,7 +35,7 @@ import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
 
-
+// import MemberScreen from "../containers/chat/MemberScreen";
 
 const Stack = createStackNavigator();
 

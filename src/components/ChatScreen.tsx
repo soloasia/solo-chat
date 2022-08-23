@@ -9,7 +9,6 @@ import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
 import { ThemeContext } from '../utils/ThemeManager';
@@ -146,7 +145,6 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
-	console.log(myChatList.length)
 	return (
 		<BaseComponent {...baseComponentData} title={tr('chats')} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
