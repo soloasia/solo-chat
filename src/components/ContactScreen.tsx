@@ -132,14 +132,14 @@ const ContactScreen = () => {
 	}
 
 	const _handleLiveChat = ({item,index}:any) => {
-		// GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
-		// 	.then(async (result: any) => {
-		// 		// if(result.status){
-		// 		// }
-		// 	})
-		// 	.catch(e => {
-		// });
-		// navigation.navigate('ChatList', { chatItem: item });
+		GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					navigation.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
 	}
 
 	const _renderContactView = ({item,index}:any) =>{
