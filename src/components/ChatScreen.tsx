@@ -173,8 +173,8 @@ const ChatScreen = () => {
 				presentationStyle="formSheet"
 				visible={showModal}
 				animationType="slide"
-				transparent={true}
-				onDismiss={() => console.log('on dismiss')}>
+				transparent={false}
+			>
 				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
 					<View style={{ margin: main_padding, marginTop: large_padding, }}>
 						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

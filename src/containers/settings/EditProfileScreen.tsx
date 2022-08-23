@@ -196,7 +196,8 @@ const EditProfileScreen = () => {
                 presentationStyle="formSheet"
                 visible={state.isVisible}
                 animationType='slide'
-                onDismiss={() => console.log('on dismiss')}>
+                transparent={false}
+                >
 
                 <View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
                     <View style={{ margin: main_padding, marginTop: large_padding, }}>

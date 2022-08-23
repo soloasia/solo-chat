@@ -103,6 +103,7 @@ const AddContactScreen = (props:any) => {
     return (
         <Modal
             presentationStyle="formSheet"
+            transparent={false}
             visible ={onOpen}
             animationType="slide"
             hardwareAccelerated ={true}

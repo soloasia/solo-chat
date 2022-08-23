@@ -41,7 +41,6 @@ const ChatProfileScreen = (props: any) => {
 
     const selectedRoute = ({ item, index }: any) => {
         if(item.title == 'Notification') {
-            console.log("notification");
         }else if (item.title == "Leave Group"){
             setShowLogout(true);
         } else {
@@ -199,11 +198,11 @@ const ChatProfileScreen = (props: any) => {
             </VStack>
 
             <Modal
-                transparent
+                transparent={false}
                 presentationStyle="formSheet"
                 visible={isVisible}
                 animationType="slide"
-                onDismiss={() => console.log('on dismiss')}>
+            >
                 <View style={{flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
                     <View style={{ margin: main_padding, marginTop: large_padding }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

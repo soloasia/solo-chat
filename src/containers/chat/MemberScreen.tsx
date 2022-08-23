@@ -2,7 +2,7 @@
 import _, { result } from 'lodash';
 import { Divider, HStack, VStack } from 'native-base';
 import React, { Component, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Modal, Alert, TouchableHighlight } from 'react-native';
 import FastImage from 'react-native-fast-image';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { baseColor, borderDivider, chatText, textDesColor, whiteColor } from '../../config/colors';
@@ -37,7 +37,7 @@ const MemberScreen = (props: any) => {
 
     const _renderMemberView = ({ item, index }: any) => {
         return(         
-              <View style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableHighlight style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
@@ -53,7 +53,7 @@ const MemberScreen = (props: any) => {
                         }
                     </VStack>
                 </HStack>
-            </View>
+            </TouchableHighlight>
          ) 
     }
     
@@ -103,9 +103,7 @@ const MemberScreen = (props: any) => {
     const fetchMemberDetail = (id : string) => {
         GET('chatroom/detail/'+ id)
         .then((result) => {
-            console.log("data",result.data.chatroom_users);
             var admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
-            console.log("admin ",admin);
             setAdmin(admin);
             setMember(Array(result.data.chatroom_users.length)
             .fill('')
@@ -230,8 +228,8 @@ const MemberScreen = (props: any) => {
 				presentationStyle="formSheet"
 				visible={showModal}
 				animationType="slide"
-				transparent={true}
-                onDismiss={() => console.log('on dismiss')}>
+				transparent={false}
+                >
 					<View style={{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
                         <View style={{margin : main_padding, marginTop : large_padding,}}>
                             <View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
