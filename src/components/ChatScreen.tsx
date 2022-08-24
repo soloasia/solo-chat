@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl, ActivityIndicator } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
 import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
@@ -15,21 +15,27 @@ import { ThemeContext } from '../utils/ThemeManager';
 import themeStyle from '../styles/theme';
 import Feather from 'react-native-vector-icons/Feather';
 import { textSecondColor } from '../config/colors';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import FastImage from 'react-native-fast-image';
 import _ from 'lodash';
 import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 import { GET } from '../functions/BaseFuntion';
 import reactotron from 'reactotron-react-native';
+import { loadListChat } from '../actions/ListChat';
 
-
+let lastDoc: any = 1;
 const ChatScreen = () => {
     const navigate:any = useNavigation();
 	const [showModal,setShowModal] = useState(false);
 	const [createGroup,setCreateGroup] = useState(false);
 	const {theme} : any = useContext(ThemeContext);
+	const [hasScrolled, setHasScrolled] = useState(false);
 	const {tr} : any = useContext(LanguageContext);
+	const [isRefresh, setIsRefresh] = useState(false);
+	const [isMoreLoading, setIsMoreLoading] = useState(false);
+	const dispatch:any = useDispatch();
+	const [loading,setLoading] = useState(false);
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
@@ -173,6 +179,96 @@ const ChatScreen = () => {
 			</TouchableOpacity>
 		)
 	}
+
+	const renderFooter: any = () => {
+        if (!isMoreLoading) return true;
+        return (
+            <ActivityIndicator
+                size={25}
+                color={baseColor}
+                style={{ marginVertical: 15 }}
+            />
+        )
+    };
+
+	const onRefresh = () => {
+        setIsRefresh(true)
+		console.log("on refresh");
+        lastDoc = 1;
+        getData();
+        setTimeout(() => {
+            setIsRefresh(false)
+        }, 200);
+    };
+
+	const _onScroll = () => {
+        if (!hasScrolled)
+            setHasScrolled(true)
+    };
+
+	function getData() {
+		GET(`me/chatrooms?page=${lastDoc}`)
+		.then(async (result: any) => {
+			if(result.status){
+				dispatch(loadListChat(result.data.data))
+				setLoading(false)
+			}
+		})
+		.catch(e => {
+			setLoading(false)
+		});
+	}
+
+	const getMore = async () => {
+        if (!hasScrolled) return null;
+        if (lastDoc > 0) {
+			setIsMoreLoading(true)
+			setTimeout(async () => {
+
+				GET(`me/chatrooms?page=${lastDoc + 1}`)
+				.then(async (result) => {
+					console.log("result",result);
+					if(result.status) {
+						lastDoc += 1;
+						let _data : any = myChatList;
+						if (result.status && result.data.data.length !== 0) {
+							_data.push(...result.data.data)
+						}
+						dispatch(loadListChat(_data));
+						lastDoc = Math.ceil(_data.length / 20);
+						if (result.data.data !== undefined) {
+							if (result.data.total <= myChatList.length) {
+								lastDoc = 0;
+							}
+						}
+					}
+					setIsMoreLoading(false)
+				})
+				.catch(e => {
+					setIsMoreLoading(false)
+				});
+				// GET(`me/contact?page=${lastDoc + 1}`)
+				// .then(async (result: any) => {
+				// 	let _data: any = mycontact;
+				// 	if (result.status && result.data.data.length !== 0) {
+				// 		_data.push(...result.data.data)
+				// 	}
+				// 	dispatch(loadContact(_data))
+				// 	lastDoc = Math.ceil(_data.length / 20);
+				// 	if (result.data.data !== undefined) {
+				// 		if (result.data.total <= mycontact.length) {
+				// 			lastDoc = 0;
+				// 		}
+				// 	}
+				// 	setIsMoreLoading(false)
+				// })
+				// .catch(e => {
+				// 	setIsMoreLoading(false)
+				// });
+			}, 200);
+        }
+    };
+
 	return (
 		<BaseComponent {...baseComponentData} title={tr('chats')} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
@@ -190,11 +286,21 @@ const ChatScreen = () => {
 				<FlatListVertical
 					renderItem={_renderChatView}
 					data={myChatList}
+					refreshControl={
+						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} />
+					}
 					ListFooterComponent={
 						<>
+							{isMoreLoading && lastDoc !== 0 && renderFooter()}
 							<Footer />
 						</>
 					}
+					onTouchMove={_onScroll}
+					onEndReached={() => {
+						if (!isMoreLoading) {
+							getMore();
+						}
+					}}
 				/>
 			}
 			<Modal

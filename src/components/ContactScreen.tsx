@@ -126,7 +126,7 @@ const ContactScreen = () => {
 			})
 			.catch(e => {
 			});
-		}else{
+		} else {
 			getData()
 		}
 	}
