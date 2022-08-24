@@ -55,6 +55,7 @@ const ChatProfileScreen = (props: any) => {
         isDeleteFunc: false
     });
 
+
     useEffect(() => {
         if (!_.isEmpty(chatItem.chatroom_users)) {
             const filterGroupAdmin = chatItem.chatroom_users.filter((element: any) => element.user_id == userInfo.id && element.is_admin == 1);
@@ -79,7 +80,7 @@ const ChatProfileScreen = (props: any) => {
             handleChange('isDeleteFunc', true)
             setShowLogout(true);
         } else {
-            chatItem.contact_user && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
+            chatItem.type === "individual" && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
         }
     }
     const handleChange = (stateName: string, value: any) => {

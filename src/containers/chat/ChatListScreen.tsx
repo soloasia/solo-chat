@@ -25,7 +25,7 @@ const ChatListScreen = (props: any) => {
     const navigate: any = useNavigation();
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
-    const { chatItem } = props.route.params;
+    const { chatItem, contactItem } = props.route.params;
     const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
