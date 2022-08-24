@@ -274,7 +274,7 @@ const ChatListScreen = (props: any) => {
                                         autoPlay loop
                                     />
                                 </View>
-                                <Text>No messages here yet...</Text>
+                                <TextItem>No messages here yet...</TextItem>
                             </View>
                             :
                             <FlatList

@@ -55,7 +55,6 @@ const ChatProfileScreen = (props: any) => {
         isDeleteFunc: false
     });
 
-
     useEffect(() => {
         if (!_.isEmpty(chatItem.chatroom_users)) {
             const filterGroupAdmin = chatItem.chatroom_users.filter((element: any) => element.user_id == userInfo.id && element.is_admin == 1);
