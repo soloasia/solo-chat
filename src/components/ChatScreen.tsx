@@ -224,6 +224,7 @@ const ChatScreen = () => {
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
 			setTimeout(async () => {
+
 				GET(`me/chatrooms?page=${lastDoc + 1}`)
 				.then(async (result) => {
 					console.log("result",result);
@@ -234,6 +235,12 @@ const ChatScreen = () => {
 							_data.push(...result.data.data)
 						}
 						dispatch(loadListChat(_data));
+						lastDoc = Math.ceil(_data.length / 20);
+						if (result.data.data !== undefined) {
+							if (result.data.total <= myChatList.length) {
+								lastDoc = 0;
+							}
+						}
 					}
 					setIsMoreLoading(false)
 				})
