@@ -21,6 +21,7 @@ import reactotron from 'reactotron-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 
+
 let lastDoc: any = 1;
 
 // create a component
@@ -55,7 +56,7 @@ const MemberScreen = (props: any) => {
         }
     }
     const _renderMemberView = ({ item, index }: any) => {
-        return(
+        return(  
             <TouchableHighlight onPress={()=>onSelectOnMember(item)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
