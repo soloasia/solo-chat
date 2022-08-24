@@ -23,6 +23,7 @@ import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 import { GET } from '../functions/BaseFuntion';
 import reactotron from 'reactotron-react-native';
+import moment from 'moment';
 
 
 const ChatScreen = () => {
@@ -122,7 +123,13 @@ const ChatScreen = () => {
 							</VStack>
 						</HStack>
 						<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>Now</TextItem>
+							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>
+								{moment().format('YYYY-MM-DD') == moment(item.created_at).format('YYYY-MM-DD')?
+									moment(item.created_at).format('LT')
+									:
+									moment(item.created_at).format('MM/DD')
+								}
+							</TextItem>
 							{item.status ==1?
 								<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
 									<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>

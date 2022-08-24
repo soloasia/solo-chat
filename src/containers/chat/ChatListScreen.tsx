@@ -11,18 +11,22 @@ import style, { deviceWidth } from '../../styles';
 import { message } from '../../temp_data/Setting';
 import ChatRecord from './ChatRecord';
 import { deviceHeight } from '../../styles/index';
-import _ from 'lodash';
+import _, { rearg } from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
+import { POST } from '../../functions/BaseFuntion';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 let PAGE_SIZE: any = 500;
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
+    const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
+    const [refreshing, setRefreshing] = useState(false);
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
     const { chatItem } = props.route.params;
@@ -30,8 +34,7 @@ const ChatListScreen = (props: any) => {
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
-    const [chatData, setChatData] = useState<any>(chatItem.chatroom_messages.data);
-
+    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages:[chatItem.chatroom_messages]);
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
     const [state, setState] = useState<any>({
@@ -40,7 +43,9 @@ const ChatListScreen = (props: any) => {
         image: null,
 		index: null,
         isEnd :false,
-        endCursor :false
+        endCursor :false,
+        type:null,
+        file:null
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
@@ -195,7 +200,8 @@ const ChatListScreen = (props: any) => {
     }
     const onChangeMessage = useCallback(
         (text: any) => {
-            handleChange('message', text)
+            handleChange('message', text);
+		    handleChange('type','text')
         },
         [state.message],
     );
@@ -203,31 +209,50 @@ const ChatListScreen = (props: any) => {
         onOpen()
     }
     const onSend = () => {
-
+        const formdata = new FormData();
+        formdata.append("message", state.message);
+        formdata.append("type", state.type);
+        formdata.append("file",state.type === 'text'?'':state.file);
+        formdata.append("chatroom_id", chatItem.id);
+        POST('chatroom_message/create', formdata)
+        .then(async (result: any) => {
+            if(result.status){
+                handleChange('message', '');
+                chatData.map((item:any,index:any)=>{
+                    let keys = Object.keys(item)[index]
+                    if(moment(result.data.created_at).format('YYYY-MM-DD') == keys){
+                        let mergeArray:any = [...item[keys],result.data];
+                        setChatData([{[keys]:mergeArray}])
+        
+                    }
+                })
+            }else{
+                setChatData(chatData)
+            }
+           
+        })
     }
-   
-    const messageText = (mess: any, index: any) => {
+    const messageText = (mess: any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>           
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
 				<View style={[styles.chatBack,
 				{
-					backgroundColor: mess.isAdmin ? '#DBDBDBE3' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
-					borderBottomRightRadius: mess.isAdmin ? 20 : 0,
-					borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
 					marginVertical: 1
 				}
 				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.text}</Text>
-					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor: whiteColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment().format('HH:mm A')}</Text>
+					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</View>
             </View>
         )
     };
-
     const Item = ({ item, index }: any) => (
         <>
-            <Text style={{ textAlign: 'center', fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText }}>{item.date}</Text>
-            {item.data.map((mess: any, index: any) => messageText(mess, index))}
+            {/* <Text style={{ textAlign: 'center', fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText }}>{Object.keys(item)}</Text>
+            {item[Object.keys(item).toString()].map((mess: any, index: any) => messageText(mess, index))} */}
         </>
     );
 
@@ -265,7 +290,7 @@ const ChatListScreen = (props: any) => {
         <BaseComponent {...baseComponentData} title={getName(chatItem)} is_main={false} rightIcon={rightIcon}>
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                    <TouchableWithoutFeedback accessible={false} >
+                    <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
                         {_.isEmpty(chatData)?
                             <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                                 <View style={{width: 300, height: 150}}>
@@ -274,7 +299,7 @@ const ChatListScreen = (props: any) => {
                                         autoPlay loop
                                     />
                                 </View>
-                                <Text>No messages here yet...</Text>
+                                <TextItem>No messages here yet...</TextItem>
                             </View>
                             :
                             <FlatList
@@ -285,8 +310,11 @@ const ChatListScreen = (props: any) => {
                                 data={chatData}
                                 showsVerticalScrollIndicator={false}
                                 ListFooterComponent={
-                                    <View style={{ height: 20 }}>
-                                    </View>
+                                    <>
+                                        <View style={{
+                                            height: insets.bottom > 0 ? (insets.bottom + 20):70
+                                        }} />
+                                    </>
                                 }
                                 // refreshControl={
                                 //     <RefreshControl
@@ -294,18 +322,17 @@ const ChatListScreen = (props: any) => {
                                 //         onRefresh={_handleRefresh}
                                 //         tintColor="black" />
                                 // }
-                                // onContentSizeChange={() => {
-                                //     if (!refreshing) {
+                                onContentSizeChange={() => {
+                                    if (!refreshing) {
 
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
-                                // onLayout={() => {
-                                //     if (!refreshing) {
-
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
+                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                    }
+                                }}
+                                onLayout={() => {
+                                    if (!refreshing) {
+                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                    }
+                                }}
                                 scrollEventThrottle={16}
                                 onEndReachedThreshold={0.5}
                                 keyExtractor={(_, index) => index.toString()}

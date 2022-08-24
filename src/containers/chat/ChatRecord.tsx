@@ -173,7 +173,7 @@ const ChatRecord = (props: any) => {
             } 
             <HStack style={{ flex: 1, justifyContent: "flex-end",alignItems:'center' }}>
                 {message?
-                    <TouchableOpacity onPress={() => onOpen()}>
+                    <TouchableOpacity onPress={onSend}>
                         <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
                     </TouchableOpacity>
                     :
@@ -187,7 +187,9 @@ const ChatRecord = (props: any) => {
                         }
                        
                         {isRecord || singleFile?
-                            <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
+                            <TouchableOpacity>
+                                <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
+                            </TouchableOpacity>
                             :
                             <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
                                 <Ionicons name="ios-camera-outline"  size={25} color={themeStyle[theme].textColor}/>
