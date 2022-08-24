@@ -63,7 +63,7 @@ const MemberScreen = (props: any) => {
                         <FastImage source={item.data.user.profile_photo?{uri:item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name ?? "" + " "+ item.data.user.last_name ?? ""}</TextItem>
+                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name + " "+ item.data.user.last_name ?? ""}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -79,7 +79,7 @@ const MemberScreen = (props: any) => {
     const _renderContactView = ({item,index}:any) => {
 		return(
 			item.contact_user ? 
-				<TouchableOpacity onPress={()=>{_handleAddToGroupChat(item.contact_user_id)}} style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+				<TouchableOpacity onPress={()=>_handleAddToGroupChat(item.contact_user_id)} style={{padding:7,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 					<HStack alignItems="center" space={4}>
 						<UserAvatar>
 							<FastImage source={item.contact_user.profile_photo?{uri:item.contact_user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
@@ -207,7 +207,7 @@ const MemberScreen = (props: any) => {
                 style={[styles.backRightBtn, styles.backRightBtnRight]}
                 onPress={() => deleteRow(rowMap, data.item.key)}
             >
-                <Text style={styles.backTextWhite}>Delete</Text>
+                <Text style={styles.backTextWhite}>Remove</Text>
             </TouchableOpacity>
         </View>
     );
@@ -317,6 +317,7 @@ const styles = StyleSheet.create({
     },
     backTextWhite: {
         color: '#FFF',
+        fontFamily: 'Montserrat-Regular'
     },
     rowFront: {
         alignItems: 'center',
@@ -343,7 +344,7 @@ const styles = StyleSheet.create({
         width: 75,
     },
     backRightBtnLeft: {
-        backgroundColor: 'blue',
+        backgroundColor: baseColor,
         right: 75,
     },
     backRightBtnRight: {

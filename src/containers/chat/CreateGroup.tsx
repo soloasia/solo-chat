@@ -33,30 +33,14 @@ const CreateGroup = (props: any) => {
 
 
     const { userChat, isUserProfile, onClose } = props
-    const [selectUser, setSelectUser] = useState<any>([])
-    // const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
+    console.log(userChat)
+    const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
-    const [userIds, setUserIds] = useState<any>( [])
-    // const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user_id] : [])
+    const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user_id] : [])
     const [state, setState] = useState<any>({
         searchText: '',
         groupName: ''
     });
-
-
-    // useEffect(() => {
-    //     const found = userChat.chatroom_users.find((element: any) => element.user_id != userInfo.id);
-    //     reactotron.log('----',found)
-    //     if(isUserProfile) {
-    //         const contactSelected = mycontact.find((element: any) => element.contact_user_id == found.user_id);
-    //         setSelectUser(contactSelected)
-    //         setUserIds(contactSelected.contact_user_id)
-    //         reactotron.log('==', contactSelected)
-    //     }
-        
-    //     // chatItem.
-    // }, []);
-    // reactotron.log(userChat)
 
     function getData() {
 		GET(`me/contact?page=${lastDoc}`)
@@ -81,7 +65,6 @@ const CreateGroup = (props: any) => {
         // if(item.uniqueId != userChat.uniqueId){
         const filterDupplicate = selectUser.filter((element:any) => element.contact_user_id != item.contact_user_id);
         setSelectUser(filterDupplicate)
-        const test = userIds.slice(1, index)
         _.remove(userIds, function (c) {
             return (c === item.contact_user_id); //remove if color is green
         });
@@ -144,7 +127,7 @@ const CreateGroup = (props: any) => {
         if (state.groupName != '') {
             POST('group/create', formdata).then(async (result: any) => {
                 if (result.status) {
-                    navigate.navigate('ChatList', { chatItem: result.data[0] });
+                    navigate.navigate('ChatList', { chatItem: result.data });
 		            loadData(dispatch);
 
                     onClose()

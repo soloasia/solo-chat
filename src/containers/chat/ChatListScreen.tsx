@@ -184,7 +184,7 @@ const ChatListScreen = (props: any) => {
     
     const rightIcon = () => {
         return (
-            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
+            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
                     {chatItem.contact_user ? 
                     <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
