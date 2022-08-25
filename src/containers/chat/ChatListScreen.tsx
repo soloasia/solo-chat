@@ -386,8 +386,8 @@ const ChatListScreen = (props: any) => {
                 <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                     <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
                 </View> 
-                <View style={{position:'absolute',bottom:10,right:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
-                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?10:'53%'}}>
+                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
                 </View>
                 {isLocalLoading == index?
                     <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'70%',top:'40%',borderRadius:50,justifyContent:'center'}}>
@@ -429,7 +429,7 @@ const ChatListScreen = (props: any) => {
                     </View>
                         
                 </View> 
-                <View style={{position:'absolute',bottom:10,right:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?10:'53%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                     <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                 </View>
                 {isLocalLoading == index?
