@@ -83,7 +83,7 @@ const AddContactScreen = (props:any) => {
 						<FastImage source={item.profile_photo?{uri:item.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 					</UserAvatar>
 					<VStack space={1} flex={1} paddingLeft={2}>
-						<Text style={style.p}>{item.first_name} {item.last_name}</Text>
+						<Text style={{...style.p,color : themeStyle[theme].textColor}}>{item.first_name} {item.last_name}</Text>
 						<HStack alignItems={'center'}>
 							<Text style={[style.p,{fontSize:12,color:textDesColor}]}>{item.username}</Text>
 						</HStack>
