@@ -3,7 +3,7 @@ import { Box, HStack, useDisclose, VStack } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
-import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke } from '../../config/colors';
+import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke, textSecondColor } from '../../config/colors';
 import { FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
@@ -242,13 +242,20 @@ const ChatListScreen = (props: any) => {
                 <HStack alignItems={'center'}>
                     {options.map((item:any)=>
                         <VStack paddingLeft={8} alignItems={'center'}>
-                            <TouchableOpacity onPress={()=>_onTapOptionMenu(item.name)} style={{width:40,height:40,borderRadius:40,backgroundColor:baseColor,justifyContent:'center',alignItems:'center'}}>
-                                <Ionicons name={item.icon}  size={25} color={themeStyle[theme].textColor}/>
+                            <TouchableOpacity onPress={()=>_onTapOptionMenu(item.name)} style={{width:40,height:40,borderRadius:40,backgroundColor:whiteColor,justifyContent:'center',alignItems:'center', shadowColor: "#000",
+                                shadowOffset: {
+                                    width: 0,
+                                    height: 1,
+                                },
+                                shadowOpacity: 0.20,
+                                shadowRadius: 1.41,
+
+                                elevation: 2,}}>
+                                <Ionicons name={item.icon}  size={20} color={textSecondColor}/>
                             </TouchableOpacity>
                             <Text style={[style.p,{fontSize:12,textAlign:'center',paddingTop:5}]}>{item.name}</Text> 
                         </VStack>
-                    )
-                    }
+                    )}
                 </HStack>
             </View>
         </View>
@@ -281,13 +288,13 @@ const ChatListScreen = (props: any) => {
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
-				<Text style={[style.p,{color:baseColor}]}>CANCEL</Text>
+				<Text style={[style.p,{color:baseColor, fontSize:13}]}>CANCEL</Text>
 			</TouchableOpacity>
 			<View style={styles.panelHeader}>
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:baseColor}]}>DONE</Text>:<Box style={{width:50}}/>}
+				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>DONE</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
@@ -383,9 +390,9 @@ const ChatListScreen = (props: any) => {
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
-                <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                <TouchableOpacity onPress={()=>navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                     <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
-                </View> 
+                </TouchableOpacity> 
                 <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?10:'53%'}}>
                     <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
                 </View>
@@ -520,12 +527,10 @@ const ChatListScreen = (props: any) => {
         }
         return(
             <>
-                {countTransDate == 1?
+                { countTransDate == 1?
                     <Text style={[style.p,{ fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText,textAlign:'center' }]}>{moment(transDate).format('MMMM DD, YYYY')}</Text>
-                    :
-                    <></>
-                }
-                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)   }
+                :  <></> }
+                { item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index) }
             </>
         )
     }
@@ -560,99 +565,99 @@ const ChatListScreen = (props: any) => {
 	}
     return (
         <>
-        <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
-            <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} />
-            <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
-                <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                    <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
-                        {_.isEmpty(chatData)?
-                            <View style={{flex:1,justifyContent:'center',alignItems:'center',}}>
-                                <View style={{backgroundColor: theme =='dark' ? '#232B36E1' : whiteColor,alignItems:'center', shadowColor: theme =='dark' ? '#fff' :"#000", padding: main_padding,borderRadius: 15,marginBottom: main_padding,
-                                    shadowOffset: {
-                                        width: 0,
-                                        height: 1,
-                                    },
-                                    shadowOpacity: 0.18,
-                                    shadowRadius: 1.00,
-
-                                    elevation: 1, }}>
-                                    {/* <View style={{width: 300, height: 150,}}> */}
-                                        <Lottie
-                                            // source={{uri: 'https://assets9.lottiefiles.com/packages/lf20_3vbOcw.json'}}
-                                            source={require('../../assets/say_hello.json')}
-                                            style={{width: 200, height: 150}}
-                                            autoPlay loop
-                                        />
-                                    {/* </View> */}
-                                    <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>No messages here yet...{'\n'}Say Hello to start conversations</Text>
+            <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
+                <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} />
+                <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
+                    <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+                        <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
+                            {_.isEmpty(chatData)?
+                                <View style={{flex:1,justifyContent:'center',alignItems:'center',}}>
+                                    <View style={{backgroundColor: theme =='dark' ? '#232B36E1' : whiteColor,
+                                        alignItems:'center', shadowColor: theme =='dark' ? '#fff' :"#000", 
+                                        padding: main_padding,borderRadius: 15,
+                                        marginBottom: main_padding,
+                                        shadowOffset: {
+                                            width: 0,
+                                            height: 1,
+                                        },
+                                        shadowOpacity: 0.18,
+                                        shadowRadius: 1.00,
+                                        elevation: 1, }}
+                                    >
+                                            <Lottie
+                                                source={require('../../assets/say_hello.json')}
+                                                style={{width: 200, height: 150}}
+                                                autoPlay loop
+                                            />
+                                        <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>No messages here yet...{'\n'}Say Hello to start conversations</Text>
+                                    </View>
                                 </View>
-                            </View>
-                            :
-                            <FlatList
-                                style={{paddingHorizontal: main_padding}}
-                                ref={ref}
-                                listKey={makeid()}
-                                renderItem={Item}
-                                data={chatData}
-                                showsVerticalScrollIndicator={false}
-                                ListFooterComponent={
-                                    <>
-                                        <View style={{
-                                            height: insets.bottom > 0 ? (insets.bottom + 20):70
-                                        }} />
-                                    </>
-                                }
-                                // refreshControl={
-                                //     <RefreshControl
-                                //         refreshing={refreshing}
-                                //         onRefresh={_handleRefresh}
-                                //         tintColor="black" />
-                                // }
-                                onContentSizeChange={() => {
-                                    if (!refreshing) {
+                                :
+                                <FlatList
+                                    style={{paddingHorizontal: main_padding}}
+                                    ref={ref}
+                                    listKey={makeid()}
+                                    renderItem={Item}
+                                    data={chatData}
+                                    showsVerticalScrollIndicator={false}
+                                    ListFooterComponent={
+                                        <>
+                                            <View style={{
+                                                height: insets.bottom > 0 ? (insets.bottom + 20):70
+                                            }} />
+                                        </>
+                                    }
+                                    // refreshControl={
+                                    //     <RefreshControl
+                                    //         refreshing={refreshing}
+                                    //         onRefresh={_handleRefresh}
+                                    //         tintColor="black" />
+                                    // }
+                                    onContentSizeChange={() => {
+                                        if (!refreshing) {
 
-                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                    }
-                                }}
-                                onLayout={() => {
-                                    if (!refreshing) {
-                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                    }
-                                }}
-                                scrollEventThrottle={16}
-                                onEndReachedThreshold={0.5}
-                                keyExtractor={(_, index) => index.toString()}
-                            >
-                            </FlatList>
-                        }
-                    </TouchableWithoutFeedback>
-                    <View style={{ width: deviceWidth, height: deviceHeight * .2 }}>
-                        <ChatRecord
-                            message={state.message}
-                            loading={state.loadSendMess}
-                            onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
-				            onChange={(data:any) => onChange(data)}
-				            onChangeVoice={(data:any) => onChangeVoice(data)}
-                            onOpen={_handleOpen}
-                            onSend={onSend}
-                            onOpenGallery ={onShefGallery}
-                            singleFile={state.singleFile}
-                            onClearFile={() => handleChange('singleFile','')}
-                        />
-                    </View>
-                </KeyboardAvoidingView>
-            </ImageBackground>
-        </View>
-        <BottomSheet
-            ref={sheetRefGallery}
-            snapPoints={['90%', 0, 0]}
-            overdragResistanceFactor={1}
-            renderContent={renderInner}
-            renderHeader={renderHeader}
-            initialSnap={2}
-            enabledInnerScrolling={true}
-            enabledContentGestureInteraction={false}
-        />
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                        }
+                                    }}
+                                    onLayout={() => {
+                                        if (!refreshing) {
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                        }
+                                    }}
+                                    scrollEventThrottle={16}
+                                    onEndReachedThreshold={0.5}
+                                    keyExtractor={(_, index) => index.toString()}
+                                >
+                                </FlatList>
+                            }
+                        </TouchableWithoutFeedback>
+                        <View style={{ width: deviceWidth, height: deviceHeight * .2, }}>
+                            <ChatRecord
+                                message={state.message}
+                                loading={state.loadSendMess}
+                                onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
+                                onChange={(data:any) => onChange(data)}
+                                onChangeVoice={(data:any) => onChangeVoice(data)}
+                                onOpen={_handleOpen}
+                                onSend={onSend}
+                                onOpenGallery ={onShefGallery}
+                                singleFile={state.singleFile}
+                                onClearFile={() => handleChange('singleFile','')}
+                            />
+                        </View>
+                    </KeyboardAvoidingView>
+                </ImageBackground>
+            </View>
+            <BottomSheet
+                ref={sheetRefGallery}
+                snapPoints={['90%', 0, 0]}
+                overdragResistanceFactor={1}
+                renderContent={renderInner}
+                renderHeader={renderHeader}
+                initialSnap={2}
+                enabledInnerScrolling={true}
+                enabledContentGestureInteraction={false}
+            />
         </>
     );
 };

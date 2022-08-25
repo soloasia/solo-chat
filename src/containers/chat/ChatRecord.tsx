@@ -101,7 +101,7 @@ const ChatRecord = (props: any) => {
                 <></>
                 :
                 <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={onOpenGallery}>
-                    <Entypo name={"attachment"} size={18} color={themeStyle[theme].textColor} />
+                    <Entypo name={"attachment"} size={17} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
             {
@@ -174,7 +174,7 @@ const ChatRecord = (props: any) => {
                             </TouchableOpacity>
                             :
                             <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
-                                <Entypo name="video-camera"  size={22} color={themeStyle[theme].textColor}/>
+                                <Entypo name="video-camera"  size={20} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
 
                         }
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         height: 90,
         color: "#aaa",
-        borderColor:borderDivider
+        borderColor:borderDivider,
     },
     icon: {
         paddingHorizontal: 5,

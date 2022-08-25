@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
         flex: 1,
         fontSize: 20,
         fontFamily: 'Montserrat-Bold'
-        // color: colors.textColor,
     },
     badge: {
         position: 'absolute',

@@ -196,7 +196,6 @@ const MemberScreen = (props: any) => {
     };
 
     const renderHiddenItem = ({data,rowMap}:any) => {
-        if(data.item.data.is_admin == 1) return false;
         return (
             <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
                 {/* <Text>Left</Text> */}
