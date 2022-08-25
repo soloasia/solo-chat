@@ -53,70 +53,20 @@ export const seconddata = [
     }
 ]
 
-export const message = [
-    {
-        date:moment().format('ddd DD MMM YYYY'),
-        data:[
-            {
-                text: 'It is not our differences that divide us. It is our inability to recognize, accept',
-                isAdmin: false
-            },
-            {
-                text: 'Appearance',
-                isAdmin: true
-            },
-            {
-                text: 'Language',
-                isAdmin: false
-            },
-            {
-                text: 'Privacy',
-                isAdmin: true
-            }
-        ]
+export const options = [
+   {
+        name: 'Video',
+        icon: 'videocam-outline',
+   },
+   {
+        name: 'Camera',
+        icon: 'ios-camera-outline',
     },
     {
-        date:moment().add(1,'day').format('ddd DD MMM YYYY'),
-        data:[
-            {
-                text: 'Notifications',
-                isAdmin: false
-            },
-            {
-                text: 'It is not our differences that divide us. It is our inability to recognize, accept',
-                isAdmin: true
-            },
-            {
-                text: 'Language',
-                isAdmin: false
-            },
-            {
-                text: 'Privacy',
-                isAdmin: true
-            }
-        ]
-    },
-    {
-        date:moment().add(2,'day').format('ddd DD MMM YYYY'),
-        data:[
-            {
-                text: 'Notifications',
-                isAdmin: false
-            },
-            {
-                text: 'It is not our differences that divide us. It is our inability to recognize, accept',
-                isAdmin: true
-            },
-            {
-                text: 'Language',
-                isAdmin: false
-            },
-            {
-                text: 'Privacy',
-                isAdmin: true
-            }
-        ]
+        name: 'File',
+        icon: 'attach-outline',
     }
+
 ]
 
 export const actionChatProfile = [
@@ -171,3 +121,12 @@ export const actionGroupChatProfile = [
         to: ''
     },
 ]
+
+ // chatData.map((item:any,index:any)=>{
+                //     let keys = Object.keys(item)[index]
+                //     if(moment(result.data.created_at).format('YYYY-MM-DD') == keys){
+                //         let mergeArray:any = [...item[keys],result.data];
+                //         setChatData([{[keys]:mergeArray}])
+        
+                //     }
+                // })

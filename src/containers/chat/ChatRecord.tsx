@@ -2,7 +2,7 @@ import { HStack, useToast } from 'native-base';
 import React, { useContext, useState } from 'react'
 import { ActivityIndicator, Platform, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import Entypo from 'react-native-vector-icons/Entypo';
-import { textColor, chatText, secondColor, bgChat, baseColor, offlineColor } from '../../config/colors';
+import { textColor, chatText, secondColor, bgChat, baseColor, offlineColor, borderDivider } from '../../config/colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -15,10 +15,9 @@ import { makeid } from '../../customs_items/Components';
 import style from '../../styles';
 import LottieView from 'lottie-react-native';
 import ImagePicker from 'react-native-image-crop-picker';
-import DocumentPicker from 'react-native-document-picker';
 import reactotron from 'reactotron-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
+import base64File from '../../functions/BaseFuntion';
 let audioRecorderPlayer:any = null;
 const dirs = RNFetchBlob.fs.dirs;
 const path = Platform.select({
@@ -27,27 +26,26 @@ const path = Platform.select({
 });
 
 const ChatRecord = (props: any) => {
-    const { onOpen, onSend, message, onChangeMessage,onOpenGallery } = props;
+    const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice } = props;
     const textsize = useSelector((state: any) => state.textSizeChange);
     const {theme} : any = useContext(ThemeContext);
     const [isRecord, setIsRecord] = useState(false);
     const [duration, setDuration] = useState<any>("00:00");
     const [totalDuration, setTotalDuration] = useState(0);
-    const [singleFile, setSingleFile] = useState<any>('');
+    // const [singleFile, setSingleFile] = useState<any>('');
 
     const onCamera = () => {
         // onClose()
         ImagePicker.openCamera({
-            maxHeight: 512,
-            maxWidth: 512,
             cropping: false,
-            includeBase64: true,
+            mediaType:'video'
         }).then(response => {
-            // onChange(response);
+            onChange(response);
         });
     }
-
     const onStartRecord = async () => {
+        setDuration("00:00")
+        setTotalDuration(0)
         audioRecorderPlayer = new AudioRecorderPlayer()
         const result = await audioRecorderPlayer.startRecorder(path,audioSet);
         audioRecorderPlayer.addRecordBackListener((e:any) => {
@@ -71,38 +69,29 @@ const ChatRecord = (props: any) => {
         const result = await audioRecorderPlayer.stopRecorder();
         await audioRecorderPlayer.removeRecordBackListener();
         if (!isStop) {
-            onSendVoice(result);
+            // onSendVoice(result);
         } else {
             RNFetchBlob.fs.unlink(result);
         }
     }
-    const onSendVoice = async (result: any) => {
-        const data = await RNFetchBlob.fs.readFile(result, 'base64');
-        var formData = new FormData();
-        let _data: any = {
-            uri: result,
-            name: result.replace(/^.*[\\\/]/, ''),
-            data: data,
-            type: Platform.OS == "ios" ? "audio/m4a" : "audio/mp3",
-        }
+    const onSendVoice = async () => {
+        setIsRecord(false);
+        const result = await audioRecorderPlayer.stopRecorder();
+        await audioRecorderPlayer.removeRecordBackListener();
+        base64File(result).then((res:any)=>{
+            onChangeVoice(res)
+            RNFetchBlob.fs.unlink(result);
+        })
+        // if (!isStop) {
+        //     onSendVoice(result);
+        // } else {
+        //     RNFetchBlob.fs.unlink(result);
+        // }
+
+        // base64File(result).then((res:any)=>{
+        //     onChangeVoice(res)
+        // })
     }
-    const selectOneFile = async () => {
-		//Opening Document Picker for selection of one file
-		try {
-		  const res:any = await DocumentPicker.pick({
-			type: [DocumentPicker.types.plainText,DocumentPicker.types.pdf,DocumentPicker.types.zip,DocumentPicker.types.csv,
-			DocumentPicker.types.doc,DocumentPicker.types.docx,DocumentPicker.types.ppt,DocumentPicker.types.pptx,DocumentPicker.types.xls,DocumentPicker.types.xlsx],
-		  });
-          setSingleFile(res[0])
-		} catch (err) {
-		  if (DocumentPicker.isCancel(err)) {
-			//If user canceled the document selection
-		  } else {
-			//For Unknown Error
-			throw err;
-		  }
-		}
-	};
     const getExtention = (filename:any) => {
         return /[.]/.exec(filename) ? /[^.]+$/.exec(filename) : undefined;
     };
@@ -111,15 +100,8 @@ const ChatRecord = (props: any) => {
             {isRecord || message || singleFile?
                 <></>
                 :
-                <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={selectOneFile}>
-                    <Entypo name={"attachment"} size={18} color={themeStyle[theme].textColor} />
-                </TouchableOpacity>
-            }
-            {isRecord || message || singleFile?
-                <></>
-                :
                 <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={onOpenGallery}>
-                    <Ionicons name={"image-outline"} size={18} color={themeStyle[theme].textColor} />
+                    <Entypo name={"attachment"} size={18} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
             {
@@ -145,7 +127,7 @@ const ChatRecord = (props: any) => {
                             } size={18} color={themeStyle[theme].textColor} />
                         <Text style={[style.p,{paddingLeft:10}]}>{singleFile.name}</Text>
                     </HStack>
-                    <TouchableOpacity style={[styles.icon, { marginRight: 10}]} onPress={() => setSingleFile('')} >
+                    <TouchableOpacity style={[styles.icon, { marginRight: 10}]} onPress={onClearFile} >
                         <Ionicons name={"close-circle-outline"}  size={25} color={offlineColor}/>
                     </TouchableOpacity>
                 </HStack> 
@@ -160,7 +142,7 @@ const ChatRecord = (props: any) => {
                     scrollEnabled
                     placeholder={"Type a message..."}
                     onChangeText={(_text) =>  onChangeMessage(_text) }
-                    style={{ flex: message? 5:2, height: 40 ,color:textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize}}
+                    style={{ flex: message? 5:3, height: 40 ,color:themeStyle[theme].textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize,fontFamily:'Montserrat-Regular'}}
                 />
                 :
                 <HStack style={{ height: 40, alignItems: 'center',flex:6,backgroundColor:'#ADB9C6',justifyContent:'space-between',borderRadius:20,paddingLeft:20}}>
@@ -173,24 +155,26 @@ const ChatRecord = (props: any) => {
             } 
             <HStack style={{ flex: 1, justifyContent: "flex-end",alignItems:'center' }}>
                 {message?
-                    <TouchableOpacity onPress={() => onOpen()}>
-                        <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
+                    <TouchableOpacity onPress={onSend}>
+                        <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center'}}  color={themeStyle[theme].textColor}/>
                     </TouchableOpacity>
                     :
                     <>
                         {isRecord || singleFile?
                         <></>
                             :
-                            <TouchableOpacity style={styles.icon} onPress={() => onStartRecord()} >
+                            <TouchableOpacity style={[styles.icon,{paddingRight:10}]} onPress={() => onStartRecord()}>
                                 <Ionicons name={"ios-mic-outline"}  size={25} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
                         }
                        
                         {isRecord || singleFile?
-                            <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center',color:baseColor}}/>
+                            <TouchableOpacity onPress={isRecord?onSendVoice:onSend}>
+                                <MaterialCommunityIcons name={"send-circle"}  size={35} style={{alignSelf:'center'}} color={themeStyle[theme].textColor}/>
+                            </TouchableOpacity>
                             :
                             <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
-                                <Ionicons name="ios-camera-outline"  size={25} color={themeStyle[theme].textColor}/>
+                                <Entypo name="video-camera"  size={22} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
 
                         }
@@ -208,20 +192,14 @@ export default ChatRecord;
 const styles = StyleSheet.create({
     input: {
         // position: 'absolute',
+		borderTopWidth:1,
         paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
         height: 90,
         color: "#aaa",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
-        elevation: 2,
+        borderColor:borderDivider
     },
     icon: {
         paddingHorizontal: 5,

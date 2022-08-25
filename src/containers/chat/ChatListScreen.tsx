@@ -1,51 +1,74 @@
 import moment from 'moment';
-import { Box, Divider, HStack, useDisclose } from 'native-base';
+import { Box, HStack, useDisclose, VStack } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
-import reactotron from 'reactotron-react-native';
-import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke, textSecondColor, backPriceColor } from '../../config/colors';
+import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke } from '../../config/colors';
 import { FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
-import { message } from '../../temp_data/Setting';
 import ChatRecord from './ChatRecord';
+import _ from 'lodash'
 import { deviceHeight } from '../../styles/index';
-import _ from 'lodash';
 import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
-import { ThemeContext } from '../../utils/ThemeManager';
-import themeStyle from '../../styles/theme';
 import ChatHeader from '../../components/ChatHeader';
+import base64File, { POST } from '../../functions/BaseFuntion';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Video from 'react-native-video'
+import { options } from '../../temp_data/Setting';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import themeStyle from '../../styles/theme';
+import { ThemeContext } from '../../utils/ThemeManager';
+import ImagePicker from 'react-native-image-crop-picker';
+import DocumentPicker from 'react-native-document-picker';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 
 let PAGE_SIZE: any = 500;
+let transDate: any = null;
+let countTransDate: any = 0;
+let audioRecorderPlayer:any = null;
+
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
-    const {theme} : any = useContext(ThemeContext);
-
+    const ref = useRef<FlatList>(null);
+    const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
+    const [refreshing, setRefreshing] = useState(false);
     const appearanceTheme = useSelector((state: any) => state.appearance);
+	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
     const { chatItem, contactItem } = props.route.params;
-    const ref = useRef<FlatList>(null);
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
-    const [chatData, setChatData] = useState<any>(chatItem.chatroom_messages.data);
-
+    const [ isLocalLoading, setLocalLoading] = useState<any>(null);
+    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages:chatItem.chatroom_messages.data);
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
+    const [playVoice, setPlayVoice] = useState(false);
+    const [voiceId, setVoiceId] = useState(null);
+    const [voiceDuration, setVoiceDuration] = useState(0);
+    const [loadingVoice, setLoadingVoice] = useState(false);
+    const [isSending, setIsSending] = useState(false);
+
     const [state, setState] = useState<any>({
         message: '',
         loadSendMess: false,
         image: null,
 		index: null,
         isEnd :false,
-        endCursor :false
+        endCursor :false,
+        type:null,
+        file:null,
+        localVideo:null,
+        singleFile:'',
+        voice:''
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
@@ -71,7 +94,7 @@ const ChatListScreen = (props: any) => {
     const getPhotos = () => {
 		CameraRoll.getPhotos({
 			first: PAGE_SIZE,
-			assetType: 'All',
+			assetType: 'Photos',
 			include: ['filename', 'fileSize','imageSize','playableDuration']
 		}).then((res) => {
 			setData(res.edges);
@@ -114,9 +137,13 @@ const ChatListScreen = (props: any) => {
             setHasScrolled(true)
     };
 
-	function onSelectImage (item:any,index:any){
+    async function onSelectImage (item:any,type:any,index:any) {
 		handleChange('index',index)
 		handleChange('image',item)
+		handleChange('type',type)
+        base64File(item).then((res:any)=>{
+            handleChange('file',res)
+        })
 	}
 	function millisToMinutesAndSeconds(millis:any) {
 		var seconds:any = (millis / 60).toFixed(2);
@@ -124,7 +151,7 @@ const ChatListScreen = (props: any) => {
 	}
 	const _renderView = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>onSelectImage(item.node.image.uri,index)} style={{width: '33%',height: 150}}>
+			<TouchableOpacity onPress={()=>onSelectImage(item.node.image.uri,item.node.type,index)} style={{width: '33%',height: 150}}>
 				<Image style={{width: '100%',height: 150,}} source={{uri: item.node.image.uri}}/>
 				{item.node.type == 'video'?
 					<View style={{position:'absolute',bottom:5,right:5,backgroundColor:placeholderDarkTextColor,padding:5,borderRadius:20}}>
@@ -145,6 +172,60 @@ const ChatListScreen = (props: any) => {
 			</TouchableOpacity>
 		)
 	}
+    async function _onTapOptionMenu (type:any){
+        sheetRefGallery.current.snapTo(2)
+        if(type == 'Video'){
+            ImagePicker.openPicker(
+            {
+                mediaType: 'video',
+                includeBase64: true
+            }).then(async images =>{
+                let localUrl =  Platform.OS === 'ios'?images.sourceURL: images.path
+                handleChange('localVideo',localUrl)
+                base64File(images.path).then((res:any)=>{
+		            handleChange('type','video')
+                    handleChange('file',res)
+                    onSend()
+                })
+                }
+            )
+        }
+        else if(type == 'Camera'){
+            ImagePicker.openCamera({
+                cropping: false,
+            }).then(response => {
+                base64File(response.path).then((res:any)=>{
+                    handleChange('type','image')
+                    handleChange('file',res)
+                    onSend()
+                })
+            });
+        }
+        else{
+            //Opening Document Picker for selection of one file
+            try {
+                const res:any = await DocumentPicker.pick({
+                type: [DocumentPicker.types.plainText,DocumentPicker.types.pdf,DocumentPicker.types.zip,DocumentPicker.types.csv,
+                DocumentPicker.types.doc,DocumentPicker.types.docx,DocumentPicker.types.ppt,DocumentPicker.types.pptx,DocumentPicker.types.xls,DocumentPicker.types.xlsx],
+                });
+                handleChange('singleFile',res[0])
+		        handleChange('message',res[0].name.split('.')[0])
+		        handleChange('type',res[0].name.split('.')[1])
+                base64File(res[0].uri).then((res:any)=>{
+                    handleChange('file',res)
+                })
+            } catch (err) {
+                if (DocumentPicker.isCancel(err)) {
+                //If user canceled the document selection
+                } else {
+                //For Unknown Error
+                throw err;
+                }
+            }
+        }
+
+    }
+
     const renderInner = () => (
         <View style={{height:'100%',width:'100%',backgroundColor:'white'}}>
             <FlatListVertical
@@ -156,15 +237,47 @@ const ChatListScreen = (props: any) => {
                         <Footer />
                     </>
                 }
-                // onTouchMove={_onScroll}
             />
+            <View style={{height: insets.bottom > 0 ? (insets.bottom + 60):70,backgroundColor:whiteSmoke,width:deviceWidth,paddingTop:10}}>
+                <HStack alignItems={'center'}>
+                    {options.map((item:any)=>
+                        <VStack paddingLeft={8} alignItems={'center'}>
+                            <TouchableOpacity onPress={()=>_onTapOptionMenu(item.name)} style={{width:40,height:40,borderRadius:40,backgroundColor:baseColor,justifyContent:'center',alignItems:'center'}}>
+                                <Ionicons name={item.icon}  size={25} color={themeStyle[theme].textColor}/>
+                            </TouchableOpacity>
+                            <Text style={[style.p,{fontSize:12,textAlign:'center',paddingTop:5}]}>{item.name}</Text> 
+                        </VStack>
+                    )
+                    }
+                </HStack>
+            </View>
         </View>
     )
 	const onSendImage = () =>{
 		handleChange('image','')
 		handleChange('index',null)
+        onSend()
 		sheetRefGallery.current.snapTo(2)
 	}
+    const onShefGallery = () =>{
+		getPhotos();
+        sheetRefGallery.current.snapTo(0)
+        Keyboard.dismiss();
+    }
+    const onChange = (data:any) =>{
+        let localUrl =  Platform.OS === 'ios'?data.sourceURL: data.path
+        handleChange('localVideo',localUrl)
+        base64File(data.path).then((res:any)=>{
+            handleChange('type','video')
+            handleChange('file',res)
+            onSend()
+        })
+    }
+    const onChangeVoice = (data:any) =>{
+        handleChange('type','mp3')
+        handleChange('file',data)
+        onSend()
+    }
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
@@ -178,14 +291,8 @@ const ChatListScreen = (props: any) => {
 			</TouchableOpacity>
         </View>
     )
-    const onShefGallery = () =>{
-		getPhotos();
-        // getPhotosFromDevice();
-        sheetRefGallery.current.snapTo(0)
-    }
     // end function get all gallery from device
 
-    
     
     const rightIcon = () => {
         return (
@@ -200,7 +307,8 @@ const ChatListScreen = (props: any) => {
     }
     const onChangeMessage = useCallback(
         (text: any) => {
-            handleChange('message', text)
+            handleChange('message', text);
+		    handleChange('type','text')
         },
         [state.message],
     );
@@ -208,34 +316,219 @@ const ChatListScreen = (props: any) => {
         onOpen()
     }
     const onSend = () => {
-
+        const formdata = new FormData();
+        let body:any = {
+            message:state.message,
+            type :state.type,
+            file_url : state.type === 'text'?'':state.file,
+            created_by: userInfo.id,
+            created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
+            localVideo:state.localVideo?state.localVideo:null
+        }
+        setChatData((chatData:any) => [...chatData,body]);
+        setLocalLoading(chatData.length)
+        formdata.append("message", state.message);
+        formdata.append("type", state.type);
+        formdata.append("file",state.type === 'text'?'':state.file);
+        formdata.append("chatroom_id", chatItem.id);
+        handleChange('message', '');
+        handleChange('singleFile', '');
+        POST('chatroom_message/create', formdata)
+        .then(async (result: any) => {
+            if(result.status){
+                setLocalLoading(null)
+            }
+        })
     }
-   
-    const messageText = (mess: any, index: any) => {
+    const onPlayVoice = async (mess:any) => {
+        setVoiceId(mess.id);
+        setLoadingVoice(true);
+        setTimeout(async () => {
+            if (voiceId === mess.id) {
+                setIsSending(false);
+                if (playVoice) {
+                    setPlayVoice(false);
+                    audioRecorderPlayer.pausePlayer();
+
+                } else {
+                    setPlayVoice(true);
+                    audioRecorderPlayer.resumePlayer();
+                }
+
+            } else {
+                setPlayVoice(true);
+                if (audioRecorderPlayer) {
+                    audioRecorderPlayer.stopPlayer();
+                    audioRecorderPlayer.removePlayBackListener();
+                }
+                audioRecorderPlayer = new AudioRecorderPlayer()
+                const msg = await audioRecorderPlayer.startPlayer(mess.des);
+                setIsSending(false);
+                audioRecorderPlayer.addPlayBackListener((e:any) => {
+                    let _duration = Number(mess.voice_duration) - e.currentPosition;
+                    setVoiceDuration(_duration);
+                    if (_duration <= 0) {
+                        setPlayVoice(false);
+                        setVoiceId(null)
+                        setVoiceDuration(mess.voice_duration);
+                        audioRecorderPlayer.removePlayBackListener();
+
+                    }
+                });
+            }
+            setLoadingVoice(false);
+        }, 250);
+    };
+
+    const messageImage = (mess:any,index:any) =>{
         return (
-            <View style={[styles.chatBody, { alignItems: !mess.isAdmin ? "flex-end" : "flex-start" }]}>           
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
+                <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
+                </View> 
+                <View style={{position:'absolute',bottom:10,right:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                </View>
+                {isLocalLoading == index?
+                    <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'70%',top:'40%',borderRadius:50,justifyContent:'center'}}>
+                        <ActivityIndicator
+                            color={whiteColor}
+                        />
+                    </View>
+                    :
+                    <></>
+                }
+            </View>
+        )
+    }
+    const messageVideo = (mess:any,index:any) =>{
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
+                <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
+                        {state.localVideo && isLocalLoading == index?
+                            <Video
+                                source={{uri:state.localVideo}}
+                                style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
+                                ignoreSilentSwitch={"ignore"}
+                                resizeMode='cover'
+                                paused={true}
+                            />
+                            :
+                            <Video
+                                source={{uri:mess.file_url}}
+                                style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
+                                ignoreSilentSwitch={"ignore"}
+                                resizeMode='cover'
+                                paused={true}
+                                controls={true}
+                            />
+
+                        }
+                        
+                    </View>
+                        
+                </View> 
+                <View style={{position:'absolute',bottom:10,right:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                </View>
+                {isLocalLoading == index?
+                    <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'70%',top:'40%',borderRadius:50,justifyContent:'center'}}>
+                        <ActivityIndicator
+                            color={whiteColor}
+                        />
+                    </View>
+                    :
+                    <></>
+                }
+            </View>
+        )
+    }
+    const messageFile = (mess: any,index:any) => {
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
 				<View style={[styles.chatBack,
 				{
-					backgroundColor: mess.isAdmin ? '#DBDBDBE3' : _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor,
-					borderBottomRightRadius: mess.isAdmin ? 20 : 0,
-					borderBottomLeftRadius: mess.isAdmin ? 0 : 20,
-					marginVertical: 1
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+					marginVertical: 1,
 				}
 				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.isAdmin ? textColor : whiteColor, fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.text}</Text>
-					<Text style={{ fontSize: 10, color: mess.isAdmin ?  textColor: whiteColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment().format('HH:mm A')}</Text>
+                    <HStack alignItems={'center'} paddingTop={2}>
+                        <FontAwesome name='file-text' size={25} color={themeStyle[theme].textColor} />
+						<Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
+                    </HStack>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</View>
             </View>
         )
     };
 
-    const Item = ({ item, index }: any) => (
-        <>
-            <Text style={{ textAlign: 'center', fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText }}>{item.date}</Text>
-            {item.data.map((mess: any, index: any) => messageText(mess, index))}
-        </>
-    );
+    const messageVoice = (mess:any,index:any) => {
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
+                <View style={[styles.chatBack,
+                {
+                    backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                    borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+                    borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+                    marginVertical: 1,
+                }
+                ]}>
+                    <HStack alignItems={'center'} paddingTop={2}>
+                        <FontAwesome name='file-text' size={25} color={themeStyle[theme].textColor} />
+                        <Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
+                    </HStack>
+                    <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                </View>
+        </View>
+        )
+    }
 
+
+    const messageText = (mess: any,index:any) => {
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
+				<View style={[styles.chatBack,
+				{
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+					marginVertical: 1,
+				}
+				]}>
+					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+				</View>
+            </View>
+        )
+    };
+
+    const Item = ({ item, index }: any) => {
+        if(transDate){
+            if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
+                countTransDate+=1;
+            }
+            else{
+                transDate = moment(item.created_at).format('MMMM DD, YYYY');
+                countTransDate=1;
+            }
+        }else{
+            transDate = moment(item.created_at).format('MMMM DD, YYYY');
+            countTransDate = 1 ;
+        }
+        return(
+            <>
+                {countTransDate == 1?
+                    <Text style={[style.p,{ fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText,textAlign:'center' }]}>{moment(transDate).format('MMMM DD, YYYY')}</Text>
+                    :
+                    <></>
+                }
+                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)   }
+            </>
+        )
+    }
     const getName = (item : any) : string => {
 		var name = ""
 		const isIndividual : boolean = item.type === "individual";
@@ -271,7 +564,7 @@ const ChatListScreen = (props: any) => {
             <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} />
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-                    <TouchableWithoutFeedback accessible={false} >
+                    <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
                         {_.isEmpty(chatData)?
                             <View style={{flex:1,justifyContent:'center',alignItems:'center',}}>
                                 <View style={{backgroundColor: theme =='dark' ? '#232B36E1' : whiteColor,alignItems:'center', shadowColor: theme =='dark' ? '#fff' :"#000", padding: main_padding,borderRadius: 15,marginBottom: main_padding,
@@ -303,8 +596,11 @@ const ChatListScreen = (props: any) => {
                                 data={chatData}
                                 showsVerticalScrollIndicator={false}
                                 ListFooterComponent={
-                                    <View style={{ height: 20 }}>
-                                    </View>
+                                    <>
+                                        <View style={{
+                                            height: insets.bottom > 0 ? (insets.bottom + 20):70
+                                        }} />
+                                    </>
                                 }
                                 // refreshControl={
                                 //     <RefreshControl
@@ -312,18 +608,17 @@ const ChatListScreen = (props: any) => {
                                 //         onRefresh={_handleRefresh}
                                 //         tintColor="black" />
                                 // }
-                                // onContentSizeChange={() => {
-                                //     if (!refreshing) {
+                                onContentSizeChange={() => {
+                                    if (!refreshing) {
 
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
-                                // onLayout={() => {
-                                //     if (!refreshing) {
-
-                                //         ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                //     }
-                                // }}
+                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                    }
+                                }}
+                                onLayout={() => {
+                                    if (!refreshing) {
+                                        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                    }
+                                }}
                                 scrollEventThrottle={16}
                                 onEndReachedThreshold={0.5}
                                 keyExtractor={(_, index) => index.toString()}
@@ -336,9 +631,13 @@ const ChatListScreen = (props: any) => {
                             message={state.message}
                             loading={state.loadSendMess}
                             onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
+				            onChange={(data:any) => onChange(data)}
+				            onChangeVoice={(data:any) => onChangeVoice(data)}
                             onOpen={_handleOpen}
                             onSend={onSend}
                             onOpenGallery ={onShefGallery}
+                            singleFile={state.singleFile}
+                            onClearFile={() => handleChange('singleFile','')}
                         />
                     </View>
                 </KeyboardAvoidingView>
@@ -346,7 +645,7 @@ const ChatListScreen = (props: any) => {
         </View>
         <BottomSheet
             ref={sheetRefGallery}
-            snapPoints={['50%', '95%', 0]}
+            snapPoints={['90%', 0, 0]}
             overdragResistanceFactor={1}
             renderContent={renderInner}
             renderHeader={renderHeader}
@@ -413,6 +712,21 @@ const styles = StyleSheet.create({
         backgroundColor:baseColor,
         marginBottom: 10,
       },
+      voiceItem: {
+        transform: [{ scaleY: -1 }],
+        paddingHorizontal: 10,
+        marginTop: 10,
+        paddingVertical: 10,
+        borderRadius: 30,
+        width: deviceWidth / 2,
+        backgroundColor: "#fff",
+        paddingLeft: 10,
+        marginHorizontal: 10,
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        height: 40
+    },
 });
 
 export default ChatListScreen;
