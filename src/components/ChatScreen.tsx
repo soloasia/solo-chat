@@ -9,7 +9,6 @@ import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
 import { useNavigation } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
 import { ThemeContext } from '../utils/ThemeManager';
@@ -22,8 +21,9 @@ import _ from 'lodash';
 import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 import { GET } from '../functions/BaseFuntion';
-import reactotron from 'reactotron-react-native';
 import moment from 'moment';
+import reactotron from 'reactotron-react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 
 const ChatScreen = () => {
@@ -89,65 +89,115 @@ const ChatScreen = () => {
 	const getDisplayProfile = (data : any) => {
 		const isIndividual : boolean = data.type === "individual";
 		const filterUser = data.chatroom_users.find((element : any) => element.user_id != userInfo.id);
-		const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+		
+		const isFilterUserProfileNull = !_.isEmpty(filterUser) ? filterUser.user.profile_photo == null : null
 		const isGroupPhotoNull = data.profile_photo == null;
 		return (
 			<>
-				{
-					isIndividual 
-					? isFilterUserProfileNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={filterUser.profile_photo} resizeMode='cover' style={{ width: '100%', height: '100%' }} />
-					: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> : <FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+				{isIndividual  ? isFilterUserProfileNull ? 
+					<Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:50  }} /> 
+				: <FastImage source={{uri: filterUser.user.profile_photo}} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:50 }} />
+				: isGroupPhotoNull ? <Image source={require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} /> 
+				: 
+				<FastImage source={data.profile_photo?{uri:data.profile_photo}:require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
 
 				}
 			</>
 		)
 	}
 
+	function _fillterLastMessage (item:any) {
+		let filterIsAdmin = _.filter(item.chatroom_users, { is_admin: 1 });
+		return(
+			_.isEmpty(item.last_chatroom_messages)?
+				item.type === 'group' || _.isEmpty(filterIsAdmin)?
+					<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>Created by {filterIsAdmin[0].user.first_name} {filterIsAdmin[0].user.last_name}</Text>
+					:
+					<></>
+				:
+				item.last_chatroom_messages[0].type == 'image'?
+					<HStack alignItems={'center'}>
+						<FastImage style={{width:40,height: 40,borderRadius:5,marginTop:10}} source={{uri: item.last_chatroom_messages[0].file_url}} />
+						<Text style={[style.p,{paddingTop:5,color:textDesColor,paddingLeft:10}]}>Photo</Text>
+					</HStack>
+					:
+					item.last_chatroom_messages[0].type == 'video'?
+						<HStack alignItems={'center'} paddingTop={1}>
+							<Ionicons name='videocam-outline' size={25} color={textDesColor} />
+							<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>Video</Text>
+						</HStack>
+						:
+						item.last_chatroom_messages[0].type == 'text'?
+							<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>{item.last_chatroom_messages[0].message}</Text>
+							:
+							item.last_chatroom_messages[0].type == 'mp3'?
+								<Text style={[style.p,{color:textDesColor,paddingTop:10}]}>Voice message</Text>
+							:
+								<HStack alignItems={'center'} paddingTop={1}>
+									<FontAwesome name='file-text' size={25} color={textDesColor} />
+									<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>{item.last_chatroom_messages[0].message}.{item.last_chatroom_messages[0].type}</Text>
+								</HStack>
+			
+		)
+	}
 	
 	const _renderChatView = ({item,index}:any) =>{
 		return(
-		   <>
-		   	 {
-				item.type == "individual" && _.isEmpty(item.last_chatroom_messages)
-				?  <></>
-				: 
-					<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',borderBottomWidth:1,borderBottomColor:borderDivider}}>
-					<HStack justifyContent={'space-between'}>
-						<HStack space={3} alignItems="center">
-							<UserAvatar>
-								{getDisplayProfile(item)}
-							</UserAvatar>
-							<VStack space={1}>
-								<TextItem style={{ fontSize: 16 }}>{getName(item)}</TextItem>
-								<Text style={{ textAlign: 'center', fontSize: 14, color: textSecondColor,fontFamily: 'Montserrat-Regular' }}>{item.text}</Text>
-							</VStack>
-						</HStack>
-						<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-							<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>
-								{moment().format('YYYY-MM-DD') == moment(item.created_at).format('YYYY-MM-DD')?
+			<TouchableOpacity onPress={()=>onSelectChat(item)} style={{padding:main_padding,justifyContent:'center',borderBottomWidth:1,borderBottomColor:borderDivider}}>
+				<HStack justifyContent={'space-between'}>
+					<HStack space={3} alignItems="center">
+						<UserAvatar>
+							{getDisplayProfile(item)}
+						</UserAvatar>
+						<View style={{width : deviceWidth * 0.65}}>
+							<View style={{flexDirection: "row",justifyContent : 'space-between',alignItems : 'center'}}>
+								<TextItem style={{ fontSize: 14 }}>{getName(item)}</TextItem>
+							</View>
+							{_fillterLastMessage(item)}
+						</View>
+					</HStack>
+					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
+						<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>
+							{!_.isEmpty(item.last_chatroom_messages)?
+								moment().format('YYYY-MM-DD') == moment(item.last_chatroom_messages[0].created_at).format('YYYY-MM-DD')?
+									moment(item.last_chatroom_messages[0].created_at).format('LT')
+									:
+									moment(item.last_chatroom_messages[0].created_at).format('MM/DD')
+								:
+								moment().format('YYYY-MM-DD') == moment(item.created_at).format('YYYY-MM-DD')?
 									moment(item.created_at).format('LT')
 									:
 									moment(item.created_at).format('MM/DD')
-								}
-							</TextItem>
-							{item.status ==1?
-								<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
-									<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>2</Text>
-								</View>
-								:
-								<></>
 							}
-						</VStack>
-					</HStack>
-				</TouchableOpacity>
-				}
-		   </>
+						</TextItem>
+						{/* {item.last_chatroom_messages.length?
+							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
+								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.last_chatroom_messages.length}</Text>
+							</View>
+							:
+							<></>
+						} */}
+					</VStack>
+				</HStack>
+			</TouchableOpacity>
 		)
+	}
+
+	const _handleLiveChat = ({item,index}:any) => {
+		GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
+			.then(async (result: any) => {
+				if(result.status){
+					onClose()
+					navigate.navigate('ChatList', { chatItem: result.data });
+				}
+			})
+			.catch(e => {
+		});
 	}
 
 	const _renderContactView = ({ item, index }: any) => {
 		return (
-			<TouchableOpacity style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
+			<TouchableOpacity onPress={()=> _handleLiveChat({item,index})} style={{ padding: 7, justifyContent: 'center', marginBottom: 10, borderRadius: 10 }}>
 				<HStack alignItems="center" space={4}>
 					<UserAvatar>
 						<FastImage source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 50 }} />
@@ -191,8 +241,8 @@ const ChatScreen = () => {
 				presentationStyle="formSheet"
 				visible={showModal}
 				animationType="slide"
-				transparent={true}
-				onDismiss={() => console.log('on dismiss')}>
+				transparent={false}
+			>
 				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
 					<View style={{ margin: main_padding, marginTop: large_padding, }}>
 						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>

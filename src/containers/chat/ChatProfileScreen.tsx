@@ -79,7 +79,7 @@ const ChatProfileScreen = (props: any) => {
             handleChange('isDeleteFunc', true)
             setShowLogout(true);
         } else {
-            chatItem.contact_user && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
+            chatItem.type === "individual" && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
         }
     }
     const handleChange = (stateName: string, value: any) => {
@@ -182,9 +182,8 @@ const ChatProfileScreen = (props: any) => {
     const getDisplayProfile = (data: any) => {
         const isIndividual: boolean = data.type === "individual";
         const filterUser = data.chatroom_users.find((element: any) => element.user_id != userInfo.id);
-        const isFilterUserProfileNull = filterUser.user.profile_photo == null;
+        const isFilterUserProfileNull =  !_.isEmpty(filterUser) ? filterUser.user.profile_photo == null : null;
         const isGroupPhotoNull = data.profile_photo == null;
-        reactotron.log(filterUser.profile_photo)
         return (
             <>
                 {isIndividual ?
@@ -280,7 +279,7 @@ const ChatProfileScreen = (props: any) => {
                                 : <View style={{ paddingVertical: main_padding }}>
                                     <TextInput
                                         autoFocus={state.isEdit}
-                                        style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0 }}
+                                        style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0, color:themeStyle[theme].textColor }}
                                         value={state.isEdit ? state.groupName : getName(chatItem)}
                                         editable={state.isEdit}
                                         onChangeText={(text) => handleChange('groupName', text)}

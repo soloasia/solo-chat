@@ -135,7 +135,7 @@ const ContactScreen = () => {
 		GET(`chatroom/request-id?user_id=${item.contact_user.id}`)
 			.then(async (result: any) => {
 				if(result.status){
-					navigation.navigate('ChatList', { chatItem: result.data });
+					navigation.navigate('ChatList', { chatItem: result.data,contactItem: item });
 				}
 			})
 			.catch(e => {

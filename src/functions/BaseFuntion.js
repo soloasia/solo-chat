@@ -42,8 +42,6 @@ export async function GET(end_point) {
     myHeader.append('Accept','application/json');
     myHeader.append('Content-Type','multipart/form-data');
     myHeader.append('Authorization', `Bearer ${token}`);
-    console.log(`${base_url}${end_point}`);
-    console.log("form data :",form_data);
     return new Promise(async (resolve, reject) => {
       try {
         await fetch(`${base_url}${end_point}`, {
@@ -75,3 +73,15 @@ export const ToastStatus = {
   };
 
 
+export default async function base64File(url) {
+    const data = await fetch(url);
+    const blob = await data.blob();
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.readAsDataURL(blob);
+      reader.onloadend = () => {
+        const base64data = reader.result;
+        resolve(base64data);
+      };
+    });
+}
