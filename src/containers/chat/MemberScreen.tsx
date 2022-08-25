@@ -195,23 +195,26 @@ const MemberScreen = (props: any) => {
     const onRowDidOpen = (rowKey: any) => {
     };
 
-    const renderHiddenItem = (data :any , rowMap:any) => (
-        <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
-            {/* <Text>Left</Text> */}
-            <TouchableOpacity
-                style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                onPress={() => closeRow(rowMap, data.item.key)}
-            >
-                <Text style={styles.backTextWhite}>Close</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                style={[styles.backRightBtn, styles.backRightBtnRight]}
-                onPress={() => deleteRow(rowMap, data.item.key)}
-            >
-                <Text style={styles.backTextWhite}>Remove</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    const renderHiddenItem = ({data,rowMap}:any) => {
+        if(data.item.data.is_admin == 1) return false;
+        return (
+            <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
+                {/* <Text>Left</Text> */}
+                <TouchableOpacity
+                    style={[styles.backRightBtn, styles.backRightBtnLeft]}
+                    onPress={() => closeRow(rowMap, data.item.key)}
+                >
+                    <Text style={styles.backTextWhite}>Close</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.backRightBtn, styles.backRightBtnRight]}
+                    onPress={() => deleteRow(rowMap, data.item.key)}
+                >
+                    <Text style={styles.backTextWhite}>Remove</Text>
+                </TouchableOpacity>
+            </View>
+        )
+    };
 
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
@@ -221,7 +224,7 @@ const MemberScreen = (props: any) => {
         <BaseComponent {...baseComponentData} title={"Members"}>
             <TouchableOpacity style = {{flexDirection : "row",padding : main_padding}} onPress ={() => setshowModal(true)}> 
                 <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
-                <Text style={{color:baseColor,fontSize: 16}}>Add member</Text>
+                <Text style={{color:baseColor,fontSize: 16, fontFamily: 'Montserrat-Regular'}}>Add member</Text>
             </TouchableOpacity>
 
             {/* <FlatListVertical

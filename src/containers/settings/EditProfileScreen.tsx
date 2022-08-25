@@ -20,7 +20,7 @@ import { loadUser } from '../../actions/User';
 import CustomLoading from '../../customs_items/CustomLoading';
 import LottieView from 'lottie-react-native';
 import { deviceHeight, activeOpacity } from '../../styles/index';
-import { message } from '../../temp_data/Setting';
+// import { message } from '../../temp_data/Setting';
 import _ from 'lodash';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import FastImage from 'react-native-fast-image';
