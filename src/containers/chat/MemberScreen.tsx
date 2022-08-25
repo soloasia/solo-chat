@@ -244,6 +244,7 @@ const MemberScreen = (props: any) => {
                 previewOpenDelay={3000}
                 onRowDidOpen={onRowDidOpen}
             />
+            
             <Modal
 				presentationStyle="formSheet"
 				visible={showModal}
