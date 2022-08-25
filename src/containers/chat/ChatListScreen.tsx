@@ -20,6 +20,7 @@ import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import ChatHeader from '../../components/ChatHeader';
 
 let PAGE_SIZE: any = 500;
 const ChatListScreen = (props: any) => {
@@ -266,7 +267,8 @@ const ChatListScreen = (props: any) => {
 	}
     return (
         <>
-        <BaseComponent {...baseComponentData} title={getName(chatItem)} is_main={false} rightIcon={rightIcon}>
+        <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
+            <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} />
             <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <TouchableWithoutFeedback accessible={false} >
@@ -341,8 +343,7 @@ const ChatListScreen = (props: any) => {
                     </View>
                 </KeyboardAvoidingView>
             </ImageBackground>
-           
-        </BaseComponent>
+        </View>
         <BottomSheet
             ref={sheetRefGallery}
             snapPoints={['50%', '95%', 0]}
