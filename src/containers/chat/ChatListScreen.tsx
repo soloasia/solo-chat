@@ -3,7 +3,7 @@ import { Box, HStack, useDisclose, VStack } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
-import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke, textSecondColor } from '../../config/colors';
+import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../../config/colors';
 import { FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
@@ -28,12 +28,11 @@ import ImagePicker from 'react-native-image-crop-picker';
 import DocumentPicker from 'react-native-document-picker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
+import reactotron from 'reactotron-react-native';
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
-let countTransDate: any = 0;
 let audioRecorderPlayer:any = null;
-
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
@@ -56,7 +55,7 @@ const ChatListScreen = (props: any) => {
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
     const [isSending, setIsSending] = useState(false);
-
+    let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
         loadSendMess: false,
@@ -300,10 +299,12 @@ const ChatListScreen = (props: any) => {
     )
     // end function get all gallery from device
 
-    
+    function _onTabHeader (chatItem:any,contactItem:any){
+        navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
+    }
     const rightIcon = () => {
         return (
-            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })} style={style.containerCenter}>
+            <TouchableOpacity onPress={() => _onTabHeader(chatItem,contactItem)} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
                     {chatItem.contact_user ? 
                     <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
@@ -330,7 +331,11 @@ const ChatListScreen = (props: any) => {
             file_url : state.type === 'text'?'':state.file,
             created_by: userInfo.id,
             created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-            localVideo:state.localVideo?state.localVideo:null
+            localVideo:state.localVideo?state.localVideo:null,
+            user:{
+                first_name:userInfo.first_name,
+                profile_photo:userInfo.profile_photo,
+            }
         }
         setChatData((chatData:any) => [...chatData,body]);
         setLocalLoading(chatData.length)
@@ -390,70 +395,143 @@ const ChatListScreen = (props: any) => {
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
-                <TouchableOpacity onPress={()=>navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
-                    <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
-                </TouchableOpacity> 
-                <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?10:'53%'}}>
-                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                </View>
-                {isLocalLoading == index?
-                    <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'70%',top:'40%',borderRadius:50,justifyContent:'center'}}>
-                        <ActivityIndicator
-                            color={whiteColor}
-                        />
-                    </View>
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
                     :
                     <></>
-                }
+                }  
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+                    <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                        <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
+                    </View> 
+                    <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?'15%':'53%'}}>
+                        <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                    </View>
+                    {isLocalLoading == index?
+                        <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'20%',top:'40%',borderRadius:50,justifyContent:'center'}}>
+                            <ActivityIndicator
+                                color={whiteColor}
+                            />
+                        </View>
+                        :
+                        <></>
+                    }
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View>
+                            :
+                            <></>
+                        :
+                        <></>
+                    }
+                </HStack>
             </View>
         )
     }
     const messageVideo = (mess:any,index:any) =>{
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
-                <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
-                    <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
-                        {state.localVideo && isLocalLoading == index?
-                            <Video
-                                source={{uri:state.localVideo}}
-                                style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
-                                ignoreSilentSwitch={"ignore"}
-                                resizeMode='cover'
-                                paused={true}
-                            />
-                            :
-                            <Video
-                                source={{uri:mess.file_url}}
-                                style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
-                                ignoreSilentSwitch={"ignore"}
-                                resizeMode='cover'
-                                paused={true}
-                                controls={true}
-                            />
-
-                        }
-                        
-                    </View>
-                        
-                </View> 
-                <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?10:'53%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
-                    <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                </View>
-                {isLocalLoading == index?
-                    <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'70%',top:'40%',borderRadius:50,justifyContent:'center'}}>
-                        <ActivityIndicator
-                            color={whiteColor}
-                        />
-                    </View>
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>   
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
                     :
                     <></>
-                }
+                }   
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+                    <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                        <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
+                            {state.localVideo && isLocalLoading == index?
+                                <Video
+                                    source={{uri:state.localVideo}}
+                                    style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
+                                    ignoreSilentSwitch={"ignore"}
+                                    resizeMode='cover'
+                                    paused={true}
+                                />
+                                :
+                                <Video
+                                    source={{uri:mess.file_url}}
+                                    style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
+                                    ignoreSilentSwitch={"ignore"}
+                                    resizeMode='cover'
+                                    paused={true}
+                                    controls={true}
+                                />
+
+                            }
+                            
+                        </View>
+                            
+                    </View> 
+                    <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?'15%':'53%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                        <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                    </View>
+                    {isLocalLoading == index?
+                        <View style={{width:55,height:55,backgroundColor:placeholderDarkTextColor,position:'absolute',left:'20%',top:'40%',borderRadius:50,justifyContent:'center'}}>
+                            <ActivityIndicator
+                                color={whiteColor}
+                            />
+                        </View>
+                        :
+                        <></>
+                    }
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View>
+                            :
+                            <></>
+                        :
+                        <></>
+                    }
+                </HStack>
             </View>
         )
     }
     const messageFile = (mess: any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>     
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
+                    :
+                    <></>
+                }     
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
 				<View style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
@@ -463,32 +541,72 @@ const ChatListScreen = (props: any) => {
 				}
 				]}>
                     <HStack alignItems={'center'} paddingTop={2}>
-                        <FontAwesome name='file-text' size={25} color={themeStyle[theme].textColor} />
-						<Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
+                        <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textColor } />
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</View>
+                {chatItem.type =='group'?
+                    mess.created_by == userInfo.id?
+                        <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                            <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                        </View>
+                        :
+                        <></>
+                    :
+                    <></>
+                }
+                </HStack>
             </View>
+            
         )
     };
 
     const messageVoice = (mess:any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
-                <View style={[styles.chatBack,
-                {
-                    backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
-                    borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
-                    borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-                    marginVertical: 1,
-                }
-                ]}>
-                    <HStack alignItems={'center'} paddingTop={2}>
-                        <FontAwesome name='file-text' size={25} color={themeStyle[theme].textColor} />
-                        <Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
-                    </HStack>
-                    <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                </View>
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}> 
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
+                    :
+                    <></>
+                }   
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+                    <View style={[styles.chatBack,
+                    {
+                        backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                        borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+                        borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+                        marginVertical: 1,
+                    }
+                    ]}>
+                        <HStack alignItems={'center'} paddingTop={2}>
+                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textColor } />
+                            <Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
+                        </HStack>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                    </View>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View>
+                            :
+                            <></>
+                        :
+                        <></>
+                    }
+                </HStack>         
         </View>
         )
     }
@@ -496,22 +614,50 @@ const ChatListScreen = (props: any) => {
 
     const messageText = (mess: any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>           
-				<View style={[styles.chatBack,
-				{
-					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
-					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
-					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-					marginVertical: 1,
-				}
-				]}>
-					<Text selectable={true} selectionColor={'blue'}  style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
-					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-				</View>
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>   
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
+                    :
+                    <></>
+                }
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+                    <View style={[styles.chatBack,
+                    {
+                        backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                        borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+                        borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+                        marginVertical: 1,
+                    }
+                    ]}>
+                        <Text selectable={true} selectionColor={'blue'}  style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                    </View>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View>
+                            :
+                            <></>
+                        :
+                        <></>
+                    }
+                   
+                </HStack>
             </View>
         )
     };
-
     const Item = ({ item, index }: any) => {
         if(transDate){
             if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
@@ -529,8 +675,10 @@ const ChatListScreen = (props: any) => {
             <>
                 { countTransDate == 1?
                     <Text style={[style.p,{ fontSize: 13, paddingTop: 10, paddingBottom: 10, color: chatText,textAlign:'center' }]}>{moment(transDate).format('MMMM DD, YYYY')}</Text>
-                :  <></> }
-                { item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index) }
+                    :
+                    <></>
+                }
+                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
             </>
         )
     }

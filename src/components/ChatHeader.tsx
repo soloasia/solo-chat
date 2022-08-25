@@ -4,7 +4,7 @@ import React, { Component, useContext } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useDispatch } from 'react-redux';
-import { whiteColor } from '../config/colors';
+import { borderDivider, whiteColor } from '../config/colors';
 import { TextItem } from '../customs_items/Components';
 import { loadData } from '../functions/LoadData';
 import style, { deviceWidth } from '../styles';
@@ -13,26 +13,21 @@ import { ThemeContext } from '../utils/ThemeManager';
 
 // create a component
 const ChatHeader = (props: any) => {
-    const { title, rightIcon} = props
+    const { title, rightIcon,onPress} = props
     const {theme} : any = useContext(ThemeContext);
     const navigate:any = useNavigation();
     const dispatch: any = useDispatch();
 
     const handleBack = () => {
         loadData(dispatch);
-
         navigate.reset({
             index: 0,
             routes: [{ name: 'Main' }]
         })
     }
     return (
-        <View style={[styles.header, { flexDirection: 'row', alignItems: 'center', backgroundColor: themeStyle[theme].backgroundColor }]}>
-
-            <TouchableOpacity
-                activeOpacity={0.8}
-                onPress={handleBack}
-                style={[style.buttonHeader]}>
+        <View style={[styles.header, { flex:1,flexDirection: 'row',alignItems:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderColor:borderDivider}]}>
+            <TouchableOpacity activeOpacity={0.8} onPress={handleBack} style={[style.buttonHeader]}>
                 <Ionicons name='chevron-back' size={28} color={themeStyle[theme].textColor} />
             </TouchableOpacity>
             <TextItem style={[style.pBold, styles.title, { fontSize: 16, textAlign: 'center', color: themeStyle[theme].textColor, }]} numberOfLines={1}>{title}</TextItem>
@@ -46,7 +41,6 @@ const styles = StyleSheet.create({
     header: {
         minHeight: 50,
         width: deviceWidth,
-        backgroundColor: whiteColor,
         paddingHorizontal: 15,
     },
     title: {
