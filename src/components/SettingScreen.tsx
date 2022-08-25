@@ -1,7 +1,7 @@
 import { useNavigation, useTheme } from '@react-navigation/native';
 import { Divider, HStack } from 'native-base';
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button } from 'react-native';
+import { Text, StyleSheet, useColorScheme, View, Image, TouchableOpacity,Switch, Clipboard, Button, Linking } from 'react-native';
 import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSelector } from 'react-redux';
@@ -16,6 +16,7 @@ import { ThemeContext } from '../utils/ThemeManager';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import CustomLoading from '../customs_items/CustomLoading';
 import { LanguageContext } from '../utils/LangaugeManager';
+import FastImage from 'react-native-fast-image';
 
 
 const SettingScreen = () => {
@@ -36,7 +37,7 @@ const SettingScreen = () => {
 	)
 	const _renderItem = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>item.name == "Notifications" ? null : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+			<TouchableOpacity onPress={()=>item.name == "Notification" ? Linking.openSettings() : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack alignItems={'center'} space={3}>
 						<View style={{width:35,height:35,backgroundColor:item.color,borderRadius:25,alignItems:'center',justifyContent:'center'}}>
@@ -45,13 +46,13 @@ const SettingScreen = () => {
 						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
-						{index== "Notification" && <Switch 
+						{/* {item.name== "Notification" && <Switch 
 							value={isNotificationOn} 
 							trackColor= {{true : baseColor}}
 							style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }]}}
 							onValueChange={() => { 
 								setisNotificationOn(!isNotificationOn)
-							}}></Switch>}
+							}}></Switch>} */}
 						{item.name != "Notification" && <Ionicons name='chevron-forward-outline' size={20} style={{color: textSecondColor}}/>}
 					</HStack>			
 				</HStack>
@@ -62,7 +63,7 @@ const SettingScreen = () => {
 	const rightIcon = () =>{
 		return(
 			<TouchableOpacity style={style.containerCenter}  onPress={()=>navigate.navigate('EditProfile')}>
-				<Text style={{color: baseColor, fontFamily:'Lato', fontSize: 16,fontWeight : "bold"}}>{tr('edit')}</Text>
+				<Text style={{color: baseColor, fontFamily:'Montserrat-Regular', fontSize: 16,fontWeight : "bold"}}>{tr('edit')}</Text>
 			</TouchableOpacity>
 		)
 	}
@@ -82,13 +83,13 @@ const SettingScreen = () => {
 
     return (
 		<BaseComponent {...baseComponentData} title={tr('settings')} is_main={true} rightIcon={rightIcon}>
-			 <Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
+			<Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
 				<FlatListScroll style={{padding: main_padding}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
 							{userInfo.profile_photo != null ? 
-								<Image source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
+								<FastImage source={{uri: userInfo.profile_photo}} resizeMode='cover' style={{width:'100%',height:'100%', borderRadius: 100}}/>
 							: <Image source={require('../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%'}}/>}
 						</UserAvatar>
 						<TextItem style={{fontSize:18,paddingTop: 10}}>{userInfo.first_name +' ' + userInfo.last_name}</TextItem>

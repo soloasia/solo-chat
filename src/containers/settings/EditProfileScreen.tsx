@@ -23,6 +23,7 @@ import { deviceHeight, activeOpacity } from '../../styles/index';
 import { message } from '../../temp_data/Setting';
 import _ from 'lodash';
 import AsynceStorage from '@react-native-async-storage/async-storage'
+import FastImage from 'react-native-fast-image';
 
 // create a component
 const EditProfileScreen = () => {
@@ -71,20 +72,18 @@ const EditProfileScreen = () => {
         formdata.append("last_name", state.lastname);
         formdata.append("phone", state.phonenumber);
         formdata.append("profile_photo", state.profileImg);
-        POST('me/update', formdata)
-            .then(async (result: any) => {
-                if (result.status) {
-                    dispatch(loadUser(result.data))
-                    navigate.goBack()
-                    // navigate.navigate('Main')
-                    handleChange('loading', false);
-                } else {
-                    handleChange('loading', false);
-                }
-            })
-            .catch(e => {
+        POST('me/update', formdata).then(async (result: any) => {
+            if (result.status) {
+                navigate.goBack()
+                dispatch(loadUser(result.data))
                 handleChange('loading', false);
-            });
+            } else {
+                handleChange('loading', false);
+            }
+        })
+        .catch(e => {
+            handleChange('loading', false);
+        });
     }
 
     const handleChangePassword = () => {
@@ -107,7 +106,7 @@ const EditProfileScreen = () => {
                     Alert.alert('Attention! \n',result.message)
                 }
             }).catch(e => {
-                Alert.alert('Something went wrong! \n',"your password couldn't change, please try again later")
+                Alert.alert('Something went wrong! \n',"Your password couldn't change, please try again later")
             });
         }else {
             Alert.alert('Attention! \n','Please enter all the fields to change your password')
@@ -138,8 +137,8 @@ const EditProfileScreen = () => {
                         <TouchableOpacity onPress={handleShowProfileImg}>
                             <UserAvatar style={{ width: 120, height: 120, margin: main_padding }}>
                                 {state.profileImg != null ?
-                                    <Image source={{ uri: state.profileImg }} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
-                                    : <Image source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />}
+                                    <FastImage source={{ uri: state.profileImg }} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                                    : <FastImage source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />}
                             </UserAvatar>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => onOpen()}><Text style={{ fontSize: 12, color: baseColor, fontFamily: 'Montserrat-Regular' }}>Set a new photo</Text></TouchableOpacity>

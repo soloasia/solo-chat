@@ -1,10 +1,10 @@
 import moment from 'moment';
 import { Box, Divider, HStack, useDisclose } from 'native-base';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useSelector } from 'react-redux';
 import reactotron from 'reactotron-react-native';
-import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke } from '../../config/colors';
+import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, whiteColor, whiteSmoke, textSecondColor, backPriceColor } from '../../config/colors';
 import { FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
@@ -18,10 +18,14 @@ import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
+import { ThemeContext } from '../../utils/ThemeManager';
+import themeStyle from '../../styles/theme';
 
 let PAGE_SIZE: any = 500;
 const ChatListScreen = (props: any) => {
     const sheetRefGallery = React.useRef<any>(null);
+    const {theme} : any = useContext(ThemeContext);
+
     const navigate: any = useNavigation();
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const textsize = useSelector((state: any) => state.textSizeChange);
@@ -184,7 +188,7 @@ const ChatListScreen = (props: any) => {
     
     const rightIcon = () => {
         return (
-            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem })} style={style.containerCenter}>
+            <TouchableOpacity onPress={() => navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
                     {chatItem.contact_user ? 
                     <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
@@ -267,14 +271,26 @@ const ChatListScreen = (props: any) => {
                 <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                     <TouchableWithoutFeedback accessible={false} >
                         {_.isEmpty(chatData)?
-                            <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                                <View style={{width: 300, height: 150}}>
-                                    <Lottie
-                                        source={require('../../assets/login.json')}
-                                        autoPlay loop
-                                    />
+                            <View style={{flex:1,justifyContent:'center',alignItems:'center',}}>
+                                <View style={{backgroundColor: theme =='dark' ? '#232B36E1' : whiteColor,alignItems:'center', shadowColor: theme =='dark' ? '#fff' :"#000", padding: main_padding,borderRadius: 15,marginBottom: main_padding,
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 1,
+                                    },
+                                    shadowOpacity: 0.18,
+                                    shadowRadius: 1.00,
+
+                                    elevation: 1, }}>
+                                    {/* <View style={{width: 300, height: 150,}}> */}
+                                        <Lottie
+                                            // source={{uri: 'https://assets9.lottiefiles.com/packages/lf20_3vbOcw.json'}}
+                                            source={require('../../assets/say_hello.json')}
+                                            style={{width: 200, height: 150}}
+                                            autoPlay loop
+                                        />
+                                    {/* </View> */}
+                                    <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>No messages here yet...{'\n'}Say Hello to start conversations</Text>
                                 </View>
-                                <TextItem>No messages here yet...</TextItem>
                             </View>
                             :
                             <FlatList

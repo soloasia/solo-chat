@@ -1,7 +1,7 @@
 //import liraries
 import { Divider, HStack, Icon, useDisclose, VStack } from 'native-base';
 import React, { Component, useContext, useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput, Share, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Switch, Modal, TextInput, Share, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Alert, ImageBackground } from 'react-native';
 import { large_padding, main_padding } from '../../config/settings';
 import style, { deviceWidth, deviceHeight } from '../../styles/index';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -11,7 +11,7 @@ import { FlatListHorizontal, UserAvatar, FlatListVertical, TextItem, AlertBox } 
 import LinearGradient from 'react-native-linear-gradient';
 import { actionChatProfile, actionGroupChatProfile } from '../../temp_data/Setting';
 import { baseColor, whiteSmoke, bgChat, textDesColor, textColor, labelColor, backgroundDark, borderColor } from '../../config/colors';
-import { TransitioningView } from 'react-native-reanimated';
+import { Transition, Transitioning, TransitioningView } from 'react-native-reanimated';
 import SearchBox from '../../customs_items/SearchBox';
 import CreateGroup from './CreateGroup';
 import { ThemeContext } from '../../utils/ThemeManager';
@@ -34,7 +34,7 @@ const ChatProfileScreen = (props: any) => {
     const { isOpen, onOpen, onClose } = useDisclose();
 
     const navigate: any = useNavigation();
-    const { chatItem } = props.route.params;
+    const { chatItem, contactItem } = props.route.params;
     const [isNotification, setNotification] = useState(false);
     const [isVisible, setIsvisible] = useState(false);
     const [showLogout, setShowLogout] = useState(false);
@@ -52,13 +52,28 @@ const ChatProfileScreen = (props: any) => {
         messageTitle: '',
         messageDesc: '',
         buttonText: '',
-        isDeleteFunc: false
+        isDeleteFunc: false,
+        username: '',
+        profileImg: ''
     });
+
+    const transition = (
+		<Transition.Together>
+		  <Transition.In type='scale' durationMs={600} />
+		  <Transition.Out type='scale' durationMs={600} />
+		</Transition.Together>
+	)
 
     useEffect(() => {
         if (!_.isEmpty(chatItem.chatroom_users)) {
             const filterGroupAdmin = chatItem.chatroom_users.filter((element: any) => element.user_id == userInfo.id && element.is_admin == 1);
             !_.isEmpty(filterGroupAdmin) ? handleChange('isAdmin', true) : console.log('just member')
+            const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
+            handleChange('username', filterUser.user.username)
+            
+            handleChange('profileImg', chatItem.type == 'individual' ? filterUser.user.profile_photo : chatItem.profile_photo)
+
+
         }
         // chatItem.
     }, []);
@@ -116,7 +131,12 @@ const ChatProfileScreen = (props: any) => {
         // handleChange('groupName', chatItem.name)
     }
     const _handleEdit = () => {
-        state.isEdit ? _updateGroup() : handleChange('isEdit', true)
+        if(state.isEdit )
+            _updateGroup() 
+        else {
+            handleChange('isEdit', true) 
+            handleChange('isProfileClick', false);
+        }
     }
 
     const _renderItem = ({ item, index }: any) => {
@@ -133,7 +153,7 @@ const ChatProfileScreen = (props: any) => {
                             <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
                         </View>
                         <View style={{ marginHorizontal: main_padding - 5, borderBottomColor: labelColor, paddingVertical: 10 }}>
-                            {item.title == "Leave Group" || item.title == "Delete Group" ? <Text style={{ color: "red", fontWeight: '600' }}>{item.title}</Text> : <TextItem style={{ fontSize: 15, }}>{item.title}</TextItem>}
+                           <TextItem style={{ fontSize: 15, }}>{item.title}</TextItem>
                         </View>
                     </HStack>
                     {item.title == 'Notification' ?
@@ -184,6 +204,7 @@ const ChatProfileScreen = (props: any) => {
         const filterUser = data.chatroom_users.find((element: any) => element.user_id != userInfo.id);
         const isFilterUserProfileNull =  !_.isEmpty(filterUser) ? filterUser.user.profile_photo == null : null;
         const isGroupPhotoNull = data.profile_photo == null;
+
         return (
             <>
                 {isIndividual ?
@@ -244,52 +265,82 @@ const ChatProfileScreen = (props: any) => {
         }
     }
 
+    const displayFullProfile = () => {
+        handleChange('isProfileClick', !state.isProfileClick);
+        
+    }
+
     return (
         <BaseComponent {...baseComponentData} rightIcon={rightIcon}>
             <KeyboardAvoidingView style={{ flex: 1 }} >
                 <TouchableWithoutFeedback accessible={false}>
                     <VStack flex={1}>
-                        <View style={{ width: deviceWidth, paddingHorizontal: main_padding, alignItems: 'center', }}>
-                            <TouchableOpacity onPress={() => onOpen()} disabled={state.isEdit ? false : true} style={{ alignSelf: 'center', width: 110 }}>
-                                <LinearGradient
-                                    colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
-                                    start={{ x: 0, y: 0 }}
-                                    end={{ x: 1, y: 0 }}
-                                    style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
-                                >
-                                    <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
-                                        {state.profileGroup != '' ?
-                                            <Image source={{ uri: state.profileGroup }} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
-                                            : chatItem.contact_user ?
-                                                <Image source={chatItem.contact_user.profile_photo ? { uri: chatItem.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
-                                                : getDisplayProfile(chatItem)}
+                        {state.isProfileClick ? 
+                            <TouchableOpacity onPress={displayFullProfile} style={{marginBottom: main_padding}}>
+                                <ImageBackground source={{uri: state.profileImg}} style={{width: deviceWidth, paddingHorizontal: main_padding, alignItems: 'flex-start',justifyContent: 'flex-end', height: deviceWidth/1.5, }}>
+                                {chatItem.type === "individual"?
+                                    <View style={{ paddingVertical: main_padding }}>
+                                        <Text style={{ fontSize: 16, fontWeight: '600', fontFamily: 'Montserrat-Regular', color: whiteColor, }}>{getName(chatItem).toUpperCase()}</Text>
+                                        <Text style={{ fontSize: 13, paddingTop: main_padding - 10, color: whiteColor, fontFamily: 'Montserrat-Regular' }}>{state.username}</Text>
                                     </View>
-                                </LinearGradient>
-                                {state.isEdit ?
-                                    <View style={{ position: 'absolute', bottom: 10, right: 0, backgroundColor: '#EBE9E9E8', borderRadius: 20, padding: 5, borderColor: baseColor, borderWidth: 1, zIndex: 1000 }}>
-                                        <Icon name='camera-outline' as={Ionicons} size='sm' />
+                                    : <View style={{ paddingVertical: main_padding }}>
+                                        <TextInput
+                                            autoFocus={state.isEdit}
+                                            style={{ fontSize: 16, fontWeight: '600', borderBottomColor:  whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0, color: whiteColor, fontFamily: 'Montserrat-Regular' }}
+                                            value={state.isEdit ? state.groupName : getName(chatItem)}
+                                            editable={state.isEdit}
+                                            onChangeText={(text) => handleChange('groupName', text)}
+                                            keyboardType='default'
+                                        />
+                                        {/* <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> */}
+                                        <Text style={{ fontSize: 13, paddingTop: main_padding - 10, color: whiteColor, fontFamily: 'Montserrat-Regular' }}>{chatItem.chatroom_users.length + " members"}</Text>
                                     </View>
-                                    : null}
+                                }
+                                </ImageBackground>
                             </TouchableOpacity>
-                            {chatItem.contact_user ?
-                                <View style={{ paddingVertical: main_padding }}>
-                                    <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{(chatItem.contact_user.first_name + ' ' + chatItem.contact_user.last_name).toUpperCase()}</TextItem>
-                                    <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0', textAlign: 'center' }}>{chatItem.contact_user.username}</TextItem>
-                                </View>
-                                : <View style={{ paddingVertical: main_padding }}>
-                                    <TextInput
-                                        autoFocus={state.isEdit}
-                                        style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0, color:themeStyle[theme].textColor }}
-                                        value={state.isEdit ? state.groupName : getName(chatItem)}
-                                        editable={state.isEdit}
-                                        onChangeText={(text) => handleChange('groupName', text)}
-                                        keyboardType='default'
-                                    />
-                                    {/* <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> */}
-                                    <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, textAlign: 'center', color: greyDark }}>{chatItem.chatroom_users.length + " members"}</TextItem>
-                                </View>
-                            }
-                        </View>
+                            :
+                            <View style={{ width: deviceWidth, paddingHorizontal: main_padding, alignItems: 'center',}}>
+                                <TouchableOpacity onPress={() => !state.isEdit && state.profileImg ? displayFullProfile() : state.profileImg == null ? null : onOpen()} style={{ alignSelf: 'center', width: 110 }}>
+                                    <LinearGradient
+                                        colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
+                                        start={{ x: 0, y: 0 }}
+                                        end={{ x: 1, y: 0 }}
+                                        style={{ marginTop: 15, width: 105, borderRadius: 100, height: 105 }}
+                                    >
+                                        <View style={{ margin: 1.5, backgroundColor: whiteColor, justifyContent: 'center', borderRadius: 100, width: 102, height: 102, }}>
+                                            {state.profileGroup != '' ?
+                                                <Image source={{ uri: state.profileGroup }} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                                                : chatItem.contact_user ?
+                                                    <Image source={chatItem.contact_user.profile_photo ? { uri: chatItem.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ borderRadius: 100, width: 102, height: 102, overflow: 'hidden' }} />
+                                                : getDisplayProfile(chatItem)}
+                                        </View>
+                                    </LinearGradient>
+                                    {state.isEdit ?
+                                        <View style={{ position: 'absolute', bottom: 10, right: 0, backgroundColor: '#EBE9E9E8', borderRadius: 20, padding: 5, borderColor: baseColor, borderWidth: 1, zIndex: 1000 }}>
+                                            <Icon name='camera-outline' as={Ionicons} size='sm' />
+                                        </View>
+                                    : null}
+                                </TouchableOpacity>
+                                {chatItem.type === "individual"?
+                                    <View style={{ paddingVertical: main_padding }}>
+                                        <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem).toUpperCase()}</TextItem>
+                                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, color: '#BBBBBBE0', textAlign: 'center' }}>{state.username}</TextItem>
+                                    </View>
+                                    : <View style={{ paddingVertical: main_padding }}>
+                                        <TextInput
+                                            autoFocus={state.isEdit}
+                                            style={{ fontSize: 16, fontWeight: '600', textAlign: 'center', padding: 7, borderBottomColor: state.isEdit ? textDesColor : whiteColor, borderBottomWidth: state.isEdit ? 0.5 : 0, color:themeStyle[theme].textColor }}
+                                            value={state.isEdit ? state.groupName : getName(chatItem)}
+                                            editable={state.isEdit}
+                                            onChangeText={(text) => handleChange('groupName', text)}
+                                            keyboardType='default'
+                                        />
+                                        {/* <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> */}
+                                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, textAlign: 'center', color: greyDark }}>{chatItem.chatroom_users.length + " members"}</TextItem>
+                                    </View>
+                                }
+                            </View>
+                        }
                         <View style={{ width: deviceWidth, paddingHorizontal: main_padding, }}>
                             <TextItem style={{ fontSize: 15, color: colors.textColor, fontWeight: '600' }}>More Actions</TextItem>
                             <View style={{ paddingVertical: main_padding - 5, marginTop: 10, borderRadius: 10 }}>
@@ -323,13 +374,13 @@ const ChatProfileScreen = (props: any) => {
                 <View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
                     <View style={{ margin: main_padding, marginTop: large_padding }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <TouchableOpacity onPress={() => setIsvisible(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16, fontFamily: 'lato' }}>Cancel</Text></TouchableOpacity>
+                            <TouchableOpacity onPress={() => setIsvisible(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16, fontFamily: 'Montserrat-Regular' }}>Cancel</Text></TouchableOpacity>
                             <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'Montserrat-Regular', color: theme == 'dark' ? whiteSmoke : textDesColor }}>Create new group</Text>
                             <View />
                             <View />
                         </View>
                     </View>
-                    <CreateGroup isUserProfile={true} userChat={chatItem} />
+                    <CreateGroup isUserProfile={true} userChat={contactItem} />
                 </View>
             </Modal>
 
