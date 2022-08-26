@@ -5,6 +5,7 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { deviceWidth, deviceHeight } from '../styles/index';
 import { main_padding } from '../config/settings';
+import FastImage from 'react-native-fast-image';
 
 // create a component
 const FullImageDisplay = (props: any) => {
@@ -13,7 +14,7 @@ const FullImageDisplay = (props: any) => {
     return (
         <BaseComponent {...baseComponentData} title=''>
             <View style={styles.container}>
-               <Image source={{uri: imgDisplay}} resizeMode='cover' style={{width: deviceWidth, height: deviceWidth}} />
+               <FastImage source={{uri: imgDisplay}} resizeMode='contain' style={{width: deviceWidth, height: deviceWidth}} />
             </View>
         </BaseComponent>
     );

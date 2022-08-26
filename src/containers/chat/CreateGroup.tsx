@@ -33,7 +33,7 @@ const CreateGroup = (props: any) => {
 
 
     const { userChat, isUserProfile, onClose } = props
-    console.log(userChat)
+    reactotron.log('userchat',userChat)
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
     const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user_id] : [])
@@ -75,7 +75,7 @@ const CreateGroup = (props: any) => {
         return (
             <VStack alignItems='center' style={{ marginLeft: 10, justifyContent: 'center', }}>
                 <UserAvatar style={{ width: 65, height: 65, borderWidth: 2, borderColor: baseColor }}>
-                    <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                    <Image source={item.contact_user && item.contact_user.profile_photo!=null ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                 </UserAvatar>
                 <TouchableOpacity
                     onPress={() => _removeObj({ item, index })}
@@ -87,7 +87,7 @@ const CreateGroup = (props: any) => {
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>
+                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user ? item.contact_user.first_name + ' ' + item.contact_user.last_name : ''}</TextItem>
             </VStack>
         )
     }
@@ -100,13 +100,14 @@ const CreateGroup = (props: any) => {
         }
     }
     const _renderUsers = ({ item, index }: any) => {
+        reactotron.log(item)
         var filterIsadded = selectUser.filter((element:any) => element.contact_user_id === item.contact_user_id);
         return (
             <TouchableOpacity onPress={() => _handleAddPeople({ item, index })} style={{ paddingVertical: main_padding - 5, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: borderDivider }}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar style={{ width: 50, height: 50, }}>
-                            <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                            <Image source={item.contact_user && item.contact_user.profile_photo!=null ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                         </UserAvatar>
                         <VStack space={1}>
                             <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>

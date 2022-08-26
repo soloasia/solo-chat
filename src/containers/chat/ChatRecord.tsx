@@ -26,7 +26,7 @@ const path = Platform.select({
 });
 
 const ChatRecord = (props: any) => {
-    const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice } = props;
+    const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice,msgRef } = props;
     const textsize = useSelector((state: any) => state.textSizeChange);
     const {theme} : any = useContext(ThemeContext);
     const [isRecord, setIsRecord] = useState(false);
@@ -135,6 +135,7 @@ const ChatRecord = (props: any) => {
                 !isRecord ?  
                 <TextInput
                     value={message}
+                    ref={msgRef}
                     placeholderTextColor={chatText}
                     selectionColor = {textColor} 
                     multiline={true}
@@ -192,13 +193,13 @@ export default ChatRecord;
 const styles = StyleSheet.create({
     input: {
         // position: 'absolute',
-		borderTopWidth:1,
+		// borderTopWidth:1,
         paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 90,
-        color: "#aaa",
+        // height: 90,
+        // color: "#aaa",
         borderColor:borderDivider,
     },
     icon: {

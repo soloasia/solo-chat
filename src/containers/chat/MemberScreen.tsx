@@ -29,7 +29,7 @@ const MemberScreen = (props: any) => {
     const navigate:any = useNavigation();
 
     const { userChat } = props.route.params;
-    const [member, setMember] = useState<any>([]);
+    const [member, setMember] = useState<any>();
     const {theme} : any = useContext(ThemeContext);
     const [showModal, setshowModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -64,7 +64,7 @@ const MemberScreen = (props: any) => {
                         <FastImage source={item.data.user.profile_photo?{uri:item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name + " "+ item.data.user.last_name ?? ""}</TextItem>
+                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name  + " "+ item.data.user.last_name ?? ""}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
@@ -123,11 +123,13 @@ const MemberScreen = (props: any) => {
     const fetchMemberDetail = (id : string) => {
         GET('chatroom/detail/'+ id)
         .then((result) => {
-            var admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
+            const admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
             setAdmin(admin);
+
             setMember(Array(result.data.chatroom_users.length)
             .fill('')
             .map((_, i) => ({ key: `${i}`, data: result.data.chatroom_users[i]})));
+            // reactotron.log(member)
         })
         .catch(() => {
         });
@@ -175,13 +177,14 @@ const MemberScreen = (props: any) => {
 
    
     const closeRow = (rowMap : any, rowKey :any) => {
+        reactotron.log(member[rowKey])
         if (rowMap[rowKey]) {
             rowMap[rowKey].closeRow();
         }
     };
 
     const deleteRow = (rowMap :any, rowKey :any) => {
-        closeRow(rowMap, rowKey);
+        // closeRow(rowMap, rowKey);
         const newData = [...member];
         const prevIndex = member.findIndex((item:any) => item.key === rowKey);
        if(admin.user.id != member[prevIndex].data.user.id ) {
@@ -193,21 +196,24 @@ const MemberScreen = (props: any) => {
     };
 
     const onRowDidOpen = (rowKey: any) => {
+       console.log('===did open===', rowKey)
     };
 
-    const renderHiddenItem = ({data,rowMap}:any) => {
+    const renderHiddenItem = ({item,rowMap}:any) => {
+        // reactotron.log('==rowmap', item)
+        if(item.data.is_admin == 1) return false;
         return (
             <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
                 {/* <Text>Left</Text> */}
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                    onPress={() => closeRow(rowMap, data.item.key)}
+                    onPress={() => closeRow(rowMap, item.key)}
                 >
                     <Text style={styles.backTextWhite}>Close</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnRight]}
-                    onPress={() => deleteRow(rowMap, data.item.key)}
+                    onPress={() => deleteRow(rowMap, item.key)}
                 >
                     <Text style={styles.backTextWhite}>Remove</Text>
                 </TouchableOpacity>
@@ -225,27 +231,32 @@ const MemberScreen = (props: any) => {
                 <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
                 <Text style={{color:baseColor,fontSize: 16, fontFamily: 'Montserrat-Regular'}}>Add member</Text>
             </TouchableOpacity>
+            
+            {admin && admin.user.id == user.id ? 
+                <SwipeListView
+                    data={member}
+                    renderItem={_renderMemberView}
+                    rightOpenValue={-150}
+                    renderHiddenItem={renderHiddenItem}
+                    previewRowKey={'0'}
+                    previewOpenValue={-40}
+                    previewOpenDelay={3000}
+                    onRowDidOpen={onRowDidOpen}
+                />
+            : 
+                <FlatListVertical
+                    renderItem={_renderMemberView}
+                    data={member}
+                    ListFooterComponent={
+                        <>
+                            <Footer />
+                        </>
+                    }
+                />  
+            }
+            
 
-            {/* <FlatListVertical
-                renderItem={_renderMemberView}
-                data={member}
-                ListFooterComponent={
-                    <>
-                        <Footer />
-                    </>
-                }
-            /> */}
-
-            <SwipeListView
-                data={member}
-                renderItem={_renderMemberView}
-                rightOpenValue={-150}
-                renderHiddenItem={renderHiddenItem}
-                previewRowKey={'0'}
-                previewOpenValue={-40}
-                previewOpenDelay={3000}
-                onRowDidOpen={onRowDidOpen}
-            />
+            
             <Modal
 				presentationStyle="formSheet"
 				visible={showModal}

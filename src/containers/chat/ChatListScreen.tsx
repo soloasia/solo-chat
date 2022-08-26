@@ -1,15 +1,15 @@
 import moment from 'moment';
-import { Box, HStack, useDisclose, VStack } from 'native-base';
+import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard } from 'react-native';
 import { useSelector } from 'react-redux';
-import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke } from '../../config/colors';
-import { FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
+import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
+import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import ChatRecord from './ChatRecord';
 import _ from 'lodash'
-import { deviceHeight } from '../../styles/index';
+import { deviceHeight, paddingHorizontalItem } from '../../styles/index';
 import { useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
@@ -31,11 +31,15 @@ import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import reactotron from 'reactotron-react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import LottieView from 'lottie-react-native'
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
+	const msgRef = useRef<any>(null);
+    const mycontact = useSelector((state: any) => state.mycontact);
+
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
@@ -57,6 +61,7 @@ const ChatListScreen = (props: any) => {
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
@@ -69,7 +74,10 @@ const ChatListScreen = (props: any) => {
         file:null,
         localVideo:null,
         singleFile:'',
-        voice:''
+        voice:'',
+        isShowActionMess: false,
+        isEdit: false,
+        showDailog: false
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
@@ -302,12 +310,19 @@ const ChatListScreen = (props: any) => {
     )
     // end function get all gallery from device
 
-    function _onTabHeader (chatItem:any,contactItem:any){
-        navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
+    function _onTabHeader ({chatItem,contactItem}:any){
+        if(contactItem) {
+            navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
+        }else{
+            const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
+            const userContact = mycontact.find((element: any) => element.contact_user.id == filterUser.user.id);
+            navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: userContact })
+
+        }
     }
     const rightIcon = () => {
         return (
-            <TouchableOpacity onPress={() => _onTabHeader(chatItem,contactItem)} style={style.containerCenter}>
+            <TouchableOpacity onPress={() => _onTabHeader({chatItem,contactItem})} style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
                     {chatItem.contact_user ? 
                     <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
@@ -355,6 +370,48 @@ const ChatListScreen = (props: any) => {
             }
         })
     }
+
+    const onUpdateMsg = () => {
+        if(state.message != itemMessageEdit.message) {
+            // const filterUpdateChat = chatData.filter((element:any)=>element.id == itemMessageEdit.id)
+            
+            const formdata = new FormData();
+            formdata.append('message', state.message);
+            formdata.append('type',itemMessageEdit.type);
+            formdata.append('chatroom_message_id', itemMessageEdit.id)
+            POST('chatroom_message/update', formdata).then(async (result: any) => {
+                if(result.status){
+                    handleChange('isEdit', false)
+                    const newState = chatData.map((obj:any) => {
+                        if (obj.id === itemMessageEdit.id) {
+                          return {...obj, message:state.message,};
+                        }
+                        return obj;
+                    });
+                    setChatData(newState)
+                    Keyboard.dismiss()
+                    setItemMessageEdit(null)
+                    handleChange('message', '')
+                    Toast.show({
+                        render: () => {
+                            return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+                                    <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message updated!</Text> 
+                                  </Box>;
+                        }
+                    })
+                }else {
+                    Alert.alert('Something went wrong!\n', 'You cannot edit message text, try again')
+                }
+            })
+
+        }else{
+            handleChange('isEdit', false)
+            Keyboard.dismiss()
+            setItemMessageEdit(null)
+            handleChange('message', '')
+        }
+    }
+
     const onPlayVoice = async (mess:any) => {
         setVoiceId(mess.id);
         setLoadingVoice(true);
@@ -395,6 +452,11 @@ const ChatListScreen = (props: any) => {
         }, 250);
     };
 
+    const actionOnMessage =(mess:any)=> {
+        setItemMessageEdit(mess)
+        handleChange('isShowActionMess', true)
+    }
+
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -415,10 +477,10 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onPress={()=> navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null }  onPress={()=> navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
                     </TouchableOpacity> 
-                    <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?'15%':'33%'}}>
+                    <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
                     {isLocalLoading == index?
@@ -445,6 +507,7 @@ const ChatListScreen = (props: any) => {
         )
     }
     const messageVideo = (mess:any,index:any) =>{
+        reactotron.log('--vdo',mess)
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>   
                 {chatItem.type =='group'?
@@ -464,7 +527,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
                                 <Video
@@ -488,8 +551,8 @@ const ChatListScreen = (props: any) => {
                             
                         </View>
                             
-                    </View> 
-                    <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?'15%':'33%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                    </TouchableOpacity> 
+                    <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
                     {isLocalLoading == index?
@@ -544,8 +607,8 @@ const ChatListScreen = (props: any) => {
 				}
 				]}>
                     <HStack alignItems={'center'} paddingTop={2}>
-                        <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textColor } />
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
+                        <FontAwesome name='file-text' size={20} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: textsize}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</View>
@@ -585,15 +648,17 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <View style={[styles.chatBack,
-                    {
-                        backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
-                        borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
-                        borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-                        marginVertical: 1,
-                    }
-                    ]}>
-                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? baseColor: '#DBDBDBE3',transform: [{ scaleX: 1 }] }]}>
+                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} 
+                        style={[styles.chatBack,
+                            {
+                                backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                                borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+                                borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+                                marginVertical: 1,
+                            }
+                        ]}
+                    >
+                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? '#1F6BADDC': '#CCCCCC',transform: [{ scaleX: 1 }] }]}>
                             {
                                 (!loadingVoice || mess.id !== voiceId) ? <Entypo name={(voiceId === mess.id && playVoice) ? "controller-paus" : "controller-play"} size={20} color={"#aaa"} /> :
                                     <ActivityIndicator size={"small"} color={"#aaa"} />
@@ -602,22 +667,17 @@ const ChatListScreen = (props: any) => {
                             {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
                         </TouchableOpacity>
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                    </View>
-                    {chatItem.type =='group'?
-                        mess.created_by == userInfo.id?
-                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
-                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
-                            </View>
-                            :
-                            <></>
-                        :
-                        <></>
+                    </TouchableOpacity>
+                    {chatItem.type =='group' && mess.created_by == userInfo.id?
+                        <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                            <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                        </View>  
+                        : <></>
                     }
                 </HStack>         
         </View>
         )
     }
-
 
     const messageText = (mess: any,index:any) => {
         return (
@@ -639,17 +699,17 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <View style={[styles.chatBack,
-                    {
-                        backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
-                        borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
-                        borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-                        marginVertical: 1,
-                    }
+                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
+                        {
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                            borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+                            borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+                            marginVertical: 1,
+                        }
                     ]}>
-                        <Text selectable={true} selectionColor={'blue'}  style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                    </View>
+                    </TouchableOpacity>
                     {chatItem.type =='group'?
                         mess.created_by == userInfo.id?
                             <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
@@ -718,6 +778,110 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
+
+    const _onCloseAction = () => {
+        handleChange('isShowActionMess', false)
+    }
+    const _editMessageAction =()=> {
+        handleChange('message', itemMessageEdit.message)
+        handleChange('isShowActionMess', false)
+        handleChange('isEdit', true)
+        msgRef.current!.focus();
+
+
+    }
+
+    const _onCloseEdit = () => {
+        handleChange('isEdit', false)
+        setItemMessageEdit(null)
+        handleChange('message', '')
+        Keyboard.dismiss()
+    }
+
+    const _removeMessageAction = () => {
+        handleChange('isShowActionMess', false)
+        handleChange('showDailog', true)
+
+    }
+    const onCloseAlert = () => {
+        handleChange('showDailog', false)
+    }
+    const onConfirmDeleteMsg = () => {
+        const formdata = new FormData();
+        formdata.append('chatroom_message_id', itemMessageEdit.id)
+        POST('chatroom_message/delete', formdata).then(async (result: any) => {
+            if(result.status){
+                console.log('===chat_id',result.data.id)
+                setChatData((current:any) =>
+                    current.filter((obj:any) => {
+                      return obj.id !== itemMessageEdit.id;
+                    }),
+                  );
+                handleChange('showDailog', false)
+                setItemMessageEdit(null)
+                Toast.show({
+                    render: () => {
+                        return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+                                <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message deleted!</Text> 
+                            </Box>;
+                    }
+                })
+            }else {
+                handleChange('showDailog', false)
+                Alert.alert('Something went wrong!\n', 'You cannot delete message, try again later')
+            }
+        })
+    }
+
+    const _onCopy = () => {
+        Clipboard.setString(itemMessageEdit.message);
+        handleChange('isShowActionMess', false)
+        Toast.show({
+            render: () => {
+                return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+                        <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message copied to clipboard.</Text> 
+                    </Box>;
+            }
+        })
+      }
+
+    const modalMessageAction = (isShowActionMess: any) => {
+        return (
+          <Actionsheet isOpen={isShowActionMess} onClose={_onCloseAction}>
+            <Actionsheet.Content backgroundColor={themeStyle[theme].backgroundColor}>
+                {itemMessageEdit && itemMessageEdit.type !='text'?
+                    <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
+                        <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                            <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                            <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
+                        </View>
+                    </TouchableOpacity>
+            
+                :<VStack >
+                    <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
+                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                        <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
+                    </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={_editMessageAction} style={{ width: deviceWidth, padding: 10,  }}>
+                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                        <Ionicons name='create-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Edit message text</Text>
+                    </View>
+                    </TouchableOpacity>      
+                    <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
+                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                        <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                        <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
+                    </View>
+                    </TouchableOpacity>
+                </VStack>}
+            </Actionsheet.Content>
+          </Actionsheet>
+        )
+      }
+
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
@@ -762,46 +926,78 @@ const ChatListScreen = (props: any) => {
                                             }} />
                                         </>
                                     }
-                                
-                                scrollEventThrottle={16}
-                                onEndReachedThreshold={0.5}
-                                keyExtractor={(_, index) => index.toString()}
-                            >
-                            </FlatList>
-                        }
-                    </TouchableWithoutFeedback>
-                    <View style={{ width: deviceWidth, height: deviceHeight * .2 }}>
-                        <ChatRecord
-                            message={state.message}
-                            loading={state.loadSendMess}
-                            onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
-				            onChange={(data:any) => onChange(data)}
-                            onChangeVoice={(data:any,duration:any) => onChangeVoice(data,duration)}
-                            onOpen={_handleOpen}
-                            onSend={onSend}
-                            onOpenGallery ={onShefGallery}
-                            singleFile={state.singleFile}
-                            onClearFile={() => handleChange('singleFile','')}
-                        />
-                    </View>
-                </KeyboardAvoidingView>
-            </ImageBackground>
-        </View>
-        <BottomSheet
-            ref={sheetRefGallery}
-            snapPoints={['90%', 0, 0]}
-            overdragResistanceFactor={1}
-            renderContent={renderInner}
-            renderHeader={renderHeader}
-            initialSnap={2}
-            enabledInnerScrolling={true}
-            enabledContentGestureInteraction={false}
-        />
+                                    scrollEventThrottle={16}
+                                    onEndReachedThreshold={0.5}
+                                    keyExtractor={(_, index) => index.toString()}
+                                />
+                            }
+                        </TouchableWithoutFeedback>
+                        {state.isEdit ? 
+                            <View style = {{flexDirection : 'row' ,justifyContent : 'space-between',backgroundColor : themeStyle[theme].backgroundColor,alignItems : 'center', borderTopColor: borderDivider, borderTopWidth: 0.5}}>
+                                <View style = {[styles.chatInput,{height : 70,paddingHorizontal : 10,  backgroundColor: themeStyle[theme].backgroundColor,}]}>
+                                <AntDesign name='edit' color={baseColor} size={20}/>
+                                <View style = {{height : 30,width : 2, backgroundColor : baseColor,borderRadius : 4, marginHorizontal : 10}}></View>
+                                <View style = {{width : 300}}>
+                                    <Text style = {{fontWeight : 'bold',paddingBottom : 2, color: themeStyle[theme].textColor, fontFamily: 'Montserrat-Regular',}}>Edit Message</Text>
+                                    <Text ellipsizeMode='tail' style = {{marginRight : 10,  color: '#C5C5C5', fontFamily: 'Montserrat-Regular',}}>{itemMessageEdit.message}</Text>
+                                </View>
+                                </View>
+                                <TouchableOpacity onPress={_onCloseEdit} style = {{paddingRight : 8}}>
+                                <Ionicons name='close-outline' color={offlineColor} size={25}/>
+                                </TouchableOpacity>        
+                            </View>
+                        :<></>}
+                        <View style={{ width: deviceWidth, height: deviceHeight*.2, paddingTop: main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
+                            
+                            <ChatRecord
+                                message={state.message}
+                                loading={state.loadSendMess}
+                                msgRef={msgRef}
+                                onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
+                                onChange={(data:any) => onChange(data)}
+                                onChangeVoice={(data:any,duration:any) => onChangeVoice(data,duration)}
+                                onOpen={_handleOpen}
+                                onSend={state.isEdit ? onUpdateMsg : onSend}
+                                onOpenGallery ={onShefGallery}
+                                singleFile={state.singleFile}
+                                onClearFile={() => handleChange('singleFile','')}
+                            />
+                        </View>
+                    </KeyboardAvoidingView>
+                </ImageBackground>
+            </View>
+            <BottomSheet
+                ref={sheetRefGallery}
+                snapPoints={['90%', 0, 0]}
+                overdragResistanceFactor={1}
+                renderContent={renderInner}
+                renderHeader={renderHeader}
+                initialSnap={2}
+                enabledInnerScrolling={true}
+                enabledContentGestureInteraction={false}
+            />
+            {modalMessageAction(state.isShowActionMess)}
+            <AlertBox
+                title={'Attention!'}
+                des={"Are you really want to delete your message?"}
+                btn_cancle={"No"}
+                btn_name={'Delete'}
+                onConfirm={onConfirmDeleteMsg}
+                onCloseAlert={onCloseAlert}
+                isOpen={state.showDailog}
+            />
         </>
     );
 };
 
 const styles = StyleSheet.create({
+    chatInput: {
+       
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingTop: 4,
+        paddingHorizontal: deviceWidth * 0.04,
+    },
     container: {
         flex: 1,
         alignItems: "center",

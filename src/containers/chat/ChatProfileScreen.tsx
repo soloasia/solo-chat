@@ -56,6 +56,7 @@ const ChatProfileScreen = (props: any) => {
         username: '',
         profileImg: ''
     });
+    
 
     const transition = (
 		<Transition.Together>
@@ -68,13 +69,17 @@ const ChatProfileScreen = (props: any) => {
         if (!_.isEmpty(chatItem.chatroom_users)) {
             const filterGroupAdmin = chatItem.chatroom_users.filter((element: any) => element.user_id == userInfo.id && element.is_admin == 1);
             !_.isEmpty(filterGroupAdmin) ? handleChange('isAdmin', true) : console.log('just member')
+
             const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
             handleChange('username', filterUser.user.username)
-            
             handleChange('profileImg', chatItem.type == 'individual' ? filterUser.user.profile_photo : chatItem.profile_photo)
-
-
         }
+        // if(_.isEmpty(contactItem)){
+        //     reactotron.log('===', chatItem.chatroom_users)
+        //     reactotron.log(mycontact)
+        //     // const filterUserContact = mycontact.filter((element: any) => element.contact_user.id == userInfo.id && element.is_admin == 1);
+
+        // } 
         // chatItem.
     }, []);
 
