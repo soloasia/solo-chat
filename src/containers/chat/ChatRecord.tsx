@@ -79,7 +79,7 @@ const ChatRecord = (props: any) => {
         const result = await audioRecorderPlayer.stopRecorder();
         await audioRecorderPlayer.removeRecordBackListener();
         base64File(result).then((res:any)=>{
-            onChangeVoice(res)
+            onChangeVoice(res,duration)
             RNFetchBlob.fs.unlink(result);
         })
         // if (!isStop) {

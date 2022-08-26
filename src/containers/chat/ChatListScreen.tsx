@@ -17,7 +17,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import ChatHeader from '../../components/ChatHeader';
-import base64File, { POST } from '../../functions/BaseFuntion';
+import base64File, { convertHMS, POST } from '../../functions/BaseFuntion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video'
 import { options } from '../../temp_data/Setting';
@@ -29,6 +29,8 @@ import DocumentPicker from 'react-native-document-picker';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AudioRecorderPlayer from 'react-native-audio-recorder-player';
 import reactotron from 'reactotron-react-native';
+import Entypo from 'react-native-vector-icons/Entypo';
+import LottieView from 'lottie-react-native'
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
@@ -272,7 +274,8 @@ const ChatListScreen = (props: any) => {
             onSend()
         })
     }
-    const onChangeVoice = (data:any) =>{
+    const onChangeVoice = (data:any,duration:any) =>{
+        handleChange('message',duration)
         handleChange('type','mp3')
         handleChange('file',data)
         onSend()
@@ -367,15 +370,15 @@ const ChatListScreen = (props: any) => {
                     audioRecorderPlayer.removePlayBackListener();
                 }
                 audioRecorderPlayer = new AudioRecorderPlayer()
-                const msg = await audioRecorderPlayer.startPlayer(mess.des);
+                const msg = await audioRecorderPlayer.startPlayer(mess.file_url);
                 setIsSending(false);
                 audioRecorderPlayer.addPlayBackListener((e:any) => {
-                    let _duration = Number(mess.voice_duration) - e.currentPosition;
+                    let _duration = Number(mess.message) - e.currentPosition;
                     setVoiceDuration(_duration);
                     if (_duration <= 0) {
                         setPlayVoice(false);
                         setVoiceId(null)
-                        setVoiceDuration(mess.voice_duration);
+                        setVoiceDuration(mess.message);
                         audioRecorderPlayer.removePlayBackListener();
 
                     }
@@ -408,7 +411,7 @@ const ChatListScreen = (props: any) => {
                     <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
                     </View> 
-                    <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?'15%':'53%'}}>
+                    <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id?'15%':'33%'}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular'}}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
                     {isLocalLoading == index?
@@ -479,7 +482,7 @@ const ChatListScreen = (props: any) => {
                         </View>
                             
                     </View> 
-                    <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?'15%':'53%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
+                    <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id?'15%':'33%',backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
                     {isLocalLoading == index?
@@ -583,10 +586,14 @@ const ChatListScreen = (props: any) => {
                         marginVertical: 1,
                     }
                     ]}>
-                        <HStack alignItems={'center'} paddingTop={2}>
-                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textColor } />
-                            <Text style={[style.p,{color:themeStyle[theme].textColor,paddingLeft:10}]}>{mess.message}.{mess.type}</Text>
-                        </HStack>
+                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? baseColor: '#DBDBDBE3',transform: [{ scaleX: 1 }] }]}>
+                            {
+                                (!loadingVoice || mess.id !== voiceId) ? <Entypo name={(voiceId === mess.id && playVoice) ? "controller-paus" : "controller-play"} size={20} color={"#aaa"} /> :
+                                    <ActivityIndicator size={"small"} color={"#aaa"} />
+                            }
+                            {((voiceId === mess.id && playVoice) || (voiceId === mess.id && voiceDuration !== mess.message)) && <LottieView style={{ height: 30 }} source={require('../../assets/voice_graph.json')} autoPlay loop />}
+                            {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
+                        </TouchableOpacity>
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
                     {chatItem.type =='group'?
@@ -776,7 +783,7 @@ const ChatListScreen = (props: any) => {
                             loading={state.loadSendMess}
                             onChangeMessage={(_txt: any) => onChangeMessage(_txt)}
 				            onChange={(data:any) => onChange(data)}
-				            onChangeVoice={(data:any) => onChangeVoice(data)}
+                            onChangeVoice={(data:any,duration:any) => onChangeVoice(data,duration)}
                             onOpen={_handleOpen}
                             onSend={onSend}
                             onOpenGallery ={onShefGallery}
