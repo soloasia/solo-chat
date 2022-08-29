@@ -20,6 +20,7 @@ import { loadContact } from '../../actions/Contact';
 import reactotron from 'reactotron-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
+import { loadData } from '../../functions/LoadData';
 
 
 let lastDoc: any = 1;
@@ -42,13 +43,13 @@ const MemberScreen = (props: any) => {
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
-    function onSelectOnMember (data:any){
+    const onSelectOnMember = (data:any)=>{
         if(user.id === data.item.data.user.id ) return false;
         else {
             GET(`chatroom/request-id?user_id=${data.item.data.user.id}`)
 			.then(async (result: any) => {
 				if(result.status){
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.push('ChatList', { chatItem: result.data });
 				}
 			})
 			.catch(e => {

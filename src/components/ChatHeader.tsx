@@ -27,12 +27,12 @@ const ChatHeader = (props: any) => {
         })
     }
     return (
-        <View style={[styles.header, { flex:1,flexDirection: 'row',alignItems:'center',backgroundColor: themeStyle[theme].backgroundColor,justifyContent: 'space-between',}]}>
-            <TouchableOpacity activeOpacity={0.8} onPress={handleBack} style={[style.buttonHeader]}>
+        <View style={[styles.header, { flex:1,flexDirection: 'row',alignItems:'center',backgroundColor: themeStyle[theme].backgroundColor,justifyContent: 'space-between'}]}>
+            <TouchableOpacity activeOpacity={0.8} onPress={handleBack} style={[style.buttonHeader, {width: '20%', alignItems: 'flex-start'}]}>
                 <Ionicons name='chevron-back' size={28} color={themeStyle[theme].textColor} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={onPress} style={{flexDirection: 'row',alignItems: 'center', paddingRight: main_padding*2}}>
-                <TextItem style={[style.pBold, styles.title, { fontSize: 16, textAlign: 'center', color: themeStyle[theme].textColor, }]} numberOfLines={1}>{title}</TextItem>
+            <TouchableOpacity onPress={onPress} style={{flexDirection: 'row',alignItems: 'center', width: '80%', justifyContent: 'space-between'}}>
+                <TextItem style={[style.pBold, styles.title, { fontSize: 16,color: themeStyle[theme].textColor,textAlign: 'center', paddingRight: main_padding*2}]} numberOfLines={1}>{title}</TextItem>
                 {rightIcon() }
             </TouchableOpacity>
         </View>

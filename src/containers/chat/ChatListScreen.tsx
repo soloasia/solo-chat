@@ -53,7 +53,7 @@ const ChatListScreen = (props: any) => {
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [ isLocalLoading, setLocalLoading] = useState<any>(null);
-    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages.data:chatItem.chatroom_messages.data);
+    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages:chatItem.chatroom_messages.data);
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
     const [playVoice, setPlayVoice] = useState(false);

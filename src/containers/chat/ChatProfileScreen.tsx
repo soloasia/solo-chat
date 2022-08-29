@@ -271,7 +271,7 @@ const ChatProfileScreen = (props: any) => {
     }
 
     const displayFullProfile = () => {
-        handleChange('isProfileClick', !state.isProfileClick);
+        state.profileImg ? handleChange('isProfileClick', !state.isProfileClick) : null;
         
     }
 
@@ -305,7 +305,7 @@ const ChatProfileScreen = (props: any) => {
                             </TouchableOpacity>
                             :
                             <View style={{ width: deviceWidth, paddingHorizontal: main_padding, alignItems: 'center',}}>
-                                <TouchableOpacity onPress={() => !state.isEdit && state.profileImg ? displayFullProfile() : state.profileImg == null ? null :onOpen()} style={{ alignSelf: 'center', width: 110 }}>
+                                <TouchableOpacity onPress={() => !state.isEdit ? displayFullProfile() :onOpen()} style={{ alignSelf: 'center', width: 110 }}>
                                     <LinearGradient
                                         colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                                         start={{ x: 0, y: 0 }}

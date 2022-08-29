@@ -17,7 +17,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import SearchBox from '../../customs_items/SearchBox';
-import { GET, POST } from '../../functions/BaseFuntion';
+import { GET, POST, postCreateGroup } from '../../functions/BaseFuntion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadData } from '../../functions/LoadData';
 import { loadContact } from '../../actions/Contact';
@@ -119,35 +119,18 @@ const CreateGroup = (props: any) => {
     }
 
     const createGroupUser = async () => {
-        // let token = await AsyncStorage.getItem('@token');
-        // var myHeader = new Headers();
-        // myHeader.append('Cache-Control','no-cache');
-        // myHeader.append('Accept','application/json');
-        // myHeader.append('Content-Type','multipart/form-data');
-        // myHeader.append('Authorization', `Bearer ${token}`);
-        // let requestBody = {
-        //     "name": state.groupName,
-        //     "group_user_ids": userIds
-        // }
-        // try {
-        //     await fetch(`https://chat-app.solo-asia.com/api/group/create`, {
-        //       method: 'POST',
-        //       headers: myHeader,
-        //       body: JSON.stringify(requestBody),
-        //     })
-        //       .then(res => res.json())
-        //       .then(result => {
-        //         reactotron.log(result)
-        //       });
-        //   } catch (error) {
-            
-        //   }
-        const formdata = new FormData();
-        formdata.append("name", state.groupName);
-        formdata.append('group_user_ids[]', [userIds]);
-        reactotron.log(formdata)
+        let token = await AsyncStorage.getItem('@token');
+        const requestBody:any = {
+            name: state.groupName,
+            group_user_ids: userIds
+        }
+        
+        // const formdata = new FormData();
+        // formdata.append("name", state.groupName);
+        // formdata.append('group_user_ids[]', [userIds]);
+        // reactotron.log(formdata)
         if (state.groupName != '') {
-            POST('group/create', formdata).then(async (result: any) => {
+            await postCreateGroup('group/create', requestBody).then(async (result: any) => {
                 if (result.status) {
                     navigate.navigate('ChatList', { chatItem: result.data });
 		            loadData(dispatch);

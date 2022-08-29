@@ -102,3 +102,23 @@ export const convertHMS = (value) => {
       return (hours < 1 ? '' : (hours + ':')) + minutes + ':' + seconds; // Return is HH : MM : SS
   }
 }
+
+export async function postCreateGroup(end_point, params) {
+  let token = await AsyncStorage.getItem('@token');
+
+  return new Promise(async (resolve, reject) => {
+      let headers = {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${token}`,
+      }
+      fetch(`${base_url}${end_point}`,{
+        method  : 'POST',
+        headers : headers,
+        body :  JSON.stringify(params)
+      }) .then(response => response.json())
+      .then(result => resolve(result))
+      .catch(error => resolve(error));
+  }) 
+};
