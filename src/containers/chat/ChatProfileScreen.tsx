@@ -66,7 +66,7 @@ const ChatProfileScreen = (props: any) => {
 	)
 
     useEffect(() => {
-        if (!_.isEmpty(chatItem.chatroom_users)) {
+        if (!_.isEmpty(chatItem.chatroom_users && contactItem)) {
             const filterGroupAdmin = chatItem.chatroom_users.filter((element: any) => element.user_id == userInfo.id && element.is_admin == 1);
             !_.isEmpty(filterGroupAdmin) ? handleChange('isAdmin', true) : console.log('just member')
 
@@ -305,7 +305,7 @@ const ChatProfileScreen = (props: any) => {
                             </TouchableOpacity>
                             :
                             <View style={{ width: deviceWidth, paddingHorizontal: main_padding, alignItems: 'center',}}>
-                                <TouchableOpacity onPress={() => !state.isEdit && state.profileImg ? displayFullProfile() : state.profileImg == null ? null : onOpen()} style={{ alignSelf: 'center', width: 110 }}>
+                                <TouchableOpacity onPress={() => !state.isEdit && state.profileImg ? displayFullProfile() : state.profileImg == null ? null :onOpen()} style={{ alignSelf: 'center', width: 110 }}>
                                     <LinearGradient
                                         colors={['#F3AE2D', '#F0DF48', '#4B38F7D2', '#3276F5F3', '#0099FF']}
                                         start={{ x: 0, y: 0 }}
@@ -385,7 +385,7 @@ const ChatProfileScreen = (props: any) => {
                             <View />
                         </View>
                     </View>
-                    <CreateGroup isUserProfile={true} userChat={contactItem} />
+                    <CreateGroup isUserProfile={ contactItem ? true : false} userChat={contactItem} />
                 </View>
             </Modal>
 

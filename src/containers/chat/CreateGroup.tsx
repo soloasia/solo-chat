@@ -33,7 +33,6 @@ const CreateGroup = (props: any) => {
 
 
     const { userChat, isUserProfile, onClose } = props
-    reactotron.log('userchat',userChat)
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
     const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user_id] : [])
@@ -62,11 +61,10 @@ const CreateGroup = (props: any) => {
 
 
     const _removeObj = ({ item, index }: any) => {
-        // if(item.uniqueId != userChat.uniqueId){
         const filterDupplicate = selectUser.filter((element:any) => element.contact_user_id != item.contact_user_id);
         setSelectUser(filterDupplicate)
         _.remove(userIds, function (c) {
-            return (c === item.contact_user_id); //remove if color is green
+            return (c === item.contact_user_id); //remove object
         });
 
         setUserIds(userIds)
@@ -100,7 +98,6 @@ const CreateGroup = (props: any) => {
         }
     }
     const _renderUsers = ({ item, index }: any) => {
-        reactotron.log(item)
         var filterIsadded = selectUser.filter((element:any) => element.contact_user_id === item.contact_user_id);
         return (
             <TouchableOpacity onPress={() => _handleAddPeople({ item, index })} style={{ paddingVertical: main_padding - 5, justifyContent: 'center', borderBottomWidth: 1, borderBottomColor: borderDivider }}>
@@ -122,15 +119,38 @@ const CreateGroup = (props: any) => {
     }
 
     const createGroupUser = async () => {
+        // let token = await AsyncStorage.getItem('@token');
+        // var myHeader = new Headers();
+        // myHeader.append('Cache-Control','no-cache');
+        // myHeader.append('Accept','application/json');
+        // myHeader.append('Content-Type','multipart/form-data');
+        // myHeader.append('Authorization', `Bearer ${token}`);
+        // let requestBody = {
+        //     "name": state.groupName,
+        //     "group_user_ids": userIds
+        // }
+        // try {
+        //     await fetch(`https://chat-app.solo-asia.com/api/group/create`, {
+        //       method: 'POST',
+        //       headers: myHeader,
+        //       body: JSON.stringify(requestBody),
+        //     })
+        //       .then(res => res.json())
+        //       .then(result => {
+        //         reactotron.log(result)
+        //       });
+        //   } catch (error) {
+            
+        //   }
         const formdata = new FormData();
         formdata.append("name", state.groupName);
-        formdata.append("group_user_ids[]", userIds);
+        formdata.append('group_user_ids[]', [userIds]);
+        reactotron.log(formdata)
         if (state.groupName != '') {
             POST('group/create', formdata).then(async (result: any) => {
                 if (result.status) {
                     navigate.navigate('ChatList', { chatItem: result.data });
 		            loadData(dispatch);
-
                     onClose()
                 } else {
                     Alert.alert('Something went wrong!\n', 'Please try again later')

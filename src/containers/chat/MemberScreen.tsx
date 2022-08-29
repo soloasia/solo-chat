@@ -42,10 +42,10 @@ const MemberScreen = (props: any) => {
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
-    function onSelectOnMember (item:any){
-        if(user.id === item.data.user.id ) return false;
+    function onSelectOnMember (data:any){
+        if(user.id === data.item.data.user.id ) return false;
         else {
-            GET(`chatroom/request-id?user_id=${item.data.user.id}`)
+            GET(`chatroom/request-id?user_id=${data.item.data.user.id}`)
 			.then(async (result: any) => {
 				if(result.status){
 					navigate.navigate('ChatList', { chatItem: result.data });
@@ -55,21 +55,21 @@ const MemberScreen = (props: any) => {
 		});
         }
     }
-    const _renderMemberView = ({ item, index }: any) => {
+    const _renderMemberView = (data: any) => {
         return(  
-            <TouchableHighlight onPress={()=>onSelectOnMember(item)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableHighlight onPress={()=>onSelectOnMember(data)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
-                        <FastImage source={item.data.user.profile_photo?{uri:item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+                        <FastImage source={data.item.data.user.profile_photo?{uri:data.item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name  + " "+ item.data.user.last_name ?? ""}</TextItem>
+                            <TextItem style={{ fontSize: 16 }}>{data.item.data.user.first_name  + " "+ data.item.data.user.last_name ?? ""}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
                         {
-                            item.data.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
+                            data.item.data.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
                         }
                     </VStack>
                 </HStack>
@@ -129,7 +129,6 @@ const MemberScreen = (props: any) => {
             setMember(Array(result.data.chatroom_users.length)
             .fill('')
             .map((_, i) => ({ key: `${i}`, data: result.data.chatroom_users[i]})));
-            // reactotron.log(member)
         })
         .catch(() => {
         });
@@ -177,14 +176,14 @@ const MemberScreen = (props: any) => {
 
    
     const closeRow = (rowMap : any, rowKey :any) => {
-        reactotron.log(member[rowKey])
+        // reactotron.log(member[rowKey])
         if (rowMap[rowKey]) {
             rowMap[rowKey].closeRow();
         }
     };
 
     const deleteRow = (rowMap :any, rowKey :any) => {
-        // closeRow(rowMap, rowKey);
+        closeRow(rowMap, rowKey);
         const newData = [...member];
         const prevIndex = member.findIndex((item:any) => item.key === rowKey);
        if(admin.user.id != member[prevIndex].data.user.id ) {
@@ -199,21 +198,20 @@ const MemberScreen = (props: any) => {
        console.log('===did open===', rowKey)
     };
 
-    const renderHiddenItem = ({item,rowMap}:any) => {
-        // reactotron.log('==rowmap', item)
-        if(item.data.is_admin == 1) return false;
+    const renderHiddenItem = (data:any, rowMap: any) => {
+        if(data.item.data.is_admin == 1) return null;
         return (
             <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
                 {/* <Text>Left</Text> */}
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                    onPress={() => closeRow(rowMap, item.key)}
+                    onPress={() => closeRow(rowMap, data.item.key)}
                 >
                     <Text style={styles.backTextWhite}>Close</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnRight]}
-                    onPress={() => deleteRow(rowMap, item.key)}
+                    onPress={() => deleteRow(rowMap, data.item.key)}
                 >
                     <Text style={styles.backTextWhite}>Remove</Text>
                 </TouchableOpacity>

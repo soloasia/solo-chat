@@ -10,6 +10,7 @@ import { loadData } from '../functions/LoadData';
 import style, { deviceWidth } from '../styles';
 import themeStyle from '../styles/theme';
 import { ThemeContext } from '../utils/ThemeManager';
+import { main_padding } from '../config/settings';
 
 // create a component
 const ChatHeader = (props: any) => {
@@ -26,12 +27,14 @@ const ChatHeader = (props: any) => {
         })
     }
     return (
-        <View style={[styles.header, { flex:1,flexDirection: 'row',alignItems:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderColor:borderDivider}]}>
+        <View style={[styles.header, { flex:1,flexDirection: 'row',alignItems:'center',backgroundColor: themeStyle[theme].backgroundColor,justifyContent: 'space-between',}]}>
             <TouchableOpacity activeOpacity={0.8} onPress={handleBack} style={[style.buttonHeader]}>
                 <Ionicons name='chevron-back' size={28} color={themeStyle[theme].textColor} />
             </TouchableOpacity>
-            <TextItem style={[style.pBold, styles.title, { fontSize: 16, textAlign: 'center', color: themeStyle[theme].textColor, }]} numberOfLines={1}>{title}</TextItem>
-            {rightIcon() }
+            <TouchableOpacity onPress={onPress} style={{flexDirection: 'row',alignItems: 'center', paddingRight: main_padding*2}}>
+                <TextItem style={[style.pBold, styles.title, { fontSize: 16, textAlign: 'center', color: themeStyle[theme].textColor, }]} numberOfLines={1}>{title}</TextItem>
+                {rightIcon() }
+            </TouchableOpacity>
         </View>
     );
 };
@@ -39,7 +42,7 @@ const ChatHeader = (props: any) => {
 // define your styles
 const styles = StyleSheet.create({
     header: {
-        minHeight: 50,
+        minHeight: 60,
         width: deviceWidth,
         paddingHorizontal: 15,
     },

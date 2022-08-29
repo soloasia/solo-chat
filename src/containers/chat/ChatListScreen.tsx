@@ -53,7 +53,7 @@ const ChatListScreen = (props: any) => {
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [ isLocalLoading, setLocalLoading] = useState<any>(null);
-    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages:chatItem.chatroom_messages.data);
+    const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages.data:chatItem.chatroom_messages.data);
     const userInfo = useSelector((state: any) => state.user);
     const [data, setData] = useState<any>([]);
     const [playVoice, setPlayVoice] = useState(false);
@@ -79,6 +79,8 @@ const ChatListScreen = (props: any) => {
         isEdit: false,
         showDailog: false
     });
+
+
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
     },[])
@@ -290,6 +292,7 @@ const ChatListScreen = (props: any) => {
         })
     }
     const onChangeVoice = (data:any,duration:any) =>{
+        // reactotron.log('--voice', data)
         handleChange('message',duration)
         handleChange('type','mp3')
         handleChange('file',data)
@@ -311,24 +314,24 @@ const ChatListScreen = (props: any) => {
     // end function get all gallery from device
 
     function _onTabHeader ({chatItem,contactItem}:any){
-        if(contactItem) {
+        if(!_.isEmpty(contactItem)) {
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
         }else{
             const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
-            const userContact = mycontact.find((element: any) => element.contact_user.id == filterUser.user.id);
+            const userContact = filterUser ? mycontact.find((element: any) => element.contact_user.id == filterUser.user_id) : contactItem;
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: userContact })
 
         }
     }
     const rightIcon = () => {
         return (
-            <TouchableOpacity onPress={() => _onTabHeader({chatItem,contactItem})} style={style.containerCenter}>
+            <View style={style.containerCenter}>
                 <UserAvatar style={{ width: 40, height: 40 }}>
                     {chatItem.contact_user ? 
                     <Image source={chatItem.contact_user.profile_photo ? {uri: chatItem.contact_user.profile_photo} : require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                     :getDisplayProfile(chatItem)}
                 </UserAvatar>
-            </TouchableOpacity>
+            </View>
         )
     }
     const onChangeMessage = useCallback(
@@ -363,9 +366,11 @@ const ChatListScreen = (props: any) => {
         formdata.append("chatroom_id", chatItem.id);
         handleChange('message', '');
         handleChange('singleFile', '');
+        // reactotron.log(formdata)
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
+                // reactotron.log('===v', result)
                 setLocalLoading(null)
             }
         })
@@ -507,7 +512,6 @@ const ChatListScreen = (props: any) => {
         )
     }
     const messageVideo = (mess:any,index:any) =>{
-        reactotron.log('--vdo',mess)
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>   
                 {chatItem.type =='group'?
@@ -675,7 +679,7 @@ const ChatListScreen = (props: any) => {
                         : <></>
                     }
                 </HStack>         
-        </View>
+            </View>
         )
     }
 
@@ -885,7 +889,7 @@ const ChatListScreen = (props: any) => {
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
-                <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} />
+                <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} onPress={()=>_onTabHeader({chatItem,contactItem})} />
                 <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                     <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
                         <TouchableWithoutFeedback accessible={false} onPress={Keyboard.dismiss}>
