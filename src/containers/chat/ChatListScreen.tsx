@@ -464,72 +464,28 @@ const ChatListScreen = (props: any) => {
             setLoadingVoice(false);
         }, 250);
     };
-
-    const checkPermission = async () => {
-    
-        // Function to check the platform
-        // If Platform is Android then check for permissions.
-    
-        if (Platform.OS === 'ios') {
-        //   downloadFile();
-        } else {
-          try {
-            const granted = await PermissionsAndroid.request(
-              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
-            );
-            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-              // Start downloading
-            //   downloadFile();
-              console.log('Storage Permission Granted.');
-            } else {
-              // If permission denied then show alert
-              Alert.alert('Error','Storage Permission Not Granted');
-            }
-          } catch (err) {
-            // To handle permission related exception
-            console.log("++++"+err);
-          }
-        }
-      };
-
     const _onOpenFile = (mess:any) => {
+        const headers = {
+            'Accept': 'application/pdf',
+            'Content-Type': 'application/pdf',
+            'Authorization': `Bearer [token]`
+          }
+        const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
 
-        var date      = new Date();
-        var url       = mess.file_url;
-        var ext       = mess.type;
-        ext = "."+ext[0];
-        const { config, fs } = RNFetchBlob
-        let PictureDir = fs.dirs.PictureDir
-        let options = {
-        fileCache: true,
-        addAndroidDownloads : {
-            useDownloadManager : true,
-            notification : true,
-            path:  PictureDir + "/image_"+Math.floor(date.getTime() + date.getSeconds() / 2)+ext,
-            description : mess.type
-        }
-    }
-    reactotron.log(options)
-        config(options).fetch('GET', url).then((res) => {
-            console.log(res)
-            Alert.alert("Success Downloaded");
+        const options = {
+            fromUrl: mess.file_url,
+            toFile: localFile,
+            headers: headers
+        };
+        RNFS.downloadFile(options)
+        .promise.then(() => FileViewer.open(localFile, { showOpenWithDialog: true }))
+        .then(() => {
+            console.log('success')
+        })
+        .catch((error) => {
+            console.log('error')
         });
     }
-    // console.log(mess)
-        // const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
-
-        // const options = {
-        //     fromUrl: mess.file_url,
-        //     toFile: localFile,
-        // };
-        // RNFS.downloadFile(options)
-        // .promise.then(() => FileViewer.open(localFile, { showOpenWithDialog: true }))
-        // .then(() => {
-        //     console.log('success')
-        // })
-        // .catch((error) => {
-        //     console.log('error')
-        // });
 
     const actionOnMessage =(mess:any)=> {
         setItemMessageEdit(mess)
@@ -674,21 +630,21 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<TouchableOpacity onPress={()=>_onOpenFile(mess)} style={[styles.chatBack,
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
 				{
-					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
 					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
 					marginVertical: 1
 				}
 				]}>
-                    <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2.5, paddingRight: 2}}>
+                    <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2, paddingRight: 2}}>
                         <View style={{}}>
-                            <FontAwesome name='file-text' size={22} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
+                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
                         </View>
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
-					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
                 {chatItem.type =='group'?
                     mess.created_by == userInfo.id?
@@ -729,7 +685,7 @@ const ChatListScreen = (props: any) => {
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} 
                         style={[styles.chatBack,
                             {
-                                backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                                backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2',
                                 borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                                 borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                                 paddingHorizontal:10,
@@ -738,7 +694,7 @@ const ChatListScreen = (props: any) => {
                             }
                         ]}
                     >
-                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? '#1F6BADDC': '#CCCCCC',transform: [{ scaleX: 1 }] }]}>
+                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? '#1F6BADDC': theme == 'dark' ? '#252525DA' : '#E6E6E6DA',transform: [{ scaleX: 1 }] }]}>
                             {
                                 (!loadingVoice || mess.id !== voiceId) ? <Entypo name={(voiceId === mess.id && playVoice) ? "controller-paus" : "controller-play"} size={20} color={"#aaa"} /> :
                                     <ActivityIndicator size={"small"} color={"#aaa"} />
@@ -746,7 +702,7 @@ const ChatListScreen = (props: any) => {
                             {((voiceId === mess.id && playVoice) || (voiceId === mess.id && voiceDuration !== mess.message)) && <LottieView style={{ height: 30 }} source={require('../../assets/voice_graph.json')} autoPlay loop />}
                             {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
                         </TouchableOpacity>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
                     {chatItem.type =='group' && mess.created_by == userInfo.id?
                         <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
@@ -781,14 +737,14 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
-                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                             borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                             marginVertical: 1,
                         }
                     ]}>
-                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor: theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor : theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
                     {chatItem.type =='group'?
                         mess.created_by == userInfo.id?
@@ -825,7 +781,7 @@ const ChatListScreen = (props: any) => {
                     :
                     <></>
                 }
-                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
+                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='mp4'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
             </>
         )
     }

@@ -1,14 +1,19 @@
 //import liraries
 import React, { Component } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
+import reactotron from 'reactotron-react-native';
 import { deviceWidth } from '../styles';
+import { borderDivider } from '../config/colors';
 
 // create a component
 const MediaWidget = (props:any) => {
+    const { mediaData } = props
+    reactotron.log(mediaData)
+
     const renderContents = ({item,index}: any) => {
         return(
-            <TouchableOpacity style={{backgroundColor: '#E9E9E99D',height: 130, width: deviceWidth/3.3, margin: 3}}>
-                {/* <Text>{item}</Text> */}
+            <TouchableOpacity style={{backgroundColor: '#E9E9E99D',height: 140, width: deviceWidth/3.2, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5}}>
+               <Image source={{uri: item.file_url}} style={{width: '100%', height: '100%', borderRadius: 5}} />
             </TouchableOpacity>
         )
     }
@@ -16,7 +21,7 @@ const MediaWidget = (props:any) => {
         <FlatList
             showsVerticalScrollIndicator={false}
             scrollEnabled={true}
-            data={[1,2,3,4,5,6,7,8,8,8,8,8,88,8,8,8,8,8,8,8,8,1,1,1,1]}
+            data={mediaData}
             renderItem={renderContents}
             numColumns={3}
             keyExtractor={(_, index) => index.toString()}

@@ -9,14 +9,14 @@ import FontAwsome from 'react-native-vector-icons/FontAwesome';
 import { baseColor } from '../config/colors';
 
 // create a component
-const FileWidget = () => {
-
+const FileWidget = (props:any) => {
+    const {fileData} = props
     const renderContents = ({item,index}: any) => {
         return(
             <TouchableOpacity style={{backgroundColor: '#E9E9E99D',padding: main_padding,  marginTop: 7,borderRadius: 10}}>
                 <HStack alignItems='center'>
                     <Icon name='file-pdf-o' as={FontAwsome} size={35} color={baseColor} />
-                    <Text style={{fontSize: 14, fontFamily: 'lato', marginLeft: main_padding-5}}>attactedfiletesting{item}.pdf</Text>
+                    <Text style={{fontSize: 14, fontFamily: 'lato', marginLeft: main_padding-5}}>attactedfiletesting.pdf</Text>
                 </HStack>
             </TouchableOpacity>
         )
@@ -25,7 +25,7 @@ const FileWidget = () => {
         <FlatList
             showsVerticalScrollIndicator={false}
             scrollEnabled={true}
-            data={[1,2,3,4,5,6,7,8,8,8,8,8,]}
+            data={fileData}
             renderItem={renderContents}
             keyExtractor={(_, index) => index.toString()}
         />
