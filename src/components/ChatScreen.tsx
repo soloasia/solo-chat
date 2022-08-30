@@ -173,9 +173,9 @@ const ChatScreen = () => {
 									moment(item.created_at).format('DD-MMM')
 							}
 						</Text>
-						{item.last_chatroom_messages && item.last_chatroom_messages.total_unread_messages > 0 ?
+						{item.total_unread_messages > 0 ?
 							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
-								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.last_chatroom_messages.total_unread_messages}</Text>
+								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.total_unread_messages}</Text>
 							</View>
 							:
 							<></>
@@ -261,7 +261,6 @@ const ChatScreen = () => {
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
 			setTimeout(async () => {
-
 				GET(`me/chatrooms?page=${lastDoc + 1}`)
 				.then(async (result) => {
 					console.log("result",result);
@@ -284,24 +283,6 @@ const ChatScreen = () => {
 				.catch(e => {
 					setIsMoreLoading(false)
 				});
-				// GET(`me/contact?page=${lastDoc + 1}`)
-				// .then(async (result: any) => {
-				// 	let _data: any = mycontact;
-				// 	if (result.status && result.data.data.length !== 0) {
-				// 		_data.push(...result.data.data)
-				// 	}
-				// 	dispatch(loadContact(_data))
-				// 	lastDoc = Math.ceil(_data.length / 20);
-				// 	if (result.data.data !== undefined) {
-				// 		if (result.data.total <= mycontact.length) {
-				// 			lastDoc = 0;
-				// 		}
-				// 	}
-				// 	setIsMoreLoading(false)
-				// })
-				// .catch(e => {
-				// 	setIsMoreLoading(false)
-				// });
 			}, 200);
         }
     };
@@ -324,7 +305,7 @@ const ChatScreen = () => {
 					renderItem={_renderChatView}
 					data={myChatList}
 					refreshControl={
-						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} tintColor={ themeStyle[theme].textColor}/>
+						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor} />
 					}
 					ListFooterComponent={
 						<>

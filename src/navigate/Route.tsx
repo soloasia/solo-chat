@@ -33,10 +33,8 @@ import SplashScreen from "../components/SplashScreen";
 import FullImageDisplay from '../components/ShowFullImage';
 import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
-import TestScreen from "../components/TestScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
-import reactotron from "reactotron-react-native";
-
+import VideoFullScreen from "../containers/chat/VideoFullScreen";
 
 // import MemberScreen from "../containers/chat/MemberScreen";
 
@@ -129,6 +127,7 @@ const Route = () => {
         <Stack.Screen name="DisplayFullImg" component={FullImageDisplay} />
         <Stack.Screen name="ScanQr" component={ScanQrScreen} />
         <Stack.Screen name="Members" component={MemberScreen} />
+        <Stack.Screen name="VideoFull" component={VideoFullScreen} />
       </Stack.Navigator>
     );
   }
