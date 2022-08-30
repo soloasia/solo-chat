@@ -39,6 +39,11 @@ const MemberScreen = (props: any) => {
     const [admin,setAdmin] = useState<any>();
     const mycontact = useSelector((state: any) => state.mycontact);
     const user = useSelector((state: any) => state.user);
+    const [listData, setListData] = useState(
+        Array(20)
+            .fill('')
+            .map((_, i) => ({ key: `${i}`, text: `item #${i}` }))
+    );
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
@@ -124,6 +129,8 @@ const MemberScreen = (props: any) => {
         GET('chatroom/detail/'+ id)
         .then((result) => {
             var admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
+            console.log(result.data.chatroom_users.length);
+            console.log( result.data.chatroom_users[0]);
             setAdmin(admin);
             setMember(Array(result.data.chatroom_users.length)
             .fill('')
@@ -175,6 +182,8 @@ const MemberScreen = (props: any) => {
 
    
     const closeRow = (rowMap : any, rowKey :any) => {
+        console.log(rowMap);
+        console.log("row key",rowKey);
         if (rowMap[rowKey]) {
             rowMap[rowKey].closeRow();
         }
@@ -195,26 +204,39 @@ const MemberScreen = (props: any) => {
     const onRowDidOpen = (rowKey: any) => {
     };
 
-    const renderHiddenItem = ({data,rowMap}:any) => {
-        if(data.item.data.is_admin == 1) return false;
-        return (
+    const renderHiddenItem = ({ item, rowMap }: any) => {
+        // console.log("key:",data.item.key);
+        // console.log("rowMap",rowMap)
+        // if(item.data.is_admin == 1) return false;
+        return (      
             <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
                 {/* <Text>Left</Text> */}
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                    onPress={() => closeRow(rowMap, data.item.key)}
+                    onPress={() => closeRow(rowMap, item.key)}
                 >
                     <Text style={styles.backTextWhite}>Close</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnRight]}
-                    onPress={() => deleteRow(rowMap, data.item.key)}
+                    onPress={() => deleteRow(rowMap, item.key)}
                 >
                     <Text style={styles.backTextWhite}>Remove</Text>
                 </TouchableOpacity>
             </View>
         )
     };
+    const renderItem = (data :any) => (
+        <TouchableHighlight
+            onPress={() => console.log('You touched me')}
+            style={styles.rowFront}
+            underlayColor={'#AAA'}
+        >
+            <View>
+                <Text>I am {data.item.text} in a SwipeListView</Text>
+            </View>
+        </TouchableHighlight>
+    );
 
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
@@ -235,6 +257,17 @@ const MemberScreen = (props: any) => {
                         <Footer />
                     </>
                 }
+            /> */}
+            {/* <SwipeListView
+                data={listData}
+                renderItem={renderItem}
+                renderHiddenItem={renderHiddenItem}
+                leftOpenValue={75}
+                rightOpenValue={-150}
+                previewRowKey={'0'}
+                previewOpenValue={-40}
+                previewOpenDelay={3000}
+                onRowDidOpen={onRowDidOpen}
             /> */}
 
             <SwipeListView
