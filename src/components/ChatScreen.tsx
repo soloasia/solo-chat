@@ -120,13 +120,13 @@ const ChatScreen = () => {
 					<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>Created by {filterIsAdmin[0].user.first_name} {filterIsAdmin[0].user.last_name}</Text>
 				:
 				<></>
-			: item.last_chatroom_messages.type == 'image'?
+			: item.last_chatroom_messages.type == 'png'?
 				<HStack alignItems={'center'}>
 					<FastImage style={{width:35,height: 35,borderRadius:5,marginTop:10}} source={{uri: item.last_chatroom_messages.file_url}} />
 					<Text style={[style.p,{paddingTop:5,color:textDesColor,paddingLeft:10,fontSize: 12}]}>Photo</Text>
 				</HStack>
 				:
-				item.last_chatroom_messages.type == 'video'?
+				item.last_chatroom_messages.type == 'mp4'?
 					<HStack alignItems={'center'} paddingTop={1}>
 						<Ionicons name='videocam-outline' size={22} color={textDesColor} />
 						<Text style={[style.p,{color:textDesColor,paddingLeft:10, fontSize: 12}]}>Video</Text>
