@@ -32,6 +32,8 @@ import reactotron from 'reactotron-react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import LottieView from 'lottie-react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import RNFS from "react-native-fs";
+import FileViewer from "react-native-file-viewer";
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
@@ -457,6 +459,24 @@ const ChatListScreen = (props: any) => {
         }, 250);
     };
 
+    const _onOpenFile = (mess:any) => {
+        console.log(mess)
+        const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
+
+        const options = {
+            fromUrl: mess.file_url,
+            toFile: localFile,
+        };
+        RNFS.downloadFile(options)
+        .promise.then(() => FileViewer.open(localFile))
+        .then(() => {
+            console.log('success')
+        })
+        .catch((error) => {
+            console.log('error')
+        });
+    }
+
     const actionOnMessage =(mess:any)=> {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
@@ -602,7 +622,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<View style={[styles.chatBack,
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -615,7 +635,7 @@ const ChatListScreen = (props: any) => {
 						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: textsize}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-				</View>
+				</TouchableOpacity>
                 {chatItem.type =='group'?
                     mess.created_by == userInfo.id?
                         <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>

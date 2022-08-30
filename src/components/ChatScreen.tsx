@@ -137,8 +137,8 @@ const ChatScreen = () => {
 					<Text style={[style.p,{color:textDesColor,paddingTop:10, fontSize: 12}]}>Voice message</Text>
 				:
 					<HStack alignItems={'center'} paddingTop={1}>
-						<FontAwesome name='file-text' size={25} color={textDesColor} />
-						<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
+						<FontAwesome name='file-text' size={18} color={textDesColor} />
+						<Text style={[style.p,{color:textDesColor,paddingLeft:10,fontSize: 12}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
 					</HStack>
 			
 		)
