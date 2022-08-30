@@ -20,6 +20,7 @@ import { loadContact } from '../../actions/Contact';
 import reactotron from 'reactotron-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
+import { loadData } from '../../functions/LoadData';
 
 
 let lastDoc: any = 1;
@@ -29,7 +30,7 @@ const MemberScreen = (props: any) => {
     const navigate:any = useNavigation();
 
     const { userChat } = props.route.params;
-    const [member, setMember] = useState<any>([]);
+    const [member, setMember] = useState<any>();
     const {theme} : any = useContext(ThemeContext);
     const [showModal, setshowModal] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
@@ -39,42 +40,37 @@ const MemberScreen = (props: any) => {
     const [admin,setAdmin] = useState<any>();
     const mycontact = useSelector((state: any) => state.mycontact);
     const user = useSelector((state: any) => state.user);
-    const [listData, setListData] = useState(
-        Array(20)
-            .fill('')
-            .map((_, i) => ({ key: `${i}`, text: `item #${i}` }))
-    );
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
     },[])
-    function onSelectOnMember (item:any){
-        if(user.id === item.data.user.id ) return false;
+    const onSelectOnMember = (data:any)=>{
+        if(user.id === data.item.data.user.id ) return false;
         else {
-            GET(`chatroom/request-id?user_id=${item.data.user.id}`)
+            GET(`chatroom/request-id?user_id=${data.item.data.user.id}`)
 			.then(async (result: any) => {
 				if(result.status){
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.push('ChatList', { chatItem: result.data });
 				}
 			})
 			.catch(e => {
 		});
         }
     }
-    const _renderMemberView = ({ item, index }: any) => {
+    const _renderMemberView = (data: any) => {
         return(  
-            <TouchableHighlight onPress={()=>onSelectOnMember(item)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
+            <TouchableHighlight onPress={()=>onSelectOnMember(data)} underlayColor={boxColor} style={{padding:main_padding,justifyContent:'center',backgroundColor: themeStyle[theme].backgroundColor,borderBottomWidth:1,borderBottomColor:borderDivider}}>
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar>
-                        <FastImage source={item.data.user.profile_photo?{uri:item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
+                        <FastImage source={data.item.data.user.profile_photo?{uri:data.item.data.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{width:'100%',height:'100%',borderRadius:50}}/>
                         </UserAvatar>
                         <VStack space={1}>
-                            <TextItem style={{ fontSize: 16 }}>{item.data.user.first_name + " "+ item.data.user.last_name ?? ""}</TextItem>
+                            <TextItem style={{ fontSize: 16 }}>{data.item.data.user.first_name  + " "+ data.item.data.user.last_name ?? ""}</TextItem>
                         </VStack>
                     </HStack>
                     <VStack space={2} alignItems={'center'} justifyContent={'center'}>
                         {
-                            item.data.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
+                            data.item.data.is_admin == 1 ? <Text style={{textAlign:'center',fontSize:14,color: baseColor,fontWeight : "600"}}>Admin</Text> : <Text></Text>
                         }
                     </VStack>
                 </HStack>
@@ -128,10 +124,9 @@ const MemberScreen = (props: any) => {
     const fetchMemberDetail = (id : string) => {
         GET('chatroom/detail/'+ id)
         .then((result) => {
-            var admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
-            console.log(result.data.chatroom_users.length);
-            console.log( result.data.chatroom_users[0]);
+            const admin = result.data.chatroom_users.find((e:any)=> e.is_admin == 1);
             setAdmin(admin);
+
             setMember(Array(result.data.chatroom_users.length)
             .fill('')
             .map((_, i) => ({ key: `${i}`, data: result.data.chatroom_users[i]})));
@@ -182,8 +177,7 @@ const MemberScreen = (props: any) => {
 
    
     const closeRow = (rowMap : any, rowKey :any) => {
-        console.log(rowMap);
-        console.log("row key",rowKey);
+        // reactotron.log(member[rowKey])
         if (rowMap[rowKey]) {
             rowMap[rowKey].closeRow();
         }
@@ -202,41 +196,29 @@ const MemberScreen = (props: any) => {
     };
 
     const onRowDidOpen = (rowKey: any) => {
+       console.log('===did open===', rowKey)
     };
 
-    const renderHiddenItem = ({ item, rowMap }: any) => {
-        // console.log("key:",data.item.key);
-        // console.log("rowMap",rowMap)
-        // if(item.data.is_admin == 1) return false;
-        return (      
+    const renderHiddenItem = (data:any, rowMap: any) => {
+        if(data.item.data.is_admin == 1) return null;
+        return (
             <View style={{...styles.rowBack,backgroundColor : themeStyle[theme].backgroundColor}}>
                 {/* <Text>Left</Text> */}
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnLeft]}
-                    onPress={() => closeRow(rowMap, item.key)}
+                    onPress={() => closeRow(rowMap, data.item.key)}
                 >
                     <Text style={styles.backTextWhite}>Close</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.backRightBtn, styles.backRightBtnRight]}
-                    onPress={() => deleteRow(rowMap, item.key)}
+                    onPress={() => deleteRow(rowMap, data.item.key)}
                 >
                     <Text style={styles.backTextWhite}>Remove</Text>
                 </TouchableOpacity>
             </View>
         )
     };
-    const renderItem = (data :any) => (
-        <TouchableHighlight
-            onPress={() => console.log('You touched me')}
-            style={styles.rowFront}
-            underlayColor={'#AAA'}
-        >
-            <View>
-                <Text>I am {data.item.text} in a SwipeListView</Text>
-            </View>
-        </TouchableHighlight>
-    );
 
     useEffect(()=>{
         fetchMemberDetail(userChat.id)
@@ -248,38 +230,31 @@ const MemberScreen = (props: any) => {
                 <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
                 <Text style={{color:baseColor,fontSize: 16, fontFamily: 'Montserrat-Regular'}}>Add member</Text>
             </TouchableOpacity>
+            
+            {admin && admin.user.id == user.id ? 
+                <SwipeListView
+                    data={member}
+                    renderItem={_renderMemberView}
+                    rightOpenValue={-150}
+                    renderHiddenItem={renderHiddenItem}
+                    previewRowKey={'0'}
+                    previewOpenValue={-40}
+                    previewOpenDelay={3000}
+                    onRowDidOpen={onRowDidOpen}
+                />
+            : 
+                <FlatListVertical
+                    renderItem={_renderMemberView}
+                    data={member}
+                    ListFooterComponent={
+                        <>
+                            <Footer />
+                        </>
+                    }
+                />  
+            }
+            
 
-            {/* <FlatListVertical
-                renderItem={_renderMemberView}
-                data={member}
-                ListFooterComponent={
-                    <>
-                        <Footer />
-                    </>
-                }
-            /> */}
-            {/* <SwipeListView
-                data={listData}
-                renderItem={renderItem}
-                renderHiddenItem={renderHiddenItem}
-                leftOpenValue={75}
-                rightOpenValue={-150}
-                previewRowKey={'0'}
-                previewOpenValue={-40}
-                previewOpenDelay={3000}
-                onRowDidOpen={onRowDidOpen}
-            /> */}
-
-            <SwipeListView
-                data={member}
-                renderItem={_renderMemberView}
-                rightOpenValue={-150}
-                renderHiddenItem={renderHiddenItem}
-                previewRowKey={'0'}
-                previewOpenValue={-40}
-                previewOpenDelay={3000}
-                onRowDidOpen={onRowDidOpen}
-            />
             
             <Modal
 				presentationStyle="formSheet"

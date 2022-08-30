@@ -116,33 +116,30 @@ const ChatScreen = () => {
 		let filterIsAdmin = _.filter(item.chatroom_users, { is_admin: 1 });
 		return(
 			_.isEmpty(item.last_chatroom_messages)?
-				item.type === 'group' || _.isEmpty(filterIsAdmin)?
+				item.type === 'group'?
 					<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>Created by {filterIsAdmin[0].user.first_name} {filterIsAdmin[0].user.last_name}</Text>
-					:
-					<></>
 				:
-				item.last_chatroom_messages[0].type == 'image'?
-					<HStack alignItems={'center'}>
-						<FastImage style={{width:40,height: 40,borderRadius:5,marginTop:10}} source={{uri: item.last_chatroom_messages[0].file_url}} />
-						<Text style={[style.p,{paddingTop:5,color:textDesColor,paddingLeft:10}]}>Photo</Text>
+				<></>
+			: item.last_chatroom_messages.type == 'image'?
+				<HStack alignItems={'center'}>
+					<FastImage style={{width:35,height: 35,borderRadius:5,marginTop:10}} source={{uri: item.last_chatroom_messages.file_url}} />
+					<Text style={[style.p,{paddingTop:5,color:textDesColor,paddingLeft:10,fontSize: 12}]}>Photo</Text>
+				</HStack>
+				:
+				item.last_chatroom_messages.type == 'video'?
+					<HStack alignItems={'center'} paddingTop={1}>
+						<Ionicons name='videocam-outline' size={22} color={textDesColor} />
+						<Text style={[style.p,{color:textDesColor,paddingLeft:10, fontSize: 12}]}>Video</Text>
 					</HStack>
-					:
-					item.last_chatroom_messages[0].type == 'video'?
-						<HStack alignItems={'center'} paddingTop={1}>
-							<Ionicons name='videocam-outline' size={25} color={textDesColor} />
-							<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>Video</Text>
-						</HStack>
-						:
-						item.last_chatroom_messages[0].type == 'text'?
-							<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>{item.last_chatroom_messages[0].message}</Text>
-							:
-							item.last_chatroom_messages[0].type == 'mp3'?
-								<Text style={[style.p,{color:textDesColor,paddingTop:10}]}>Voice message</Text>
-							:
-								<HStack alignItems={'center'} paddingTop={1}>
-									<FontAwesome name='file-text' size={25} color={textDesColor} />
-									<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>{item.last_chatroom_messages[0].message}.{item.last_chatroom_messages[0].type}</Text>
-								</HStack>
+				: item.last_chatroom_messages.type == 'text'?
+					<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>{item.last_chatroom_messages.message}</Text>
+				: item.last_chatroom_messages.type == 'mp3'?
+					<Text style={[style.p,{color:textDesColor,paddingTop:10, fontSize: 12}]}>Voice message</Text>
+				:
+					<HStack alignItems={'center'} paddingTop={1}>
+						<FontAwesome name='file-text' size={25} color={textDesColor} />
+						<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
+					</HStack>
 			
 		)
 	}
@@ -163,26 +160,26 @@ const ChatScreen = () => {
 						</View>
 					</HStack>
 					<VStack space={2} alignItems={'center'} justifyContent={'center'}>
-						<TextItem style={{textAlign:'center',fontSize:11,color:textSecondColor}}>
+						<Text style={{textAlign:'center',fontSize:11,color:textSecondColor, fontFamily:'Montserrat-Regular'}}>
 							{!_.isEmpty(item.last_chatroom_messages)?
-								moment().format('YYYY-MM-DD') == moment(item.last_chatroom_messages[0].created_at).format('YYYY-MM-DD')?
-									moment(item.last_chatroom_messages[0].created_at).format('LT')
+								moment().format('YYYY-MM-DD') == moment(item.last_chatroom_messages.created_at).format('YYYY-MM-DD')?
+									moment(item.last_chatroom_messages.created_at).format('LT')
 									:
-									moment(item.last_chatroom_messages[0].created_at).format('MM/DD')
+									moment(item.last_chatroom_messages.created_at).format('DD-MMM')
 								:
 								moment().format('YYYY-MM-DD') == moment(item.created_at).format('YYYY-MM-DD')?
 									moment(item.created_at).format('LT')
 									:
-									moment(item.created_at).format('MM/DD')
+									moment(item.created_at).format('DD-MMM')
 							}
-						</TextItem>
-						{/* {item.last_chatroom_messages.length?
+						</Text>
+						{item.last_chatroom_messages && item.last_chatroom_messages.total_unread_messages > 0 ?
 							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
-								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.last_chatroom_messages.length}</Text>
+								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.last_chatroom_messages.total_unread_messages}</Text>
 							</View>
 							:
 							<></>
-						} */}
+						}
 					</VStack>
 				</HStack>
 			</TouchableOpacity>

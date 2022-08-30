@@ -26,7 +26,7 @@ const path = Platform.select({
 });
 
 const ChatRecord = (props: any) => {
-    const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice } = props;
+    const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice,msgRef } = props;
     const textsize = useSelector((state: any) => state.textSizeChange);
     const {theme} : any = useContext(ThemeContext);
     const [isRecord, setIsRecord] = useState(false);
@@ -79,7 +79,7 @@ const ChatRecord = (props: any) => {
         const result = await audioRecorderPlayer.stopRecorder();
         await audioRecorderPlayer.removeRecordBackListener();
         base64File(result).then((res:any)=>{
-            onChangeVoice(res)
+            onChangeVoice(res,duration)
             RNFetchBlob.fs.unlink(result);
         })
         // if (!isStop) {
@@ -101,7 +101,7 @@ const ChatRecord = (props: any) => {
                 <></>
                 :
                 <TouchableOpacity style={[styles.icon, { marginRight: 10,backgroundColor: themeStyle[theme].primary,width:35,height:35,borderRadius:30,justifyContent:'center',alignItems:'center' }]} onPress={onOpenGallery}>
-                    <Entypo name={"attachment"} size={18} color={themeStyle[theme].textColor} />
+                    <Entypo name={"attachment"} size={17} color={themeStyle[theme].textColor} />
                 </TouchableOpacity>
             }
             {
@@ -135,6 +135,7 @@ const ChatRecord = (props: any) => {
                 !isRecord ?  
                 <TextInput
                     value={message}
+                    ref={msgRef}
                     placeholderTextColor={chatText}
                     selectionColor = {textColor} 
                     multiline={true}
@@ -174,7 +175,7 @@ const ChatRecord = (props: any) => {
                             </TouchableOpacity>
                             :
                             <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
-                                <Entypo name="video-camera"  size={22} color={themeStyle[theme].textColor}/>
+                                <Entypo name="video-camera"  size={20} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
 
                         }
@@ -192,14 +193,14 @@ export default ChatRecord;
 const styles = StyleSheet.create({
     input: {
         // position: 'absolute',
-		borderTopWidth:1,
+		// borderTopWidth:1,
         paddingHorizontal: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        height: 90,
-        color: "#aaa",
-        borderColor:borderDivider
+        // height: 90,
+        // color: "#aaa",
+        borderColor:borderDivider,
     },
     icon: {
         paddingHorizontal: 5,

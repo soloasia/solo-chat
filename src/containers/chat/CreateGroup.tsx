@@ -17,7 +17,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useDispatch, useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import SearchBox from '../../customs_items/SearchBox';
-import { GET, POST } from '../../functions/BaseFuntion';
+import { GET, POST, postCreateGroup } from '../../functions/BaseFuntion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadData } from '../../functions/LoadData';
 import { loadContact } from '../../actions/Contact';
@@ -33,7 +33,6 @@ const CreateGroup = (props: any) => {
 
 
     const { userChat, isUserProfile, onClose } = props
-    console.log(userChat)
     const [selectUser, setSelectUser] = useState(isUserProfile ? [userChat] : [])
     const mycontact = useSelector((state: any) => state.mycontact);
     const [userIds, setUserIds] = useState<any>(isUserProfile ? [userChat.contact_user_id] : [])
@@ -62,11 +61,10 @@ const CreateGroup = (props: any) => {
 
 
     const _removeObj = ({ item, index }: any) => {
-        // if(item.uniqueId != userChat.uniqueId){
         const filterDupplicate = selectUser.filter((element:any) => element.contact_user_id != item.contact_user_id);
         setSelectUser(filterDupplicate)
         _.remove(userIds, function (c) {
-            return (c === item.contact_user_id); //remove if color is green
+            return (c === item.contact_user_id); //remove object
         });
 
         setUserIds(userIds)
@@ -75,7 +73,7 @@ const CreateGroup = (props: any) => {
         return (
             <VStack alignItems='center' style={{ marginLeft: 10, justifyContent: 'center', }}>
                 <UserAvatar style={{ width: 65, height: 65, borderWidth: 2, borderColor: baseColor }}>
-                    <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                    <Image source={item.contact_user && item.contact_user.profile_photo!=null ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                 </UserAvatar>
                 <TouchableOpacity
                     onPress={() => _removeObj({ item, index })}
@@ -87,7 +85,7 @@ const CreateGroup = (props: any) => {
                 >
                     <Icon name='close' as={AntDesign} size='sm' color={whiteSmoke} />
                 </TouchableOpacity>
-                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>
+                <TextItem style={{ marginTop: 5, fontFamily: 'lato', fontSize: 13, width: 70, textAlign: 'center' }}>{item.contact_user ? item.contact_user.first_name + ' ' + item.contact_user.last_name : ''}</TextItem>
             </VStack>
         )
     }
@@ -106,7 +104,7 @@ const CreateGroup = (props: any) => {
                 <HStack justifyContent={'space-between'}>
                     <HStack space={3} alignItems="center">
                         <UserAvatar style={{ width: 50, height: 50, }}>
-                            <Image source={item.contact_user.profile_photo ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
+                            <Image source={item.contact_user && item.contact_user.profile_photo!=null ? { uri: item.contact_user.profile_photo } : require('./../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%', borderRadius: 100 }} />
                         </UserAvatar>
                         <VStack space={1}>
                             <TextItem style={{ fontSize: 15, fontFamily: 'lato' }}>{item.contact_user.first_name + ' ' + item.contact_user.last_name}</TextItem>
@@ -121,15 +119,21 @@ const CreateGroup = (props: any) => {
     }
 
     const createGroupUser = async () => {
-        const formdata = new FormData();
-        formdata.append("name", state.groupName);
-        formdata.append("group_user_ids[]", userIds);
+        let token = await AsyncStorage.getItem('@token');
+        const requestBody:any = {
+            name: state.groupName,
+            group_user_ids: userIds
+        }
+        
+        // const formdata = new FormData();
+        // formdata.append("name", state.groupName);
+        // formdata.append('group_user_ids[]', [userIds]);
+        // reactotron.log(formdata)
         if (state.groupName != '') {
-            POST('group/create', formdata).then(async (result: any) => {
+            await postCreateGroup('group/create', requestBody).then(async (result: any) => {
                 if (result.status) {
                     navigate.navigate('ChatList', { chatItem: result.data });
 		            loadData(dispatch);
-
                     onClose()
                 } else {
                     Alert.alert('Something went wrong!\n', 'Please try again later')

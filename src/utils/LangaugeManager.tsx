@@ -105,7 +105,7 @@ const LanguageManager = ({children} : any) => {
     }, []);
 
     return (
-        <LanguageContext.Provider value={{tr,userChangeLanguage}}>
+        <LanguageContext.Provider value={{language,tr,userChangeLanguage}}>
             {children}
         </LanguageContext.Provider>
     );
