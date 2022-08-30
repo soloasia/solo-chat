@@ -62,6 +62,8 @@ const ChatListScreen = (props: any) => {
     const [voiceId, setVoiceId] = useState(null);
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
+    const [isShowControl, setControll] = useState(false);
+
     const [isSending, setIsSending] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     let countTransDate: any = 0;
@@ -81,8 +83,6 @@ const ChatListScreen = (props: any) => {
         isEdit: false,
         showDailog: false
     });
-
-
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
     },[])
@@ -153,7 +153,7 @@ const ChatListScreen = (props: any) => {
     async function onSelectImage (item:any,type:any,index:any) {
 		handleChange('index',index)
 		handleChange('image',item)
-		handleChange('type',type)
+		handleChange('type','png')
         base64File(item).then((res:any)=>{
             handleChange('file',res)
         })
@@ -196,7 +196,7 @@ const ChatListScreen = (props: any) => {
                 let localUrl =  Platform.OS === 'ios'?images.sourceURL: images.path
                 handleChange('localVideo',localUrl)
                 base64File(images.path).then((res:any)=>{
-		            handleChange('type','video')
+		            handleChange('type','mp4')
                     handleChange('file',res)
                     onSend()
                 })
@@ -208,7 +208,7 @@ const ChatListScreen = (props: any) => {
                 cropping: false,
             }).then(response => {
                 base64File(response.path).then((res:any)=>{
-                    handleChange('type','image')
+                    handleChange('type','png')
                     handleChange('file',res)
                     onSend()
                 })
@@ -288,13 +288,12 @@ const ChatListScreen = (props: any) => {
         let localUrl =  Platform.OS === 'ios'?data.sourceURL: data.path
         handleChange('localVideo',localUrl)
         base64File(data.path).then((res:any)=>{
-            handleChange('type','video')
+            handleChange('type','mp4')
             handleChange('file',res)
             onSend()
         })
     }
     const onChangeVoice = (data:any,duration:any) =>{
-        // reactotron.log('--voice', data)
         handleChange('message',duration)
         handleChange('type','mp3')
         handleChange('file',data)
@@ -368,11 +367,20 @@ const ChatListScreen = (props: any) => {
         formdata.append("chatroom_id", chatItem.id);
         handleChange('message', '');
         handleChange('singleFile', '');
-        // reactotron.log(formdata)
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
-                // reactotron.log('===v', result)
+                chatData.splice(chatData.length, 1);
+                setChatData(chatData);
+                let body:any = {
+                    ...result.data,
+                    localVideo:state.localVideo?state.localVideo:null,
+                    user:{
+                        first_name:userInfo.first_name,
+                        profile_photo:userInfo.profile_photo,
+                    }
+                }
+                setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -380,8 +388,6 @@ const ChatListScreen = (props: any) => {
 
     const onUpdateMsg = () => {
         if(state.message != itemMessageEdit.message) {
-            // const filterUpdateChat = chatData.filter((element:any)=>element.id == itemMessageEdit.id)
-            
             const formdata = new FormData();
             formdata.append('message', state.message);
             formdata.append('type',itemMessageEdit.type);
@@ -444,14 +450,13 @@ const ChatListScreen = (props: any) => {
                 const msg = await audioRecorderPlayer.startPlayer(mess.file_url);
                 setIsSending(false);
                 audioRecorderPlayer.addPlayBackListener((e:any) => {
-                    let _duration = Number(mess.message) - e.currentPosition;
+                    let _duration = Number(e.duration) - e.currentPosition;
                     setVoiceDuration(_duration);
                     if (_duration <= 0) {
                         setPlayVoice(false);
                         setVoiceId(null)
                         setVoiceDuration(mess.message);
                         audioRecorderPlayer.removePlayBackListener();
-
                     }
                 });
             }
@@ -460,9 +465,7 @@ const ChatListScreen = (props: any) => {
     };
 
     const _onOpenFile = (mess:any) => {
-        console.log(mess)
         const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
-
         const options = {
             fromUrl: mess.file_url,
             toFile: localFile,
@@ -481,7 +484,6 @@ const ChatListScreen = (props: any) => {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
     }
-
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -551,7 +553,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
                                 <Video
@@ -568,14 +570,13 @@ const ChatListScreen = (props: any) => {
                                     ignoreSilentSwitch={"ignore"}
                                     resizeMode='cover'
                                     paused={true}
-                                    controls={true}
                                 />
-
                             }
-                            
                         </View>
-                            
-                    </TouchableOpacity> 
+                        <View style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
+                            <FontAwesome name='play' size={20} color={whiteColor} />
+                        </View>
+                    </View> 
                     <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
@@ -634,7 +635,7 @@ const ChatListScreen = (props: any) => {
                         <FontAwesome name='file-text' size={20} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
 						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: textsize}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
-					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
                 {chatItem.type =='group'?
                     mess.created_by == userInfo.id?
@@ -654,7 +655,7 @@ const ChatListScreen = (props: any) => {
 
     const messageVoice = (mess:any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}> 
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}> 
                 {chatItem.type =='group'?
                     <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
                     :
@@ -678,7 +679,9 @@ const ChatListScreen = (props: any) => {
                                 backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
                                 borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                                 borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-                                marginVertical: 1,
+                                paddingHorizontal:10,
+                                paddingVertical: 3,
+
                             }
                         ]}
                     >
@@ -690,7 +693,7 @@ const ChatListScreen = (props: any) => {
                             {((voiceId === mess.id && playVoice) || (voiceId === mess.id && voiceDuration !== mess.message)) && <LottieView style={{ height: 30 }} source={require('../../assets/voice_graph.json')} autoPlay loop />}
                             {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
                         </TouchableOpacity>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
                     {chatItem.type =='group' && mess.created_by == userInfo.id?
                         <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
@@ -732,7 +735,7 @@ const ChatListScreen = (props: any) => {
                         }
                     ]}>
                         <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
                     {chatItem.type =='group'?
                         mess.created_by == userInfo.id?
@@ -835,7 +838,6 @@ const ChatListScreen = (props: any) => {
         formdata.append('chatroom_message_id', itemMessageEdit.id)
         POST('chatroom_message/delete', formdata).then(async (result: any) => {
             if(result.status){
-                console.log('===chat_id',result.data.id)
                 setChatData((current:any) =>
                     current.filter((obj:any) => {
                       return obj.id !== itemMessageEdit.id;
@@ -904,8 +906,7 @@ const ChatListScreen = (props: any) => {
             </Actionsheet.Content>
           </Actionsheet>
         )
-      }
-
+    }
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
@@ -950,6 +951,16 @@ const ChatListScreen = (props: any) => {
                                             }} />
                                         </>
                                     }
+                                    onContentSizeChange={() => {
+                                        if (!refreshing) {
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                        }
+                                    }}
+                                    onLayout={() => {
+                                        if (!refreshing) {
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                        }
+                                    }}
                                     scrollEventThrottle={16}
                                     onEndReachedThreshold={0.5}
                                     keyExtractor={(_, index) => index.toString()}
@@ -972,7 +983,6 @@ const ChatListScreen = (props: any) => {
                             </View>
                         :<></>}
                         <View style={{ width: deviceWidth, height: deviceHeight*.2, paddingTop: main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
-                            
                             <ChatRecord
                                 message={state.message}
                                 loading={state.loadSendMess}
@@ -1037,7 +1047,6 @@ const styles = StyleSheet.create({
     chatBody: {
         transform: [{ scaleY: 1 }],
         marginTop: 10,
-
     },
     chatBack: {
         maxWidth: deviceWidth / 1.3,
@@ -1077,15 +1086,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
       },
       voiceItem: {
-        transform: [{ scaleY: -1 }],
+        // transform: [{ scaleY: -1 }],
         paddingHorizontal: 10,
         marginTop: 10,
-        paddingVertical: 10,
         borderRadius: 30,
         width: deviceWidth / 2,
-        backgroundColor: "#fff",
+        // backgroundColor: "#fff",
         paddingLeft: 10,
-        marginHorizontal: 10,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
