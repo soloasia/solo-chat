@@ -10,7 +10,7 @@ import style, { deviceWidth } from '../../styles';
 import ChatRecord from './ChatRecord';
 import _ from 'lodash'
 import { deviceHeight, paddingHorizontalItem } from '../../styles/index';
-import { useNavigation } from '@react-navigation/native';
+import { PreventRemoveContext, useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -35,6 +35,10 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 import RNFetchBlob from 'rn-fetch-blob';
+import translate from 'translate-google-api';
+import { LanguageContext } from '../../utils/LangaugeManager';
+
+
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
@@ -48,6 +52,7 @@ const ChatListScreen = (props: any) => {
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
     const [refreshing, setRefreshing] = useState(false);
+    const {language} : any = useContext(LanguageContext);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
@@ -67,6 +72,8 @@ const ChatListScreen = (props: any) => {
 
     const [isSending, setIsSending] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
+    const [isTranslate, setIsTranslate] = useState<any>([]);
+    const [nonTranslate, setNonTranslate] = useState<any>([]);
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
@@ -80,13 +87,15 @@ const ChatListScreen = (props: any) => {
         localVideo:null,
         singleFile:'',
         voice:'',
-        isShowActionMess: false,
+        isShowActionMess: false, 
         isEdit: false,
         showDailog: false
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
+        // _handleTranslateText("Hello");
     },[])
+    
     async function hasAndroidPermission() {
         const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
       
@@ -491,6 +500,38 @@ const ChatListScreen = (props: any) => {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
     }
+
+    const _handleTranslateText = async (index : number, text : string) => {
+
+        if(!isTranslate.includes(index)){
+
+            /// store translate chat index
+            isTranslate.push(index);        
+            setIsTranslate(isTranslate);   
+
+            ///save original chat content
+            nonTranslate.push({key: index,value : text})
+            setNonTranslate(nonTranslate);
+
+            /// translate and set result to message
+            const result = await translate(text, {to: language });
+            chatData[index].message = result;
+
+        } else {
+           
+            const indexTemp = isTranslate.indexOf(index, 0);
+            if (indexTemp > -1) {
+               isTranslate.splice(indexTemp, 1);
+            }
+
+            var prevData = nonTranslate.find((e :any) => e.key == index);
+            chatData[index].message = prevData.value;
+              
+        }
+        
+        setChatData((chatData:any) => [...chatData]); 
+    }
+
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -658,7 +699,6 @@ const ChatListScreen = (props: any) => {
                 }
                 </HStack>
             </View>
-            
         )
     };
 
@@ -743,9 +783,15 @@ const ChatListScreen = (props: any) => {
                             marginVertical: 1,
                         }
                     ]}>
-                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor: theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor : theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <TouchableOpacity onPress={() => _handleTranslateText(index,mess.message)}>
+                            {
+                                !_.isEmpty(isTranslate) && isTranslate.includes(index) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
+                            }
+                        </TouchableOpacity>
                     </TouchableOpacity>
+            
                     {chatItem.type =='group'?
                         mess.created_by == userInfo.id?
                             <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>

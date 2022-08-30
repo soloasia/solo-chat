@@ -183,7 +183,7 @@ const ContactScreen = () => {
 					renderItem={_renderContactView}
 					data={mycontact}
 					refreshControl={
-						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} />
+						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} tintColor={themeStyle[theme].textColor}/>
 					}
 					ListFooterComponent={
 						<>

@@ -324,7 +324,7 @@ const ChatScreen = () => {
 					renderItem={_renderChatView}
 					data={myChatList}
 					refreshControl={
-						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} />
+						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} tintColor={ themeStyle[theme].textColor}/>
 					}
 					ListFooterComponent={
 						<>
