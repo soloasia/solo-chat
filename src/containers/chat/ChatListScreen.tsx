@@ -34,6 +34,7 @@ import LottieView from 'lottie-react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
+import RNFetchBlob from 'rn-fetch-blob';
 
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
@@ -459,23 +460,71 @@ const ChatListScreen = (props: any) => {
         }, 250);
     };
 
-    const _onOpenFile = (mess:any) => {
-        console.log(mess)
-        const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
+    const checkPermission = async () => {
+    
+        // Function to check the platform
+        // If Platform is Android then check for permissions.
+    
+        if (Platform.OS === 'ios') {
+        //   downloadFile();
+        } else {
+          try {
+            const granted = await PermissionsAndroid.request(
+              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+            );
+            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+              // Start downloading
+            //   downloadFile();
+              console.log('Storage Permission Granted.');
+            } else {
+              // If permission denied then show alert
+              Alert.alert('Error','Storage Permission Not Granted');
+            }
+          } catch (err) {
+            // To handle permission related exception
+            console.log("++++"+err);
+          }
+        }
+      };
 
-        const options = {
-            fromUrl: mess.file_url,
-            toFile: localFile,
-        };
-        RNFS.downloadFile(options)
-        .promise.then(() => FileViewer.open(localFile))
-        .then(() => {
-            console.log('success')
-        })
-        .catch((error) => {
-            console.log('error')
+    const _onOpenFile = (mess:any) => {
+
+        var date      = new Date();
+        var url       = mess.file_url;
+        var ext       = mess.type;
+        ext = "."+ext[0];
+        const { config, fs } = RNFetchBlob
+        let PictureDir = fs.dirs.PictureDir
+        let options = {
+        fileCache: true,
+        addAndroidDownloads : {
+            useDownloadManager : true,
+            notification : true,
+            path:  PictureDir + "/image_"+Math.floor(date.getTime() + date.getSeconds() / 2)+ext,
+            description : mess.type
+        }
+    }
+    reactotron.log(options)
+        config(options).fetch('GET', url).then((res) => {
+            console.log(res)
+            Alert.alert("Success Downloaded");
         });
     }
+    // console.log(mess)
+        // const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
+
+        // const options = {
+        //     fromUrl: mess.file_url,
+        //     toFile: localFile,
+        // };
+        // RNFS.downloadFile(options)
+        // .promise.then(() => FileViewer.open(localFile, { showOpenWithDialog: true }))
+        // .then(() => {
+        //     console.log('success')
+        // })
+        // .catch((error) => {
+        //     console.log('error')
+        // });
 
     const actionOnMessage =(mess:any)=> {
         setItemMessageEdit(mess)
@@ -627,12 +676,14 @@ const ChatListScreen = (props: any) => {
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
 					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-					marginVertical: 1,
+					marginVertical: 1
 				}
 				]}>
-                    <HStack alignItems={'center'} paddingTop={2}>
-                        <FontAwesome name='file-text' size={20} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: textsize}]}>{mess.message}.{mess.type}</Text>
+                    <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2.5, paddingRight: 2}}>
+                        <View style={{}}>
+                            <FontAwesome name='file-text' size={22} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
+                        </View>
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
