@@ -17,7 +17,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import ChatHeader from '../../components/ChatHeader';
-import base64File, { convertHMS, POST } from '../../functions/BaseFuntion';
+import base64File, { convertHMS, GET, POST } from '../../functions/BaseFuntion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video'
 import { options } from '../../temp_data/Setting';
@@ -35,18 +35,17 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 
+let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
 	const msgRef = useRef<any>(null);
     const mycontact = useSelector((state: any) => state.mycontact);
-
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
-    const [refreshing, setRefreshing] = useState(false);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
@@ -62,9 +61,7 @@ const ChatListScreen = (props: any) => {
     const [voiceId, setVoiceId] = useState(null);
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
-    const [isShowControl, setControll] = useState(false);
-
-    const [isSending, setIsSending] = useState(false);
+    const [isShowControl, setControll] = useState(true);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
@@ -116,31 +113,12 @@ const ChatListScreen = (props: any) => {
 			console.log(error);
 		});
 	};
-
-    // function getPhotosFromDevice(refresh = false) {
-    //     if ((state.isEnd && !refresh)) return;
-    //     const params:any = { first: PAGE_SIZE,include: ['filename', 'fileSize','imageSize','playableDuration'] };
-    //     if (state.endCursor && !refresh) {
-    //       params.after = state.endCursor;
-    //       params.first = parseInt(state.endCursor) + PAGE_SIZE;
-    //     }
-    //     CameraRoll.getPhotos(params).then(
-    //       resp => {
-    //         handleChange('endCursor',resp.page_info.end_cursor);
-    //         handleChange('isEnd',!resp.page_info.has_next_page);
-    //         const imgs = resp?.edges?.map(e => e.node) || []
-    //         const currentImgs = (data || [])
-    //         setData(!refresh ? currentImgs.concat(imgs.filter(img => !currentImgs.find((cImg:any) => cImg.image.uri === img.image.uri))) : (resp?.edges?.map(e => e.node) || []) );
-    //       },
-    //     );
-    // }
-
-    const renderFooter: any = () => {
+    const renderHeaderLoading: any = () => {
         if (!isMoreLoading) return true;
         return (
             <ActivityIndicator
                 size={25}
-                color={baseColor}
+                color={'red'}
                 style={{ marginVertical: 15 }}
             />
         )
@@ -149,6 +127,36 @@ const ChatListScreen = (props: any) => {
         if (!hasScrolled)
             setHasScrolled(true)
     };
+    const getMore = async () =>{
+        if (!hasScrolled) return null;
+        if (lastDoc > 0) {
+			setIsMoreLoading(true)
+            setTimeout(async () => {
+                GET(`chatroom/detail/${chatItem.id}?page=${lastDoc + 1}`)
+				.then(async (result) => {
+					if(result.status) {
+                        lastDoc += 1;
+						let _data : any = chatData;
+                        if (result.status && result.data.chatroom_messages.data.length !== 0) {
+                            setChatData([...result.data.chatroom_messages.data,..._data])
+						}
+                        lastDoc = Math.ceil(_data.length / 20);
+						if (result.data.chatroom_messages !== undefined) {
+							if (result.data.chatroom_messages.total <= chatData.length) {
+								lastDoc = 0;
+							}
+						}
+					}
+					setIsMoreLoading(false)
+				})
+				.catch(e => {
+					setIsMoreLoading(false)
+				});
+                
+			    setIsMoreLoading(false)
+			}, 200);
+        }
+    }
 
     async function onSelectImage (item:any,type:any,index:any) {
 		handleChange('index',index)
@@ -288,9 +296,10 @@ const ChatListScreen = (props: any) => {
         let localUrl =  Platform.OS === 'ios'?data.sourceURL: data.path
         handleChange('localVideo',localUrl)
         base64File(data.path).then((res:any)=>{
+            reactotron.log(res)
             handleChange('type','mp4')
             handleChange('file',res)
-            onSend()
+            // onSend()
         })
     }
     const onChangeVoice = (data:any,duration:any) =>{
@@ -371,10 +380,9 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 chatData.splice(chatData.length, 1);
-                setChatData(chatData);
+                setChatData(chatData)
                 let body:any = {
                     ...result.data,
-                    localVideo:state.localVideo?state.localVideo:null,
                     user:{
                         first_name:userInfo.first_name,
                         profile_photo:userInfo.profile_photo,
@@ -385,7 +393,6 @@ const ChatListScreen = (props: any) => {
             }
         })
     }
-
     const onUpdateMsg = () => {
         if(state.message != itemMessageEdit.message) {
             const formdata = new FormData();
@@ -430,10 +437,11 @@ const ChatListScreen = (props: any) => {
         setLoadingVoice(true);
         setTimeout(async () => {
             if (voiceId === mess.id) {
-                setIsSending(false);
                 if (playVoice) {
                     setPlayVoice(false);
                     audioRecorderPlayer.pausePlayer();
+                    setVoiceId(null)
+                    audioRecorderPlayer.removePlayBackListener();
 
                 } else {
                     setPlayVoice(true);
@@ -448,7 +456,6 @@ const ChatListScreen = (props: any) => {
                 }
                 audioRecorderPlayer = new AudioRecorderPlayer()
                 const msg = await audioRecorderPlayer.startPlayer(mess.file_url);
-                setIsSending(false);
                 audioRecorderPlayer.addPlayBackListener((e:any) => {
                     let _duration = Number(e.duration) - e.currentPosition;
                     setVoiceDuration(_duration);
@@ -483,6 +490,13 @@ const ChatListScreen = (props: any) => {
     const actionOnMessage =(mess:any)=> {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
+    }
+    const onPlayVideo = () =>{
+        setControll(isShowControl => !isShowControl);
+    }
+    const onFullVideo = (url:any) =>{
+        navigate.navigate('VideoFull',{videos:url});
+        setControll(true);
     }
     const messageImage = (mess:any,index:any) =>{
         return (
@@ -553,7 +567,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <View style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
                                 <Video
@@ -569,14 +583,24 @@ const ChatListScreen = (props: any) => {
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
                                     ignoreSilentSwitch={"ignore"}
                                     resizeMode='cover'
-                                    paused={true}
+                                    playInBackground={false}
+                                    playWhenInactive={false}  
+                                    paused={isShowControl}
+                                    muted={isShowControl}
                                 />
                             }
                         </View>
-                        <View style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
-                            <FontAwesome name='play' size={20} color={whiteColor} />
-                        </View>
-                    </View> 
+                        {isShowControl?
+                            <TouchableOpacity onPress={onPlayVideo} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
+                                <FontAwesome name='play' size={20} color={whiteColor} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity onPress={onPlayVideo} style={{position:'absolute',bottom:'5%',left:'5%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:40,height:40,justifyContent:'center',alignItems:'center'}}>
+                                <FontAwesome name='volume-up' size={20} color={whiteColor} />
+                            </TouchableOpacity>
+                        }
+                       
+                    </TouchableOpacity> 
                     <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </View>
@@ -772,7 +796,7 @@ const ChatListScreen = (props: any) => {
                     :
                     <></>
                 }
-                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
+                {item.type == 'text'?messageText(item,index) : item.type =='png'?messageImage(item,index) :item.type =='mp4'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
             </>
         )
     }
@@ -814,21 +838,16 @@ const ChatListScreen = (props: any) => {
         handleChange('isShowActionMess', false)
         handleChange('isEdit', true)
         msgRef.current!.focus();
-
-
     }
-
     const _onCloseEdit = () => {
         handleChange('isEdit', false)
         setItemMessageEdit(null)
         handleChange('message', '')
         Keyboard.dismiss()
     }
-
     const _removeMessageAction = () => {
         handleChange('isShowActionMess', false)
         handleChange('showDailog', true)
-
     }
     const onCloseAlert = () => {
         handleChange('showDailog', false)
@@ -943,6 +962,7 @@ const ChatListScreen = (props: any) => {
                                     listKey={makeid()}
                                     renderItem={Item}
                                     data={chatData}
+                                    keyExtractor={(_, index) => index.toString()}
                                     showsVerticalScrollIndicator={false}
                                     ListFooterComponent={
                                         <>
@@ -952,18 +972,21 @@ const ChatListScreen = (props: any) => {
                                         </>
                                     }
                                     onContentSizeChange={() => {
-                                        if (!refreshing) {
+                                        if (lastDoc ==1) {
                                             ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
                                         }
                                     }}
                                     onLayout={() => {
-                                        if (!refreshing) {
+                                        if (lastDoc ==1) {
                                             ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
                                         }
                                     }}
+                                    refreshControl={
+                                        <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
+                                    }
                                     scrollEventThrottle={16}
                                     onEndReachedThreshold={0.5}
-                                    keyExtractor={(_, index) => index.toString()}
+                                    onTouchMove={_onScroll}
                                 />
                             }
                         </TouchableWithoutFeedback>
