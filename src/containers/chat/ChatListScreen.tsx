@@ -613,7 +613,7 @@ const ChatListScreen = (props: any) => {
                                     playInBackground={false}
                                     playWhenInactive={false}  
                                     paused={isShowControl}
-                                    onEnd={() => setControll(true)} 
+                                    // onEnd={() => setControll(true)} 
                                     muted={isMute}
                                 />
                             }
