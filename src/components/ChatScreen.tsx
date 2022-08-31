@@ -22,7 +22,6 @@ import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 import { GET } from '../functions/BaseFuntion';
 import moment from 'moment';
-import reactotron from 'reactotron-react-native';
 import { loadListChat } from '../actions/ListChat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
@@ -60,7 +59,7 @@ const ChatScreen = () => {
 		GET(`chatroom/detail/${item.id}`)
 			.then(async (result: any) => {
 				if(result.status){
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.navigate('ChatList', { chatItem: result.data,last_message:item.last_chatroom_messages });
 				}
 			})
 			.catch(e => {
@@ -191,7 +190,7 @@ const ChatScreen = () => {
 			.then(async (result: any) => {
 				if(result.status){
 					onClose()
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.navigate('ChatList', { chatItem: result.data,last_message:item.last_chatroom_messages });
 				}
 			})
 			.catch(e => {
