@@ -33,12 +33,12 @@ export const seconddata = [
         color: "#E88A96",
         to:''
     },
-    {
-        name: i18n.t("appearance"),
-        icon: 'color-palette-outline',
-        color: "#1772F7",
-        to:'Appearance'
-    },
+    // {
+    //     name: i18n.t("appearance"),
+    //     icon: 'color-palette-outline',
+    //     color: "#1772F7",
+    //     to:'Appearance'
+    // },
     {
         name: i18n.t("language"),
         icon: 'globe-outline',
