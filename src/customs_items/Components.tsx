@@ -178,10 +178,9 @@ export function FlatListScroll(props:any) {
 
   export const Footer = () => {
     const insets = useSafeAreaInsets()
-    reactotron.log(insets.bottom )
     return (
         <View style={{
-            height: insets.bottom > 0 ? (insets.bottom + 20):70
+            height: insets.bottom > 0 ? (insets.bottom + 70):100
         }} />
     )
 }

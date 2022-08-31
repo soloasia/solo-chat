@@ -17,7 +17,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import ChatHeader from '../../components/ChatHeader';
-import base64File, { convertHMS, GET, POST } from '../../functions/BaseFuntion';
+import base64File, { convertHMS, GET, POST,hasAndroidPermission,validURL } from '../../functions/BaseFuntion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video'
 import { options } from '../../temp_data/Setting';
@@ -40,6 +40,7 @@ import { WebView } from 'react-native-webview';
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
+let perPage: any=10;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
@@ -89,9 +90,8 @@ const ChatListScreen = (props: any) => {
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
-        seenMessage(last_message);
+        // seenMessage(last_message);
     },[])
-
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();
@@ -104,22 +104,10 @@ const ChatListScreen = (props: any) => {
             })
         }
     }
-    
-    async function hasAndroidPermission() {
-        const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-        const hasPermission = await PermissionsAndroid.check(permission);
-        if (hasPermission) {
-          return true;
-        }
-        const status = await PermissionsAndroid.request(permission);
-        return status === 'granted';
-    }
-      
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
     };
-
     // function get all gallery from device
     const getPhotos = () => {
 		CameraRoll.getPhotos({
@@ -133,16 +121,6 @@ const ChatListScreen = (props: any) => {
 			console.log(error);
 		});
 	};
-    const renderHeaderLoading: any = () => {
-        if (!isMoreLoading) return true;
-        return (
-            <ActivityIndicator
-                size={25}
-                color={'red'}
-                style={{ marginVertical: 15 }}
-            />
-        )
-    };
 	const _onScroll = () => {
         if (!hasScrolled)
             setHasScrolled(true)
@@ -152,15 +130,15 @@ const ChatListScreen = (props: any) => {
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
             setTimeout(async () => {
-                GET(`chatroom/detail/${chatItem.id}?page=${lastDoc + 1}`)
+                GET(`chatroom/detail/${chatItem.id}?page=${lastDoc + 1}&per_page=${perPage}`)
 				.then(async (result) => {
 					if(result.status) {
-                        lastDoc += 1;
 						let _data : any = chatData;
                         if (result.status && result.data.chatroom_messages.data.length !== 0) {
                             setChatData([...result.data.chatroom_messages.data,..._data])
+                            _data.push(...result.data.chatroom_messages.data)
 						}
-                        lastDoc = Math.ceil(_data.length / 20);
+                        lastDoc = Math.ceil(_data.length / 10);
 						if (result.data.chatroom_messages !== undefined) {
 							if (result.data.chatroom_messages.total <= chatData.length) {
 								lastDoc = 0;
@@ -318,7 +296,7 @@ const ChatListScreen = (props: any) => {
         base64File(data.path).then((res:any)=>{
             handleChange('type','mp4')
             handleChange('file',res)
-            // onSend()
+            onSend()
         })
     }
     const onChangeVoice = (data:any,duration:any) =>{
@@ -341,7 +319,6 @@ const ChatListScreen = (props: any) => {
         </View>
     )
     // end function get all gallery from device
-
     function _onTabHeader ({chatItem,contactItem}:any){
         if(!_.isEmpty(contactItem)) {
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
@@ -349,7 +326,6 @@ const ChatListScreen = (props: any) => {
             const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
             const userContact = filterUser ? mycontact.find((element: any) => element.contact_user.id == filterUser.user_id) : contactItem;
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: userContact })
-
         }
     }
     const rightIcon = () => {
@@ -398,18 +374,18 @@ const ChatListScreen = (props: any) => {
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
+                seenMessage(result.data);
                 ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                // chatData.splice(chatData.length, 1);
-                // setChatData(chatData)
-                // seenMessage(result.data);
-                // let body:any = {
-                //     ...result.data,
-                //     user:{
-                //         first_name:userInfo.first_name,
-                //         profile_photo:userInfo.profile_photo,
-                //     }
-                // }
-                // setChatData((chatData:any) => [...chatData,body]);
+                chatData.splice(chatData.length, 1);
+                setChatData(chatData)
+                let body:any = {
+                    ...result.data,
+                    user:{
+                        first_name:userInfo.first_name,
+                        profile_photo:userInfo.profile_photo,
+                    }
+                }
+                setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -452,7 +428,6 @@ const ChatListScreen = (props: any) => {
             handleChange('message', '')
         }
     }
-
     const onPlayVoice = async (mess:any) => {
         setVoiceId(mess.id);
         setLoadingVoice(true);
@@ -518,35 +493,25 @@ const ChatListScreen = (props: any) => {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
     }
-
     const _handleTranslateText = async (index : number, text : string) => {
-
         if(!isTranslate.includes(index)){
-
             /// store translate chat index
             isTranslate.push(index);        
             setIsTranslate(isTranslate);   
-
             ///save original chat content
             nonTranslate.push({key: index,value : text})
             setNonTranslate(nonTranslate);
-
             /// translate and set result to message
             const result = await translate(text, {to: language });
             chatData[index].message = result;
-
         } else {
-           
             const indexTemp = isTranslate.indexOf(index, 0);
             if (indexTemp > -1) {
                isTranslate.splice(indexTemp, 1);
             }
-
             var prevData = nonTranslate.find((e :any) => e.key == index);
             chatData[index].message = prevData.value;
-              
         }
-        
         setChatData((chatData:any) => [...chatData]); 
     }
 
@@ -835,7 +800,7 @@ const ChatListScreen = (props: any) => {
                                     <ActivityIndicator size={"small"} color={"#aaa"} />
                             }
                             {((voiceId === mess.id && playVoice) || (voiceId === mess.id && voiceDuration !== mess.message)) && <LottieView style={{ height: 30 }} source={require('../../assets/voice_graph.json')} autoPlay loop />}
-                            {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
+                            {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{voiceDuration > 0&& playVoice?convertHMS(Number(voiceDuration) / 1000):mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
                         </TouchableOpacity>
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
@@ -955,15 +920,6 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
-    function validURL(str:any) {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-        return !!pattern.test(str);
-    }
     const _onCloseAction = () => {
         handleChange('isShowActionMess', false)
     }
@@ -1022,8 +978,7 @@ const ChatListScreen = (props: any) => {
                     </Box>;
             }
         })
-      }
-
+    }
     const modalMessageAction = (isShowActionMess: any) => {
         return (
           <Actionsheet isOpen={isShowActionMess} onClose={_onCloseAction}>
@@ -1060,6 +1015,7 @@ const ChatListScreen = (props: any) => {
           </Actionsheet>
         )
     }
+    reactotron.log(lastDoc)
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
@@ -1092,15 +1048,11 @@ const ChatListScreen = (props: any) => {
                                 :
                                 <FlatList
                                     style={{paddingHorizontal: main_padding}}
-                                    disableVirtualization
                                     ref={ref}
                                     listKey={makeid()}
                                     renderItem={Item}
                                     data={chatData}
                                     keyExtractor={(_, index) => index.toString()}
-                                    showsVerticalScrollIndicator={false}
-                                    // pagingEnabled={true}
-                                    // legacyImplementation={false}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
@@ -1109,21 +1061,21 @@ const ChatListScreen = (props: any) => {
                                         </>
                                     }
                                     onContentSizeChange={() => {
-                                        if (lastDoc ==1 && isTranslate.length == 0) {
-                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                                        if (lastDoc == 1 && isTranslate.length == 0) {
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
                                         }
                                     }}
-                                    onLayout={() => {
-                                        if (lastDoc ==1 && isTranslate.length == 0) {
-                                            ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
-                                        }
-                                    }}
+                                    // onLayout={() => {
+                                    //     if (lastDoc ==1 && isTranslate.length == 0) {
+                                    //         ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                                    //     }
+                                    // }}
                                     refreshControl={
                                         <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
                                     }
+					                onTouchMove={_onScroll}
                                     scrollEventThrottle={16}
                                     onEndReachedThreshold={0.5}
-                                    onTouchMove={_onScroll}
                                 />
                             }
                         </TouchableWithoutFeedback>
@@ -1142,7 +1094,7 @@ const ChatListScreen = (props: any) => {
                                 </TouchableOpacity>        
                             </View>
                         :<></>}
-                        <View style={{ width: deviceWidth, height: deviceHeight*.2, paddingTop: main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
+                        <View style={{ width: deviceWidth, height: deviceHeight*.22, paddingTop:main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
                             <ChatRecord
                                 message={state.message}
                                 loading={state.loadSendMess}

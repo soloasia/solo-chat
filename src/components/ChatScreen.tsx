@@ -24,8 +24,13 @@ import { GET } from '../functions/BaseFuntion';
 import moment from 'moment';
 import { loadListChat } from '../actions/ListChat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Pusher from 'pusher-js/react-native';
+import reactotron from 'reactotron-react-native';
 
+var config = require('../config/pusher.json');
 let lastDoc: any = 1;
+let perPage: any = 10;
+
 const ChatScreen = () => {
     const navigate:any = useNavigation();
 	const [showModal,setShowModal] = useState(false);
@@ -40,6 +45,18 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
+
+	useEffect(() => {
+		var pusher = new Pusher(config.key, config);
+		var messageChannel = pusher.subscribe(`chat-solo-asia`);
+		messageChannel.bind("CreateMessage", (data:any) => {
+			reactotron.log(data)
+			getData();
+		});
+		return () => {
+			pusher.unsubscribe(`chat-solo-asia`);
+		}
+	}, []);
 
  	const [state, setState] = useState<any>({
 		searchText: ''
@@ -56,7 +73,7 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		GET(`chatroom/detail/${item.id}`)
+		GET(`chatroom/detail/${item.id}?per_page=${perPage}`)
 			.then(async (result: any) => {
 				if(result.status){
 					navigate.navigate('ChatList', { chatItem: result.data,last_message:item.last_chatroom_messages });
@@ -229,7 +246,6 @@ const ChatScreen = () => {
 
 	const onRefresh = () => {
         setIsRefresh(true)
-		console.log("on refresh");
         lastDoc = 1;
         getData();
         setTimeout(() => {
