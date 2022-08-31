@@ -43,7 +43,7 @@ const SettingScreen = () => {
 						<View style={{width:35,height:35,backgroundColor:item.color,borderRadius:25,alignItems:'center',justifyContent:'center'}}>
 							<Ionicons name={item.icon} size={20} style={{color:whiteColor}}/>
 						</View>
-						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
+						<TextItem style={{color: themeStyle[theme].textColor}}>{tr(item.name)}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
 						{/* {item.name== "Notification" && <Switch 

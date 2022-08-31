@@ -10,13 +10,15 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 const QRcodeScreen = () => {
     const userInfo = useSelector((state: any) => state.user);
     const { theme }: any = useContext(ThemeContext);
-
+    const {tr} :any = useContext(LanguageContext);
+ 
     return (
-        <BaseComponent {...baseComponentData} title='QR Code'>
+        <BaseComponent {...baseComponentData} title={tr("qr_code")}>
             <View style={styles.container}>
                 <VStack justifyContent='space-between'>
                     <View style={{ width: deviceWidth, height: deviceHeight / 1.2, alignItems: 'center', justifyContent: 'center', }}>

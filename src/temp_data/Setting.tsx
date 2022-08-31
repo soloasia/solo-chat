@@ -13,7 +13,7 @@ export const data = [
     //     to:'AuthOption'
     // },
     {
-        name: i18n.t("qr_code"),
+        name: "qr_code",//i18n.t("qr_code"),
         icon: 'qr-code-outline',
         color: "#1772F7",
         to:'QRcode'
@@ -28,25 +28,25 @@ export const data = [
 
 export const seconddata = [
     {
-        name: i18n.t("notification"),
+        name: "notification",//i18n.t("notification"),
         icon: 'notifications-outline',
         color: "#E88A96",
         to:''
     },
     {
-        name: i18n.t("appearance"),
+        name: "appearance",//i18n.t("appearance"),
         icon: 'color-palette-outline',
         color: "#1772F7",
         to:'Appearance'
     },
     {
-        name: i18n.t("language"),
+        name: "language",//i18n.t("language"),
         icon: 'globe-outline',
         color: baseColor, //"#8F9AA8",
         to:'Language'
     },
     {
-        name: i18n.t("privacy"),
+        name: "privacy",
         icon: 'shield-checkmark-outline',
         color: "#F0D671",
         to:''

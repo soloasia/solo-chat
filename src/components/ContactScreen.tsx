@@ -21,6 +21,7 @@ import { useNavigation } from '@react-navigation/native';
 import AddContactScreen from '../containers/contact/AddContactScreen';
 import FastImage from 'react-native-fast-image';
 import reactotron from 'reactotron-react-native';
+import { LanguageContext } from '../utils/LangaugeManager';
 
 let lastDoc: any = 1;
 const ContactScreen = () => {
@@ -35,6 +36,7 @@ const ContactScreen = () => {
     const navigation:any = useNavigation();
 	const dispatch:any = useDispatch();
 	const {theme} : any = useContext(ThemeContext);
+	const {tr} : any = useContext(LanguageContext);
 	const mycontact = useSelector((state: any) => state.mycontact);
 
 	const handleChange = (stateName: string, value: any) => {
@@ -164,7 +166,7 @@ const ContactScreen = () => {
 	}
 	
 	return (
-		<BaseComponent {...baseComponentData} title={'Contacts'} is_main={true} rightIcon={rightIcon}>
+		<BaseComponent {...baseComponentData} title={tr("contacts")} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
 				onChangeText={(text:any)=> onChangeText(text)}
 				onClear = {(text:any)=> onChangeText('')}
