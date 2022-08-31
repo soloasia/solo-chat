@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
 import { useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -34,11 +34,9 @@ import LottieView from 'lottie-react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
-import RNFetchBlob from 'rn-fetch-blob';
 import { LanguageContext } from '../../utils/LangaugeManager';
 import translate from 'translate-google-api';
-
-
+import { WebView } from 'react-native-webview';
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
@@ -51,12 +49,11 @@ const ChatListScreen = (props: any) => {
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
-    const [refreshing, setRefreshing] = useState(false);
     const {language} : any = useContext(LanguageContext);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
-    const { chatItem, contactItem } = props.route.params;
+    const { chatItem, contactItem,last_message } = props.route.params;
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
@@ -69,6 +66,7 @@ const ChatListScreen = (props: any) => {
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
     const [isShowControl, setControll] = useState(true);
+    const [isMute, setMute] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
@@ -91,17 +89,28 @@ const ChatListScreen = (props: any) => {
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
-        // _handleTranslateText("Hello");
+        seenMessage(last_message);
     },[])
+
+    function seenMessage(last_message:any){
+        if(last_message){
+            const formdata = new FormData();
+            formdata.append("chatroom_id",chatItem.id);
+            formdata.append("chatroom_message_id",last_message.id);
+            POST('chatroom_message/seen', formdata)
+            .then(async (result: any) => {
+                if(result.status){
+                }
+            })
+        }
+    }
     
     async function hasAndroidPermission() {
         const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-      
         const hasPermission = await PermissionsAndroid.check(permission);
         if (hasPermission) {
           return true;
         }
-      
         const status = await PermissionsAndroid.request(permission);
         return status === 'granted';
     }
@@ -357,7 +366,7 @@ const ChatListScreen = (props: any) => {
     const onChangeMessage = useCallback(
         (text: any) => {
             handleChange('message', text);
-		    handleChange('type','text')
+		    handleChange('type',validURL(text)?'url':'text')
         },
         [state.message],
     );
@@ -389,16 +398,18 @@ const ChatListScreen = (props: any) => {
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
-                chatData.splice(chatData.length, 1);
-                setChatData(chatData)
-                let body:any = {
-                    ...result.data,
-                    user:{
-                        first_name:userInfo.first_name,
-                        profile_photo:userInfo.profile_photo,
-                    }
-                }
-                setChatData((chatData:any) => [...chatData,body]);
+                ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+                // chatData.splice(chatData.length, 1);
+                // setChatData(chatData)
+                // seenMessage(result.data);
+                // let body:any = {
+                //     ...result.data,
+                //     user:{
+                //         first_name:userInfo.first_name,
+                //         profile_photo:userInfo.profile_photo,
+                //     }
+                // }
+                // setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -546,6 +557,9 @@ const ChatListScreen = (props: any) => {
         navigate.navigate('VideoFull',{videos:url});
         setControll(true);
     }
+    const onMuteVideo =()=>{
+        setMute(isMute => !isMute);
+    }
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -634,7 +648,8 @@ const ChatListScreen = (props: any) => {
                                     playInBackground={false}
                                     playWhenInactive={false}  
                                     paused={isShowControl}
-                                    muted={isShowControl}
+                                    onEnd={() => setControll(true)} 
+                                    muted={isMute}
                                 />
                             }
                         </View>
@@ -643,8 +658,8 @@ const ChatListScreen = (props: any) => {
                                 <FontAwesome name='play' size={20} color={whiteColor} />
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity onPress={onPlayVideo} style={{position:'absolute',bottom:'5%',left:'5%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:40,height:40,justifyContent:'center',alignItems:'center'}}>
-                                <FontAwesome name='volume-up' size={20} color={whiteColor} />
+                            <TouchableOpacity onPress={onMuteVideo} style={{position:'absolute',bottom:'5%',left:'5%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:40,height:40,justifyContent:'center',alignItems:'center'}}>
+                                <Ionicons name={isMute? "volume-mute":'volume-high'} size={20} color={whiteColor} />
                             </TouchableOpacity>
                         }
                        
@@ -709,6 +724,62 @@ const ChatListScreen = (props: any) => {
                         </View>
 						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+				</TouchableOpacity>
+                {chatItem.type =='group'?
+                    mess.created_by == userInfo.id?
+                        <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                            <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                        </View>
+                        :
+                        <></>
+                    :
+                    <></>
+                }
+                </HStack>
+            </View>
+        )
+    };
+    const openLinkChat = (mess:any) =>{
+        let checkUrlLink = mess.message.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        checkUrlLink != null ? Linking.openURL(checkUrlLink[0]) : null;
+    }
+
+    const messageURL = (mess: any,index:any) => {
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>     
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
+                    :
+                    <></>
+                }     
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				{
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
+					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+					marginVertical: 1
+				}
+				]}>
+                    <View style={{width:deviceWidth/2,height:deviceWidth/2,marginTop:5}}>
+                        <Text selectable={true} selectionColor={'blue'} onPress={() => openLinkChat(mess)} style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5 }}>{mess.message}</Text>
+                        <WebView 
+                            source={{ uri: mess.message}}
+                            scalesPageToFit={false}
+                        />
+                    </View>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
                 {chatItem.type =='group'?
@@ -851,7 +922,7 @@ const ChatListScreen = (props: any) => {
                     :
                     <></>
                 }
-                {item.type == 'text'?messageText(item,index) : item.type =='png'?messageImage(item,index) :item.type =='mp4'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
+                {item.type == 'text'?messageText(item,index) : item.type =='png'?messageImage(item,index) :item.type =='mp4'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index):item.type =='url'?messageURL(item,index): messageFile(item,index)}
             </>
         )
     }
@@ -884,7 +955,15 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
-
+    function validURL(str:any) {
+        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+        return !!pattern.test(str);
+    }
     const _onCloseAction = () => {
         handleChange('isShowActionMess', false)
     }
@@ -1013,12 +1092,15 @@ const ChatListScreen = (props: any) => {
                                 :
                                 <FlatList
                                     style={{paddingHorizontal: main_padding}}
+                                    disableVirtualization
                                     ref={ref}
                                     listKey={makeid()}
                                     renderItem={Item}
                                     data={chatData}
                                     keyExtractor={(_, index) => index.toString()}
                                     showsVerticalScrollIndicator={false}
+                                    // pagingEnabled={true}
+                                    // legacyImplementation={false}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
@@ -1027,12 +1109,12 @@ const ChatListScreen = (props: any) => {
                                         </>
                                     }
                                     onContentSizeChange={() => {
-                                        if (lastDoc ==1) {
+                                        if (lastDoc ==1 && isTranslate.length == 0) {
                                             ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
                                         }
                                     }}
                                     onLayout={() => {
-                                        if (lastDoc ==1) {
+                                        if (lastDoc ==1 && isTranslate.length == 0) {
                                             ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
                                         }
                                     }}
