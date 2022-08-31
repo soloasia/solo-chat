@@ -16,6 +16,37 @@ const MediaWidget = (props:any) => {
     const onFullVideo = (url:any) =>{
         navigate.navigate('VideoFull',{videos:url});
     }
+    // const _onOpenFile = (mess:any) => {
+    //     const headers = {
+    //         'Accept': 'application/pdf',
+    //         'Content-Type': 'application/pdf',
+    //         'Authorization': `Bearer [token]`
+    //       }
+    //     const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
+
+    //     const options = {
+    //         fromUrl: mess.file_url,
+    //         toFile: localFile,
+    //         headers: headers
+    //     };
+    //     RNFS.downloadFile(options)
+    //     .promise.then(() => FileViewer.open(localFile, { showOpenWithDialog: true }))
+    //     .then(() => {
+    //         console.log('success')
+    //     })
+    //     .catch((error) => {
+    //         console.log('error')
+    //     });
+    // }
+
+    // const renderContents = ({item,index}: any) => {
+    //     if(item.type=='mp3') return null;
+    //     return(
+    //         <TouchableOpacity onPress={()=>_onOpenFile(item)} style={{backgroundColor: theme == 'dark' ? primaryDark : '#F0F0F2' ,padding: main_padding, paddingBottom: 5,  marginTop: 7,borderRadius: 10}}>
+                
+    //         </TouchableOpacity>
+    //     )
+    // }
 
     const renderContents = ({item,index}: any) => {
         return(

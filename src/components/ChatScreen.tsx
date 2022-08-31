@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl, ActivityIndicator } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
-import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor, whiteSmoke } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import SearchBox from '../customs_items/SearchBox';
@@ -136,7 +136,14 @@ const ChatScreen = () => {
 					<Text style={[style.p,{color:textDesColor,paddingTop:10, fontSize: 12}]}>Voice message</Text>
 				:
 					<HStack alignItems={'center'} paddingTop={1}>
-						<FontAwesome name='file-text' size={18} color={textDesColor} />
+						<FontAwesome
+                            name={
+                                item.last_chatroom_messages.type == 'pdf' ? "file-pdf-o" : item.last_chatroom_messages.type == 'xls' || item.last_chatroom_messages.type == 'xlsx' ? 'file-excel-o'
+                                    : item.last_chatroom_messages.type == 'ppt' || item.last_chatroom_messages.type == 'pptx' || item.last_chatroom_messages.type == 'csv' ? 'file-powerpoint-o'
+                                        : item.last_chatroom_messages.type == 'doc' || item.last_chatroom_messages.type == 'docx' ? 'file-word-o' : item.last_chatroom_messages.type == 'zip' ? 'file-zip-o' : 'link'
+                            } size={18} color={textSecondColor } />
+                        
+						{/* <FontAwesome name='file-text' size={18} color={textDesColor} /> */}
 						<Text style={[style.p,{color:textDesColor,paddingLeft:10,fontSize: 12}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
 					</HStack>
 			

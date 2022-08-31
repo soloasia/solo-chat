@@ -1,34 +1,39 @@
-//import liraries
-import { useNavigation } from '@react-navigation/native';
-import React, { Component } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
-import { deviceWidth, deviceHeight } from '../styles/index';
-import { main_padding } from '../config/settings';
+import React, { useState } from 'react'
+import { ActivityIndicator, StyleSheet, TouchableOpacity, View, Text } from 'react-native';
 import FastImage from 'react-native-fast-image';
+import ImageViewer from '../containers/custom_package/react-native-image-zoom-viewer';
+import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 
-// create a component
-const FullImageDisplay = (props: any) => {
-    const navigate: any = useNavigation();
+const SingleImageView = (props: any) => {
     const { imgDisplay } = props.route.params;
+    const [images, setImages] = useState<any>([{ url: imgDisplay }])
     return (
         <BaseComponent {...baseComponentData} title=''>
-            <View style={styles.container}>
-               <FastImage source={{uri: imgDisplay}} resizeMode='contain' style={{width: deviceWidth, height: deviceWidth}} />
-            </View>
+            {images.length === 0 ? null : (
+                <ImageViewer
+                    style={{
+                        backgroundColor: '#fff'
+                    }}
+                    imageUrls={images}
+                    renderImage={(image: any) => {
+                        return (
+                            <FastImage
+                                resizeMode={FastImage.resizeMode.contain}
+                                style={{ height: ' 100%', width: '100%' }}
+                                source={{ uri: image.source.uri }} />
+                        );
+                    }}
+                    
+                    enablePreload={true}
+                    saveToLocalByLongPress={false}
+
+                />
+            )}
         </BaseComponent>
-    );
-};
+    )
+}
 
-// define your styles
+export default SingleImageView
+
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        marginBottom: main_padding*2,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-});
-
-//make this component available to the app
-export default FullImageDisplay;
+})
