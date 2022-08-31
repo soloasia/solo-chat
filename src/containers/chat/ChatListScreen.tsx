@@ -49,7 +49,7 @@ const ChatListScreen = (props: any) => {
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
     const [refreshing, setRefreshing] = useState(false);
-    const {language} : any = useContext(LanguageContext);
+    const {language,tr} : any = useContext(LanguageContext);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
@@ -955,7 +955,7 @@ const ChatListScreen = (props: any) => {
                                                 style={{width: 200, height: 150}}
                                                 autoPlay loop
                                             />
-                                        <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>No messages here yet...{'\n'}Say Hello to start conversations</Text>
+                                        <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>{tr("no_message")}{'\n'}{tr("say_hello")}</Text>
                                     </View>
                                 </View>
                                 :

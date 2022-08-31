@@ -85,15 +85,15 @@ const ChatProfileScreen = (props: any) => {
     }, []);
 
     const selectedRoute = ({ item, index }: any) => {
-        if (item.title == 'Notification') {
+        if (item.title == 'notification') {
             console.log("notification");
-        } else if (item.title == "Leave Group") {
+        } else if (item.title == "leave_group") {
             handleChange('messageTitle', 'Leave Group')
             handleChange('buttonText', 'Leave')
             handleChange('messageDesc', 'Are you sure you want to leave group ?')
             handleChange('isDeleteFunc', false)
             setShowLogout(true);
-        } else if (item.title == "Delete Group") {
+        } else if (item.title == "delete_group") {
             handleChange('messageTitle', 'Delete Group')
             handleChange('buttonText', 'Delete')
             handleChange('messageDesc', 'Are you sure, you want to delete this group ?')
@@ -148,7 +148,7 @@ const ChatProfileScreen = (props: any) => {
     }
 
     const _renderItem = ({ item, index }: any) => {
-        if (!state.isAdmin && item.title == "Delete Group") return false;
+        if (!state.isAdmin && item.title == "delete_group") return false;
         return (
             <TouchableOpacity onPress={() => selectedRoute({ item, index })} style={{ padding: 7, justifyContent: 'center', marginTop: 7 }}>
                 <HStack alignItems='center' justifyContent='space-between'>
@@ -188,7 +188,7 @@ const ChatProfileScreen = (props: any) => {
         return (
             chatItem.type === "individual" || chatItem.contact_user ? <View />
                 : <TouchableOpacity onPress={_handleEdit} style={style.containerCenter}>
-                    <Text style={{ color: baseColor, fontSize: 16, fontWeight: '800', fontFamily: 'Montserrat-Regular' }}>{state.isEdit ? 'Done' : tr("edit")})</Text>
+                    <Text style={{ color: baseColor, fontSize: 16, fontWeight: '800', fontFamily: 'Montserrat-Regular' }}>{state.isEdit ? tr("done") : tr("edit")}</Text>
                 </TouchableOpacity>
         )
     }

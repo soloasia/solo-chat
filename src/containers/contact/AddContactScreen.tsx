@@ -16,6 +16,7 @@ import FastImage from 'react-native-fast-image';
 import { useDispatch } from 'react-redux';
 import { loadContact } from '../../actions/Contact';
 import reactotron from 'reactotron-react-native';
+import { LanguageContext } from '../../utils/LangaugeManager';
 const AddContactScreen = (props:any) => {
     const { onOpen,onClose,onScanQr } = props;
     const navigate: any = useNavigation();
@@ -23,6 +24,7 @@ const AddContactScreen = (props:any) => {
 	const dispatch:any = useDispatch();
     const [currentIndex, setIndex] = useState<any>([])
 	const {theme} : any = useContext(ThemeContext);
+    const {tr} : any = useContext(LanguageContext);
     const [state, setState] = useState<any>({
         username: '',
         loading: false,
@@ -113,9 +115,9 @@ const AddContactScreen = (props:any) => {
                 <View style={{margin : main_padding , marginTop : large_padding}}>
                     <View style={{flexDirection : 'row',justifyContent: 'space-between'}}>
                         <TouchableOpacity onPress={onClose}>
-                            <Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>Cancel</Text>
+                            <Text style={{color: baseColor ,fontWeight :'500',fontSize :16}}>{tr("cancel")}</Text>
                         </TouchableOpacity>
-                        <TextItem style={{fontWeight :'700',fontSize :16}}>Add Contact</TextItem>
+                        <TextItem style={{fontWeight :'700',fontSize :16}}>{tr("add_contact")}</TextItem>
                         <Box
                             style={{
                                 width: 20
@@ -126,7 +128,7 @@ const AddContactScreen = (props:any) => {
                         <TextInput 
                             value={state.username}
                             style={[styles.input,{marginTop : main_padding,backgroundColor : themeStyle[theme].primary,color : themeStyle[theme].textColor}]}
-                            placeholder='Enter Username'
+                            placeholder={tr("enter_username")}
                             placeholderTextColor={'#ADB9C6'}
                             returnKeyType='search'
                             onSubmitEditing={onSearchUsername}
@@ -139,7 +141,7 @@ const AddContactScreen = (props:any) => {
                             <Ionicons name={'scan'} size={25} style={{color:baseColor,marginTop: main_padding,marginLeft : main_padding}}/>
                         </TouchableOpacity>
                     </View>
-                    {_.isEmpty(state.userData)?<Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>You can add contact by their username. It's case sensitive.</Text>:<></>}
+                    {_.isEmpty(state.userData)?<Text style={{fontSize : 12, color:'gray' ,marginLeft :4,marginTop : 10}}>{tr("add_contact_hint")}</Text>:<></>}
                     <FlatListVertical
                         style={{paddingTop:20}}
                         renderItem={_renderContactView}

@@ -16,12 +16,14 @@ import { GET, POST } from '../../functions/BaseFuntion';
 import { AlertBox, TextItem } from '../../customs_items/Components';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import { loadUser } from '../../actions/User';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 const LoginScreen = (props: any) => {
     const usernameRef = createRef<TextInput>();
     const passwordRef = createRef<TextInput>();
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
+    const { tr }: any = useContext(LanguageContext);
     const mobile_token = useSelector((state: any) => state.mobile_token);
     const [inputBorder, setborderColor] = useState<any>(borderColor);
     const [isOpen, setIsOpen] = React.useState(false);
@@ -103,7 +105,7 @@ const LoginScreen = (props: any) => {
                                 <TextInput
                                     ref={usernameRef}
                                     style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder, color: themeStyle[theme].textColor }]}
-                                    placeholder='Username'
+                                    placeholder={tr("username")}
                                     value={state.username}
                                     placeholderTextColor={'#ADB9C6'}
                                     returnKeyType='done'
@@ -118,7 +120,7 @@ const LoginScreen = (props: any) => {
                                 <TextInput
                                     ref={passwordRef}
                                     style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, borderColor: inputBorder, color: themeStyle[theme].textColor }]}
-                                    placeholder='Password'
+                                    placeholder={tr("password")}
                                     value={state.password}
                                     secureTextEntry={state.isSecure}
                                     placeholderTextColor={'#ADB9C6'}
@@ -129,7 +131,7 @@ const LoginScreen = (props: any) => {
                                     }}
                                 />
                                 <TouchableOpacity onPress={() => handleChange('isSecure', !state.isSecure)} style={{ position: 'absolute', bottom: 7, right: 10, borderWidth: 0.5, borderRadius: 20, width: 70, height: 30, justifyContent: 'center', alignItems: 'center', borderColor: startBtn }}>
-                                    <Text style={{ fontFamily: 'lato', fontSize: 13, color: startBtn }}>{state.isSecure ? "View*" : "Hide*"}</Text>
+                                    <Text style={{ fontFamily: 'lato', fontSize: 13, color: startBtn }}>{state.isSecure ?  tr("view") +"*" :  tr("hide") +"*"}</Text>
                                 </TouchableOpacity>
                             </View>
                             {state.isValidateForm ? <Text style={[style.p, { fontSize: 13, color: 'red', paddingTop: 10, textAlign: 'left' }]}>* Please fill your password</Text> : <View />}

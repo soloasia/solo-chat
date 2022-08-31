@@ -44,7 +44,7 @@ const QRcodeScreen = () => {
                             </View>
 
                             <View style={{ marginTop: main_padding + 10 }}>
-                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14,textAlign: 'center', color: textSecondColor, paddingBottom: 10 }}>Username</Text>
+                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14,textAlign: 'center', color: textSecondColor, paddingBottom: 10 }}>{tr("username")}</Text>
                                 <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 16, fontWeight: '700', color: themeStyle[theme].textColor }}>{userInfo.username.toUpperCase()}</Text>
                             </View>
                         </View>

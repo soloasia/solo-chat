@@ -24,12 +24,14 @@ import { deviceHeight, activeOpacity } from '../../styles/index';
 import _ from 'lodash';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import FastImage from 'react-native-fast-image';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 // create a component
 const EditProfileScreen = () => {
     const navigate: any = useNavigation();
 
     const { theme }: any = useContext(ThemeContext);
+    const { tr } : any = useContext(LanguageContext);
     const { isOpen, onOpen, onClose } = useDisclose();
     const dispatch: any = useDispatch();
 
@@ -130,7 +132,7 @@ const EditProfileScreen = () => {
         }, 2000);
     }
     return (
-        <BaseComponent {...baseComponentData} title={'Personal Infomation'} is_main={false}>
+        <BaseComponent {...baseComponentData} title={tr("personal_info")} is_main={false}>
             <View style={{}}>
                 <View>
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
@@ -141,7 +143,7 @@ const EditProfileScreen = () => {
                                     : <FastImage source={require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%' }} />}
                             </UserAvatar>
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={() => onOpen()}><Text style={{ fontSize: 12, color: baseColor, fontFamily: 'Montserrat-Regular' }}>Set a new photo</Text></TouchableOpacity>
+                        <TouchableOpacity onPress={() => onOpen()}><Text style={{ fontSize: 12, color: baseColor, fontFamily: 'Montserrat-Regular' }}>{tr("set_new_photo")}</Text></TouchableOpacity>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: deviceWidth, padding: main_padding, marginTop: main_padding }}>
                             <TextInput
                                 style={{ ...styles.input, width: '47%', backgroundColor: themeStyle[theme].primary, color: themeStyle[theme].textColor, fontFamily: 'Montserrat-Regular' }}
@@ -160,7 +162,7 @@ const EditProfileScreen = () => {
                         </View>
                     </View>
                     <View style={{ ...styles.usernameContainer, marginHorizontal: main_padding, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: textDesColor }}>Username</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: textDesColor }}>{tr("username")}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <TextInput
                                 style={{ color: chatText, marginHorizontal: main_padding, fontFamily: 'Montserrat-Regular' }}
@@ -171,16 +173,15 @@ const EditProfileScreen = () => {
                         </View>
                     </View>
                     <View style={{ ...styles.usernameContainer, marginHorizontal: main_padding, justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', marginTop: main_padding + 10 }}>
-                        <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: textDesColor }}>Password</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: textDesColor }}>{tr("password")}</Text>
                         <TouchableOpacity onPress={() => handleChange('isVisible', true)} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: textSecondColor }}>Change password</Text>
-
+                            <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 12, color: textSecondColor }}>{tr("change_password")}</Text>
                             <Ionicons name='chevron-forward-outline' size={20} style={{ color: textSecondColor }} />
                         </TouchableOpacity>
                     </View>
                 </View>
                 <TouchableOpacity onPress={handleSave} style={{ height: 45, backgroundColor: startBtn, borderRadius: 25, alignItems: 'center', justifyContent: 'center', marginHorizontal: main_padding, marginTop: 50 }}>
-                    <Text style={{ color: whiteSmoke, fontFamily: 'Montserrat-Regular', fontSize: 16 }}>Save</Text>
+                    <Text style={{ color: whiteSmoke, fontFamily: 'Montserrat-Regular', fontSize: 16 }}>{tr("save")}</Text>
                 </TouchableOpacity>
             </View>
             <SelectImagePicker
@@ -203,12 +204,12 @@ const EditProfileScreen = () => {
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                             <TouchableOpacity onPress={() => handleChange('isVisible', false)} style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Icon name='ios-chevron-back' as={Ionicons} size='lg' color={textSecondColor} />
-                                <Text style={{ color: baseColor, fontSize: 13, fontFamily: 'Montserrat-Regular' }}>Back</Text>
+                                <Text style={{ color: baseColor, fontSize: 13, fontFamily: 'Montserrat-Regular' }}>{tr("back")}</Text>
 
                             </TouchableOpacity>
-                            <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'Montserrat-Regular', color: themeStyle[theme].textColor }}>Change password</Text>
+                            <Text style={{ fontWeight: '600', fontSize: 16, fontFamily: 'Montserrat-Regular', color: themeStyle[theme].textColor }}>{tr("change_password")}</Text>
                             <TouchableOpacity onPress={handleChangePassword}>
-                                <Text style={{ fontWeight: '600', fontSize: 15, fontFamily: 'Montserrat-Regular', color: baseColor }}>DONE</Text>
+                                <Text style={{ fontWeight: '600', fontSize: 15, fontFamily: 'Montserrat-Regular', color: baseColor }}>{tr("done").toUpperCase()}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -225,7 +226,7 @@ const EditProfileScreen = () => {
                             <TextInput
                                 autoFocus={true}
                                 style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
-                                placeholder='Current password'
+                                placeholder={tr("current_password")}
                                 value={state.password}
                                 secureTextEntry={state.isSecure}
                                 placeholderTextColor={'#ADB9C6'}
@@ -235,13 +236,13 @@ const EditProfileScreen = () => {
                                 }}
                             />
                             <TouchableOpacity onPress={() => handleChange('isSecure', !state.isSecure)} style={{ position: 'absolute', bottom: 7, right: 25, borderWidth: 0.5, borderRadius: 20, width: 70, height: 30, justifyContent: 'center', alignItems: 'center', borderColor: startBtn }}>
-                                <Text style={{ fontFamily: 'lato', fontSize: 13, color: startBtn }}>{state.isSecure ? "View*" : "Hide*"}</Text>
+                                <Text style={{ fontFamily: 'lato', fontSize: 13, color: startBtn }}>{state.isSecure ? tr("view") +"*" :  tr("hide") +"*"}</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={{ marginTop: 10, paddingHorizontal: main_padding }}>
                             <TextInput
                                 style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
-                                placeholder='New password'
+                                placeholder={tr("new_password")}
                                 value={state.newPassword}
                                 secureTextEntry={true}
                                 placeholderTextColor={'#ADB9C6'}
@@ -255,7 +256,7 @@ const EditProfileScreen = () => {
                         <View style={{ marginTop: 10, paddingHorizontal: main_padding }}>
                             <TextInput
                                 style={[style.p, styles.input, { backgroundColor: themeStyle[theme].primary, fontSize: 14, color: themeStyle[theme].textColor }]}
-                                placeholder='Confirm password'
+                                placeholder={tr("confirm_password")}
                                 value={state.confirmPassword}
                                 secureTextEntry={true}
                                 placeholderTextColor={'#ADB9C6'}
