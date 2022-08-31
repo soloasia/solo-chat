@@ -11,6 +11,7 @@ import { ThemeContext } from '../utils/ThemeManager';
 import moment from 'moment';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 // create a component
 const FileWidget = (props:any) => {
@@ -43,12 +44,17 @@ const FileWidget = (props:any) => {
     const renderContents = ({item,index}: any) => {
         if(item.type=='mp3') return null;
         return(
-            <TouchableOpacity onPress={()=>_onOpenFile(item)} style={{backgroundColor: theme == 'dark' ? primaryDark : '#F0F0F2' ,padding: main_padding,  marginTop: 7,borderRadius: 10}}>
+            <TouchableOpacity onPress={()=>_onOpenFile(item)} style={{backgroundColor: theme == 'dark' ? primaryDark : '#F0F0F2' ,padding: main_padding, paddingBottom: 5,  marginTop: 7,borderRadius: 10}}>
                 <HStack alignItems='center'>
-                    <Icon name='filetext1' as={AntDesign} size={30} color={textSecondColor} />
+                    <FontAwesome 
+                        name={
+                            item.type == 'pdf'?  "file-pdf-o" : item.type == 'xls' || item.type == 'xlsx'? 'file-excel-o'
+                            : item.type == 'ppt' || item.type == 'pptx' || item.type == 'csv'? 'file-powerpoint-o'
+                            : item.type == 'doc' || item.type == 'docx'? 'file-word-o' : item.type == 'zip'? 'file-zip-o' : 'file-text-o'
+                        } size={25} color={textSecondColor} />
                     <Text style={{fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: main_padding-5, color: theme == 'dark' ? '#D1D1D1' : textColor}}>{item.message+'.'+item.type}</Text>
                 </HStack>
-                <Text style={{fontFamily: 'Montserrat-Regular', textAlign: 'right', color: theme == 'dark' ? textSecondColor : textColor, fontSize: 11}}>{moment(item.created_at).format('MMMM DD, YYYY  HH:mm')}</Text>
+                <Text style={{fontFamily: 'Montserrat-Regular', textAlign: 'right', color: textSecondColor, fontSize: 10, marginTop: 5}}>{moment(item.created_at).format('MMMM DD, YYYY  HH:mm')}</Text>
             </TouchableOpacity>
         )
     }
