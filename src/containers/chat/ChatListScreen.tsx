@@ -599,7 +599,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null } onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
                                 <Video
