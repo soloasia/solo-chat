@@ -26,13 +26,14 @@ import { loadData } from '../../functions/LoadData';
 import { GET, POST } from '../../functions/BaseFuntion';
 import { loadListChat } from '../../actions/ListChat';
 import _ from 'lodash';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 
 // create a component
 const ChatProfileScreen = (props: any) => {
     const { theme }: any = useContext(ThemeContext);
+    const {tr} : any = useContext(LanguageContext);
     const { isOpen, onOpen, onClose } = useDisclose();
-
     const navigate: any = useNavigation();
     const { chatItem, contactItem } = props.route.params;
     const [isNotification, setNotification] = useState(false);
@@ -102,6 +103,7 @@ const ChatProfileScreen = (props: any) => {
             chatItem.type === "individual" && index == 0 ? setIsvisible(true) : navigate.navigate(item.to, { userChat: chatItem });
         }
     }
+
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
@@ -135,6 +137,7 @@ const ChatProfileScreen = (props: any) => {
         }
         // handleChange('groupName', chatItem.name)
     }
+
     const _handleEdit = () => {
         if(state.isEdit )
             _updateGroup() 
@@ -152,16 +155,16 @@ const ChatProfileScreen = (props: any) => {
                     <HStack>
                         <View style={{
                             width: 35, height: 35, borderRadius: 30,
-                            backgroundColor: item.title == "Delete Group" || item.title == "Leave Group" ? '#A30A0AC9' : baseColor, alignItems: 'center',
+                            backgroundColor: item.title == "delete_group" || item.title == "leave_group" ? '#A30A0AC9' : baseColor, alignItems: 'center',
                             justifyContent: 'center'
                         }}>
                             <Icon name={item.icon} as={item.type} size={18} color={whiteSmoke} />
                         </View>
                         <View style={{ marginHorizontal: main_padding - 5, borderBottomColor: labelColor, paddingVertical: 10 }}>
-                           <TextItem style={{ fontSize: 15, }}>{item.title}</TextItem>
+                           <TextItem style={{ fontSize: 15, }}>{tr(item.title)}</TextItem>
                         </View>
                     </HStack>
-                    {item.title == 'Notification' ?
+                    {item.title == 'notification' ?
                         <Switch
                             value={isNotification}
                             trackColor={{ true: baseColor }}
@@ -185,7 +188,7 @@ const ChatProfileScreen = (props: any) => {
         return (
             chatItem.type === "individual" || chatItem.contact_user ? <View />
                 : <TouchableOpacity onPress={_handleEdit} style={style.containerCenter}>
-                    <Text style={{ color: baseColor, fontSize: 16, fontWeight: '800', fontFamily: 'Montserrat-Regular' }}>{state.isEdit ? 'Done' : 'Edit'}</Text>
+                    <Text style={{ color: baseColor, fontSize: 16, fontWeight: '800', fontFamily: 'Montserrat-Regular' }}>{state.isEdit ? 'Done' : tr("edit")})</Text>
                 </TouchableOpacity>
         )
     }
@@ -341,13 +344,13 @@ const ChatProfileScreen = (props: any) => {
                                             keyboardType='default'
                                         />
                                         {/* <TextItem style={{ fontSize: 16, fontWeight: '600', textAlign: 'center' }}>{getName(chatItem)}</TextItem> */}
-                                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, textAlign: 'center', color: greyDark }}>{chatItem.chatroom_users.length + " members"}</TextItem>
+                                        <TextItem style={{ fontSize: 12, paddingTop: main_padding - 10, textAlign: 'center', color: greyDark }}>{chatItem.chatroom_users.length + " " + tr("members")}</TextItem>
                                     </View>
                                 }
                             </View>
                         }
                         <View style={{ width: deviceWidth, paddingHorizontal: main_padding, }}>
-                            <TextItem style={{ fontSize: 15, color: colors.textColor, fontWeight: '600' }}>More Actions</TextItem>
+                            <TextItem style={{ fontSize: 15, color: colors.textColor, fontWeight: '600' }}>{tr("more_actions")}</TextItem>
                             <View style={{ paddingVertical: main_padding - 5, marginTop: 10, borderRadius: 10 }}>
                                 <FlatListVertical
                                     scrollEnabled={false}

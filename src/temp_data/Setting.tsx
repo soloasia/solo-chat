@@ -71,19 +71,19 @@ export const options = [
 
 export const actionChatProfile = [
     {
-        title: 'Create group chat',
+        title: 'create_group_chat',
         icon: 'account-group',
         type: MaterialCommunityIcons,
         to:''
     },
     {
-        title: 'Media, files & links',
+        title: 'media_files_links',
         icon: 'photo-size-select-actual',
         type: MaterialIcons,
         to: 'Mediafile'
     },
     {
-        title: 'Notification',
+        title: 'notification',
         icon: 'notifications',
         type: Ionicons,
         to: 'ProfileNoti'
@@ -91,31 +91,31 @@ export const actionChatProfile = [
 ]
 export const actionGroupChatProfile = [
     {
-        title: 'Members',
+        title: 'members',
         icon: 'account-group',
         type: MaterialCommunityIcons,
         to:'Members'
     },
     {
-        title: 'Media, files & links',
+        title: 'media_files_links',
         icon: 'photo-size-select-actual',
         type: MaterialIcons,
         to: 'Mediafile'
     },
     {
-        title: 'Notification',
+        title: 'notification',
         icon: 'notifications',
         type: Ionicons,
         to: 'ProfileNoti'
     },
     {
-        title: 'Leave Group',
+        title: 'leave_group',
         icon: 'log-out-outline',
         type: Ionicons,
         to: ''
     },
     {
-        title: 'Delete Group',
+        title: 'delete_group',
         icon: 'close',
         type: Ionicons,
         to: ''
