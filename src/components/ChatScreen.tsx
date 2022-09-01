@@ -30,7 +30,7 @@ import reactotron from 'reactotron-react-native';
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
 let lastDoc: any = 1;
-let perPage: any = 10;
+let perPage: any = 50;
 // const pusher:any = Pusher.getInstance();
 
 const ChatScreen = () => {
@@ -49,33 +49,35 @@ const ChatScreen = () => {
 	const userInfo = useSelector((state: any) => state.user);
 
 	useEffect(() => {
-		var pusher = new Pusher(config.key, config);
-		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-		orderChannel.bind(`new-message`, (data:any) => {
-			getData();
-		})
-		// async function configPsher() {
-		// 	await pusher.init({
-		// 		apiKey: config.key,
-		// 		cluster:config.cluster
-		// 	})  
-		// 	await pusher.subscribe(
-		// 		{
-		// 			channelName: `App.User.${userInfo.id}`,
-		// 			onEvent: (event:any) => {
-		// 				getData();
-		// 			},
-		// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
-		// 				console.log(`Connection: ${currentState}`);
-		// 			}
-		// 		}
-		// 	);
-		// 	await pusher.connect();
-		// }
-		// configPsher();
-		return () => {
-			  pusher.unsubscribe(`App.User.${userInfo.id}`);
-		  }
+		if(userInfo){
+			var pusher = new Pusher(config.key, config);
+			var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+			orderChannel.bind(`new-message`, (data:any) => {
+				getData();
+			})
+			// async function configPsher() {
+			// 	await pusher.init({
+			// 		apiKey: config.key,
+			// 		cluster:config.cluster
+			// 	})  
+			// 	await pusher.subscribe(
+			// 		{
+			// 			channelName: `App.User.${userInfo.id}`,
+			// 			onEvent: (event:any) => {
+			// 				getData();
+			// 			},
+			// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
+			// 				console.log(`Connection: ${currentState}`);
+			// 			}
+			// 		}
+			// 	);
+			// 	await pusher.connect();
+			// }
+			// configPsher();
+			return () => {
+				pusher.unsubscribe(`App.User.${userInfo.id}`);
+			}
+		}
 	}, []);
  	const [state, setState] = useState<any>({
 		searchText: ''
@@ -302,9 +304,8 @@ const ChatScreen = () => {
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
 			setTimeout(async () => {
-				GET(`me/chatrooms?page=${lastDoc + 1}`)
+				GET(`me/chatrooms?page=${lastDoc + 1}&per_page=20`)
 				.then(async (result) => {
-					console.log("result",result);
 					if(result.status) {
 						lastDoc += 1;
 						let _data : any = myChatList;

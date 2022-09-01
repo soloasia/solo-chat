@@ -11,7 +11,7 @@ export function loadData(dispatch) {
     })
     .catch(e => {
     });
-    GET(`me/chatrooms?page=1`)
+    GET(`me/chatrooms?page=1&per_page=20`)
     .then(async (result) => {
         if(result.status) {
             dispatch(loadListChat(result.data.data))

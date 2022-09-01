@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>655127706535-cl7kp810ui9hauuufl4s9oitgd1jkicf.apps.googleusercontent.com</string>
+	<string>655127706535-64tbgp9gcne9l03h80lgjotqdcujln2c.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.655127706535-cl7kp810ui9hauuufl4s9oitgd1jkicf</string>
+	<string>com.googleusercontent.apps.655127706535-64tbgp9gcne9l03h80lgjotqdcujln2c</string>
 	<key>API_KEY</key>
 	<string>AIzaSyCs4MvQ_O9SPGovRPUZlc45dt5WOZNC6_o</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.testingchat.app</string>
+	<string>com.testchatsoloasia.app</string>
 	<key>PROJECT_ID</key>
 	<string>chat-app-dbd2e</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,6 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:655127706535:ios:68df7889f198e0127b5482</string>
+	<string>1:655127706535:ios:73bfeffe41da813c7b5482</string>
+	<key>DATABASE_URL</key>
+	<string>https://chat-app-dbd2e-default-rtdb.asia-southeast1.firebasedatabase.app</string>
 </dict>
 </plist>

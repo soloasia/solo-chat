@@ -5,9 +5,14 @@
 import App from './App';
 import {name as appName} from './app.json';
 import {AppRegistry,LogBox,Text,TextInput} from 'react-native';
+import PushNotification from "react-native-push-notification";
+import messaging from '@react-native-firebase/messaging';
 
 import 'react-native-gesture-handler';
 import { gestureHandlerRootHOC } from 'react-native-gesture-handler'
+
+messaging().setBackgroundMessageHandler(async remoteMessage => {
+});
 
 LogBox.ignoreLogs(["Require cycle", "Warning"]);
 LogBox.ignoreLogs([
@@ -25,3 +30,8 @@ if(__DEV__) {
 }
 
 AppRegistry.registerComponent(appName, () => gestureHandlerRootHOC(App));
+PushNotification.createChannel(
+  {
+    channelId: "solochat-notification", // (required)
+    channelName: "Solochat Notification"
+});
