@@ -841,12 +841,19 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
+  - NWWebSocket (0.5.2)
   - OpenSSL-Universal (1.1.1100)
   - Permission-Camera (2.2.2):
     - RNPermissions
   - PromisesObjC (2.1.1)
   - PromisesSwift (2.1.1):
     - PromisesObjC (= 2.1.1)
+  - pusher-websocket-react-native (1.0.2):
+    - PusherSwift (~> 10.0.0)
+    - React
+  - PusherSwift (10.0.0):
+    - NWWebSocket (~> 0.5.2)
+    - TweetNacl (~> 1.0.0)
   - RCT-Folly (2021.06.28.00-v2):
     - boost
     - DoubleConversion
@@ -1068,7 +1075,7 @@ PODS:
     - React-Core
   - react-native-document-picker (8.1.1):
     - React-Core
-  - react-native-image-picker (4.9.0):
+  - react-native-image-picker (4.10.0):
     - React-Core
   - react-native-netinfo (9.3.0):
     - React-Core
@@ -1156,13 +1163,13 @@ PODS:
     - React-Core
   - RNAudioRecorderPlayer (3.5.1):
     - React-Core
-  - RNCAsyncStorage (1.17.9):
+  - RNCAsyncStorage (1.17.10):
     - React-Core
   - RNCClipboard (1.11.0):
     - React-Core
   - RNCPushNotificationIOS (1.10.1):
     - React-Core
-  - RNFastImage (8.5.11):
+  - RNFastImage (8.6.0):
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
@@ -1193,7 +1200,7 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - RNGestureHandler (2.5.0):
+  - RNGestureHandler (2.6.0):
     - React-Core
   - RNImageCropPicker (0.38.0):
     - React-Core
@@ -1235,7 +1242,7 @@ PODS:
     - React-RCTText
     - ReactCommon/turbomodule/core
     - Yoga
-  - RNScreens (3.16.0):
+  - RNScreens (3.17.0):
     - React-Core
     - React-RCTImage
   - RNSVG (12.4.4):
@@ -1250,6 +1257,7 @@ PODS:
     - SDWebImage/Core (~> 5.10)
   - SocketRocket (0.6.0)
   - TOCropViewController (2.6.1)
+  - TweetNacl (1.0.2)
   - Yoga (1.14.0)
   - YogaKit (1.18.1):
     - Yoga (~> 1.14)
@@ -1285,6 +1293,7 @@ DEPENDENCIES:
   - lottie-react-native (from `../node_modules/lottie-react-native`)
   - OpenSSL-Universal (= 1.1.1100)
   - Permission-Camera (from `../node_modules/react-native-permissions/ios/Camera.podspec`)
+  - "pusher-websocket-react-native (from `../node_modules/@pusher/pusher-websocket-react-native`)"
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
   - RCTTypeSafety (from `../node_modules/react-native/Libraries/TypeSafety`)
@@ -1380,13 +1389,16 @@ SPEC REPOS:
     - libwebp
     - lottie-ios
     - nanopb
+    - NWWebSocket
     - OpenSSL-Universal
     - PromisesObjC
     - PromisesSwift
+    - PusherSwift
     - SDWebImage
     - SDWebImageWebPCoder
     - SocketRocket
     - TOCropViewController
+    - TweetNacl
     - YogaKit
 
 EXTERNAL SOURCES:
@@ -1406,6 +1418,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/lottie-react-native"
   Permission-Camera:
     :path: "../node_modules/react-native-permissions/ios/Camera.podspec"
+  pusher-websocket-react-native:
+    :path: "../node_modules/@pusher/pusher-websocket-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTRequired:
@@ -1562,10 +1576,13 @@ SPEC CHECKSUMS:
   lottie-ios: 016449b5d8be0c3dcbcfa0a9988469999cd04c5d
   lottie-react-native: b702fab740cdb952a8e2354713d3beda63ff97b0
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
+  NWWebSocket: 21f0c73639815da3272862c912275b26102aa80c
   OpenSSL-Universal: ebc357f1e6bc71fa463ccb2fe676756aff50e88c
   Permission-Camera: 5d2aaf95592660b6dcb5e8d1d90ed5d0156cad02
   PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
   PromisesSwift: 99fddfe4a0ec88a56486644c0da106694c92a604
+  pusher-websocket-react-native: 308d77dae0e84a9cd379dd264c191194b00d7883
+  PusherSwift: 264eaceb921a5f8e166f01a2242371179540c7ff
   RCT-Folly: b9d9fe1fc70114b751c076104e52f3b1b5e5a95a
   RCTRequired: 66822c147facf02f7774af99825e0a31e39df42e
   RCTTypeSafety: 309306c4e711b14a83c55c2816a6cc490ec19827
@@ -1583,7 +1600,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-cameraroll: 2957f2bce63ae896a848fbe0d5352c1bd4d20866
   react-native-document-picker: f68191637788994baed5f57d12994aa32cf8bf88
-  react-native-image-picker: ebb7ad7f6ac50248989d6560e8aa07c412a32241
+  react-native-image-picker: 4bc9ed38c8be255b515d8c88babbaf74973f91a8
   react-native-netinfo: 129bd99f607a2dc5bb096168f3e5c150fd1f1c95
   react-native-safe-area-context: b456e1c40ec86f5593d58b275bd0e9603169daca
   react-native-video: bb6f12a7198db53b261fefb5d609dc77417acc8b
@@ -1602,10 +1619,10 @@ SPEC CHECKSUMS:
   ReactCommon: af7636436b382db7cde4583bbd642f0978e6e3ed
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
   RNAudioRecorderPlayer: 308940de4f9d1448a064874fd9d83479ae47c7a7
-  RNCAsyncStorage: b2489b49e38c85e10ed45a888d13a2a4c7b32ea1
+  RNCAsyncStorage: 0c357f3156fcb16c8589ede67cc036330b6698ca
   RNCClipboard: 4b8bec7c195e27bcec746f52dff7601161683249
   RNCPushNotificationIOS: 87b8d16d3ede4532745e05b03c42cff33a36cc45
-  RNFastImage: 1f2cab428712a4baaf78d6169eaec7f622556dd7
+  RNFastImage: 72a2d5802adef70f8e42fce486f78878f8b47dae
   RNFBApp: 9646e09d041ea159b84584865212e4cf33acd179
   RNFBAuth: af943e3ba071b5f4d18896c31e6cba3a77b1fa08
   RNFBDatabase: 7390a8b320e6f1ea82ac6ecd6e19c5a76a4397f0
@@ -1614,21 +1631,22 @@ SPEC CHECKSUMS:
   RNFBStorage: 814adb8c5bf4ff86a0b0641d750a64d6d48d9a75
   RNFileViewer: ce7ca3ac370e18554d35d6355cffd7c30437c592
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  RNGestureHandler: bad495418bcbd3ab47017a38d93d290ebd406f50
+  RNGestureHandler: 920eb17f5b1e15dae6e5ed1904045f8f90e0b11e
   RNImageCropPicker: ffbba608264885c241cbf3a8f78eb7aeeb978241
   RNLocalize: a64514b46a01375fdfae9349036b4dc7130333b5
   RNPermissions: 5df468064df661a4c8c017e2791ce90d7695eea5
   RNReanimated: 7faa787e8d4493fbc95fab2ad331fa7625828cfa
-  RNScreens: ee31ecdf23fe81e93c74feaa086cf173d758ab58
+  RNScreens: 0df01424e9e0ed7827200d6ed1087ddd06c493f9
   RNSVG: ecd661f380a07ba690c9c5929c475a44f432d674
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d
   SDWebImageWebPCoder: 908b83b6adda48effe7667cd2b7f78c897e5111d
   SocketRocket: fccef3f9c5cedea1353a9ef6ada904fde10d6608
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
+  TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   Yoga: 44c64131616253fa83366295acdbce3d14926041
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 88f2d409077e7de53eceba824ab5db8313a05bf0
+PODFILE CHECKSUM: f6a2e3ed85c6f73e0fa1d9b5cb6238d3d71e454a
 
-COCOAPODS: 1.11.3
+COCOAPODS: 1.11.2

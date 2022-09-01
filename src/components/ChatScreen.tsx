@@ -7,7 +7,7 @@ import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items
 import SearchBox from '../customs_items/SearchBox';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
@@ -27,9 +27,11 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Pusher from 'pusher-js/react-native';
 import reactotron from 'reactotron-react-native';
 
+// import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
 let lastDoc: any = 1;
 let perPage: any = 10;
+// const pusher:any = Pusher.getInstance();
 
 const ChatScreen = () => {
     const navigate:any = useNavigation();
@@ -45,19 +47,38 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
+    const isFocused = useIsFocused();
 
 	useEffect(() => {
 		var pusher = new Pusher(config.key, config);
-		var messageChannel = pusher.subscribe(`chat-solo-asia`);
-		messageChannel.bind("CreateMessage", (data:any) => {
-			reactotron.log(data)
+		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+		orderChannel.bind(`new-message`, () => {
 			getData();
-		});
-		return () => {
-			pusher.unsubscribe(`chat-solo-asia`);
-		}
-	}, []);
+		})
 
+		// async function configPsher() {
+		// 	await pusher.init({
+		// 		apiKey: config.key,
+		// 		cluster:config.cluster
+		// 	})  
+		// 	await pusher.subscribe(
+		// 		{
+		// 			channelName: `App.User.${userInfo.id}`,
+		// 			onEvent: (event:any) => {
+		// 				getData();
+		// 			},
+		// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
+		// 				console.log(`Connection: ${currentState}`);
+		// 			}
+		// 		}
+		// 	);
+		// 	await pusher.connect();
+		// }
+		// configPsher();
+		return () => {
+			  pusher.unsubscribe(`App.User.${userInfo.id}`);
+		  }
+	}, []);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
