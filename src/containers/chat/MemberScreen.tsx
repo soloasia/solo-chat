@@ -21,6 +21,7 @@ import reactotron from 'reactotron-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SwipeListView, SwipeRow } from 'react-native-swipe-list-view';
 import { loadData } from '../../functions/LoadData';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 
 let lastDoc: any = 1;
@@ -28,7 +29,7 @@ let lastDoc: any = 1;
 // create a component
 const MemberScreen = (props: any) => {
     const navigate:any = useNavigation();
-
+    const {tr} : any = useContext(LanguageContext);
     const { userChat } = props.route.params;
     const [member, setMember] = useState<any>();
     const {theme} : any = useContext(ThemeContext);
@@ -225,10 +226,10 @@ const MemberScreen = (props: any) => {
     },[])
 
     return (
-        <BaseComponent {...baseComponentData} title={"Members"}>
+        <BaseComponent {...baseComponentData} title={tr("members")}>
             <TouchableOpacity style = {{flexDirection : "row",padding : main_padding}} onPress ={() => setshowModal(true)}> 
                 <Ionicons style={{paddingRight : main_padding / 2}}  name="person-add" color={baseColor} size= {18} />
-                <Text style={{color:baseColor,fontSize: 16, fontFamily: 'Montserrat-Regular'}}>Add member</Text>
+                <Text style={{color:baseColor,fontSize: 16, fontFamily: 'Montserrat-Regular'}}>{tr("add_member")}</Text>
             </TouchableOpacity>
             
             {admin && admin.user.id == user.id ? 
@@ -265,8 +266,8 @@ const MemberScreen = (props: any) => {
 					<View style={{flex : 1, backgroundColor : themeStyle[theme].backgroundColor}}>
                         <View style={{margin : main_padding, marginTop : large_padding,}}>
                             <View style={{flexDirection : 'row',justifyContent: 'space-between', alignItems:'center'}}>
-                                <TouchableOpacity onPress={() => setshowModal(false)}><TextItem>Cancel</TextItem></TouchableOpacity>
-                                <TextItem>Contacts</TextItem>
+                                <TouchableOpacity onPress={() => setshowModal(false)}><TextItem>{tr("cancel")}</TextItem></TouchableOpacity>
+                                <TextItem>{tr("contacts")}</TextItem>
                                 <View style = {{paddingHorizontal: main_padding}}></View>
                             </View>
                         </View>
