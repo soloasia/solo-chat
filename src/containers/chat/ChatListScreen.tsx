@@ -470,35 +470,44 @@ const ChatListScreen = (props: any) => {
         handleChange('isShowActionMess', true)
     }
 
-    const _handleTranslateText = async (index : number, text : string) => {
+    const _handleTranslateText = async (id : number, text : string) => {
 
-        if(!isTranslate.includes(index)){
+        if(!isTranslate.includes(id)){
 
-            /// store translate chat index
-            isTranslate.push(index);        
+            ///store translate chat index
+            isTranslate.push(id);        
             setIsTranslate(isTranslate);   
 
             ///save original chat content
-            nonTranslate.push({key: index,value : text})
+            nonTranslate.push({key: id,value : text})
             setNonTranslate(nonTranslate);
 
             /// translate and set result to message
             const result = await translate(text, {to: language });
-            chatData[index].message = result;
+            const found = chatData.find((e : any) => e.id === id);
+
+            found.message = result;
 
         } else {
            
-            const indexTemp = isTranslate.indexOf(index, 0);
+            const indexTemp = isTranslate.indexOf(id, 0);
             if (indexTemp > -1) {
                isTranslate.splice(indexTemp, 1);
             }
 
-            var prevData = nonTranslate.find((e :any) => e.key == index);
-            chatData[index].message = prevData.value;
+            var prevData = nonTranslate.find((e :any) => e.key == id);
+            const found = chatData.find((e : any) => e.id === id);
+            found.message = prevData.value;
               
         }
         
         setChatData((chatData:any) => [...chatData]); 
+    }
+
+    const existingTranslateList = () => {
+        // nonTranslate.forEach(function (value) {
+        //     console.log(value);
+        // });
     }
 
     const messageImage = (mess:any,index:any) =>{
@@ -751,9 +760,9 @@ const ChatListScreen = (props: any) => {
                     ]}>
                         <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-                        <TouchableOpacity onPress={() => _handleTranslateText(index,mess.message)}>
+                        <TouchableOpacity onPress={() => _handleTranslateText(mess.id,mess.message)}>
                             {
-                                !_.isEmpty(isTranslate) && isTranslate.includes(index) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Translate</Text> 
+                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Translate</Text> 
                             }
                         </TouchableOpacity>
                     </TouchableOpacity>

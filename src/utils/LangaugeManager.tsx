@@ -52,6 +52,8 @@ let translation  = {
         no_message : "No messages here yet...",
         say_hello : "Say Hello to start conversations",
         type_message_hint : "Type a message...",
+        translate : "Translate",
+        show_original : "Show Original",
     },
     "zh-cn" : {
         language: "语",
@@ -102,7 +104,8 @@ let translation  = {
         no_message : "这里还没有消息...",
         say_hello : "打个招呼开始对话",
         type_message_hint : "键入消息...",
-        
+        translate : "翻译",
+        show_original : "显示原件",
     },
     ar : {
         language: "لغة",
@@ -153,6 +156,8 @@ let translation  = {
         no_message : "No messages here yet...",
         say_hello : "Say Hello to start conversations",
         type_message_hint : "Type a message...",
+        translate : "Translate",
+        show_original : "Show Original",
     },
     th : {
         language: "ภาษา",
@@ -203,6 +208,8 @@ let translation  = {
         no_message : "No messages here yet...",
         say_hello : "Say Hello to start conversations",
         type_message_hint : "Type a message...",
+        translate : "Translate",
+        show_original : "Show Original",
     }
 }
 
@@ -259,7 +266,7 @@ const LanguageManager = ({children} : any) => {
             }
         });
        
-        // addLanguageJson();
+        //addLanguageJson();
         return () => subscriber();
     }, []);
 
