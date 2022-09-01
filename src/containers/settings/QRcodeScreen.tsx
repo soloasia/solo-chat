@@ -10,13 +10,15 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 const QRcodeScreen = () => {
     const userInfo = useSelector((state: any) => state.user);
     const { theme }: any = useContext(ThemeContext);
-
+    const {tr} :any = useContext(LanguageContext);
+ 
     return (
-        <BaseComponent {...baseComponentData} title='QR Code'>
+        <BaseComponent {...baseComponentData} title={tr("qr_code")}>
             <View style={styles.container}>
                 <VStack justifyContent='space-between'>
                     <View style={{ width: deviceWidth, height: deviceHeight / 1.2, alignItems: 'center', justifyContent: 'center', }}>
@@ -42,7 +44,7 @@ const QRcodeScreen = () => {
                             </View>
 
                             <View style={{ marginTop: main_padding + 10 }}>
-                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14,textAlign: 'center', color: textSecondColor, paddingBottom: 10 }}>Username</Text>
+                                <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14,textAlign: 'center', color: textSecondColor, paddingBottom: 10 }}>{tr("username")}</Text>
                                 <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 16, fontWeight: '700', color: themeStyle[theme].textColor }}>{userInfo.username.toUpperCase()}</Text>
                             </View>
                         </View>

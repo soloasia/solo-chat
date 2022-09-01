@@ -373,8 +373,8 @@ const ChatScreen = () => {
 				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
 					<View style={{ margin: main_padding, marginTop: large_padding, }}>
 						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-							<TouchableOpacity onPress={createGroup ? () => setCreateGroup(!createGroup) : () => setShowModal(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16 }}>Cancel</Text></TouchableOpacity>
-							{createGroup ? <TextItem style={{ fontWeight: '600', fontSize: 16 }}>Create new group</TextItem> : <TextItem style={{ fontWeight: '600', fontSize: 16 }}>New Message</TextItem>}
+							<TouchableOpacity onPress={createGroup ? () => setCreateGroup(!createGroup) : () => setShowModal(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16 }}>{tr("cancel")}</Text></TouchableOpacity>
+							{createGroup ? <TextItem style={{ fontWeight: '600', fontSize: 16 }}>{tr("create_new_group")}</TextItem> : <TextItem style={{ fontWeight: '600', fontSize: 16 }}>{tr("new_message")}</TextItem>}
 							<View></View>
 						</View>
 					</View>
@@ -392,7 +392,7 @@ const ChatScreen = () => {
 							<TouchableOpacity onPress={() => setCreateGroup(true)} style={{ marginVertical: main_padding, flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', marginHorizontal: main_padding }}>
 								<View style={{ flexDirection: "row", justifyContent: 'center', alignItems: 'center' }}>
 									<Ionicons name='people-outline' size={25} color={themeStyle[theme].textColor} />
-									<TextItem style={{ fontWeight: '500', marginLeft: 8 }}>Create new group </TextItem>
+									<TextItem style={{ fontWeight: '500', marginLeft: 8 }}>{tr("create_new_group")}</TextItem>
 								</View>
 								<Ionicons name='chevron-forward' size={20} color={themeStyle[theme].textColor} />
 							</TouchableOpacity>

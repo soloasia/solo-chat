@@ -20,6 +20,7 @@ import AsynceStorage from '@react-native-async-storage/async-storage'
 import { loadUser } from '../../actions/User';
 import { AlertBox } from '../../customs_items/Components';
 import CustomLoading from '../../customs_items/CustomLoading';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 const SignupScreen = (props: any) => {
     const firstNameRef = React.createRef<TextInput>();
@@ -35,6 +36,7 @@ const SignupScreen = (props: any) => {
     const dispatch:any = useDispatch();
     const [isPopup, setIsOpen] = React.useState(false);
     const {theme} : any = useContext(ThemeContext);
+    const {tr} : any = useContext(LanguageContext);
 
     const [state, setState] = useState<any>({
 		firstname: '',
@@ -239,7 +241,7 @@ const SignupScreen = (props: any) => {
                             />
                             {state.validatePassword?<Text style={[style.p,{fontSize:12,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your password</Text>:''}
                             <TouchableOpacity onPress={()=>handleChange('isSecure',!state.isSecure)} style={{position: 'absolute', bottom: 7, right: 10,borderWidth:0.5,borderRadius:20,width:70,height:30,justifyContent:'center',alignItems:'center',borderColor:startBtn}}>
-                                <Text style={{fontFamily: 'lato', fontSize: 13, color: startBtn}}>{state.isSecure?"View*":"Hide*"}</Text>
+                                <Text style={{fontFamily: 'lato', fontSize: 13, color: startBtn}}>{state.isSecure? tr("view") +"*" :  tr("hide") +"*"}</Text>
                             </TouchableOpacity>
                         </View>
                     </VStack>

@@ -21,6 +21,7 @@ import { GET, POST, postCreateGroup } from '../../functions/BaseFuntion';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loadData } from '../../functions/LoadData';
 import { loadContact } from '../../actions/Contact';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 let lastDoc: any = 1;
 
@@ -28,6 +29,7 @@ let lastDoc: any = 1;
 const CreateGroup = (props: any) => {
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
+    const { tr } : any = useContext(LanguageContext);
     const dispatch:any = useDispatch();
     const userInfo = useSelector((state: any) => state.user);
 
@@ -166,7 +168,7 @@ const CreateGroup = (props: any) => {
             <View style={{ paddingHorizontal: main_padding }}>
                 <TextInput
                     style={{ fontSize: 14, fontFamily: 'Montserrat-Regular', borderRadius: 7, color: theme == 'dark' ? whiteSmoke : textDesColor }}
-                    placeholder='Group name...'
+                    placeholder={tr("group_name")}
                     value={state.groupName}
                     onChangeText={(text) => handleChange('groupName', text)}
                     placeholderTextColor={theme == 'dark' ? whiteSmoke : textDesColor}
@@ -190,7 +192,7 @@ const CreateGroup = (props: any) => {
                     </View>
                 }
                 <View style={{ flex: 1 }}>
-                    <TextItem style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>Add people</TextItem>
+                    <TextItem style={{ fontFamily: 'lato', fontSize: 15, marginBottom: 10, fontWeight: '700' }}>{tr("add_people")}</TextItem>
                     <FlatListVertical
                         renderItem={_renderUsers}
                         data={mycontact}
@@ -204,7 +206,7 @@ const CreateGroup = (props: any) => {
             </View>
             <View style={{ width: deviceWidth, height: 80, padding: main_padding }}>
                 <TouchableOpacity disabled={selectUser.length < 2 ? true : false} onPress={createGroupUser} style={{ height: 45, backgroundColor: selectUser.length < 2 ? '#478ECC3F' : baseColor, borderRadius: 7, alignItems: 'center', justifyContent: 'center', }}>
-                    <Text style={{ fontFamily: 'lato', fontSize: 16, fontWeight: '700', color: whiteSmoke }}>CREATE GROUP</Text>
+                    <Text style={{ fontFamily: 'lato', fontSize: 16, fontWeight: '700', color: whiteSmoke }}>{tr("create_group").toUpperCase()}</Text>
                 </TouchableOpacity>
             </View>
         </View>

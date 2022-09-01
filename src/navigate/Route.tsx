@@ -35,6 +35,9 @@ import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
 import VideoFullScreen from "../containers/chat/VideoFullScreen";
+import reactotron from "reactotron-react-native";
+import { LanguageContext } from "../utils/LangaugeManager";
+
 
 // import MemberScreen from "../containers/chat/MemberScreen";
 
@@ -50,6 +53,8 @@ const Route = () => {
   const user = useSelector((state: any) => state.user);
   const [splashscreen,setSplash] = useState(true)
   const {theme} : any = useContext(ThemeContext);
+  const {tr} : any = useContext(LanguageContext);
+
   React.useEffect(() => {
     checkPermissionNotification();
 	requestMobileToken();
@@ -156,7 +161,7 @@ const Route = () => {
       })}
       >
         <Tab.Screen
-          name="Contact"
+          name={tr("contacts")}
           component={ContactScreen}
           options={{
             headerShown: false,
@@ -170,7 +175,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Chat"
+          name={tr("chats")}
           component={ChatScreen}
           options={{
             headerShown: false,
@@ -184,7 +189,7 @@ const Route = () => {
           }}
         />
         <Tab.Screen
-          name="Setting"
+          name={tr("settings")}
           component={SettingScreen}
           options={{
             headerShown: false,
