@@ -52,7 +52,8 @@ const ChatListScreen = (props: any) => {
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
-    const {language} : any = useContext(LanguageContext);
+    const [refreshing, setRefreshing] = useState(false);
+    const {language,tr} : any = useContext(LanguageContext);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
@@ -90,7 +91,8 @@ const ChatListScreen = (props: any) => {
         voice:'',
         isShowActionMess: false, 
         isEdit: false,
-        showDailog: false
+        showDailog: false,
+        vdoIdPlaying: null
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
@@ -531,8 +533,13 @@ const ChatListScreen = (props: any) => {
         setChatData((chatData:any) => [...chatData]); 
     }
 
-    const onPlayVideo = () =>{
-        setControll(isShowControl => !isShowControl);
+    const onPlayVideo = (mess:any,index:any) =>{
+        // const filterVdoMessage = chatData.find((element:any)=>element.id == mess.id)
+		const filterVdoMessage = chatData.find((element : any) => element.id != mess.id);
+        // reactotron.log(filterVdoMessage)
+
+        handleChange('vdoIdPlaying', mess.id)
+        // setControll(isShowControl => !isShowControl);
     }
     const onFullVideo = (url:any) =>{
         navigate.navigate('VideoFull',{videos:url});
@@ -628,14 +635,16 @@ const ChatListScreen = (props: any) => {
                                     resizeMode='cover'
                                     playInBackground={false}
                                     playWhenInactive={false}  
-                                    paused={isShowControl}
+                                    paused={state.vdoIdPlaying == mess.id ? false : true}
+                                    onEnd={() => handleChange('vdoIdPlaying',null)} 
+                                    // paused={isShowControl}
                                     // onEnd={() => setControll(true)} 
                                     muted={isMute}
                                 />
                             }
                         </View>
-                        {isShowControl?
-                            <TouchableOpacity onPress={onPlayVideo} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
+                        {state.vdoIdPlaying != mess.id ?
+                            <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
                                 <FontAwesome name='play' size={20} color={whiteColor} />
                             </TouchableOpacity>
                             :
@@ -1057,7 +1066,7 @@ const ChatListScreen = (props: any) => {
                                                 style={{width: 200, height: 150}}
                                                 autoPlay loop
                                             />
-                                        <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>No messages here yet...{'\n'}Say Hello to start conversations</Text>
+                                        <Text style={{fontSize: 12, textAlign: 'center', lineHeight: 20, fontFamily: 'Montserrat-Regular', color: '#B9B9B9'}}>{tr("no_message")}{'\n'}{tr("say_hello")}</Text>
                                     </View>
                                 </View>
                                 :

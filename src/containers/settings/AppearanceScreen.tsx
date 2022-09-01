@@ -15,12 +15,14 @@ import EvilIcons from 'react-native-vector-icons/EvilIcons'
 import _ from 'lodash';
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
+import { LanguageContext } from '../../utils/LangaugeManager';
 
 // create a component
 const AppearanceScreen = () => {
     const textsize = useSelector((state: any) => state.textSizeChange);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
+	const {tr} : any = useContext(LanguageContext);
 
     const [themeAppearance, setTheme] = useState(_.isEmpty(appearanceTheme) ? themeData[0] : appearanceTheme)
     const dispatch: any = useDispatch();
@@ -62,7 +64,7 @@ const AppearanceScreen = () => {
     }
 
     return (
-        <BaseComponent {...baseComponentData} title='Appearance'>
+        <BaseComponent {...baseComponentData} title={tr("appearance")}>
             <View style={{ paddingVertical: main_padding }}>
                 <View style={{ paddingVertical: main_padding - 5, paddingHorizontal: main_padding + 5 }}>
                     <TextItem style={{fontSize: 12}}>THEME CHAT {theme=='dark'? '(NIGHT MODE)' :''}</TextItem>

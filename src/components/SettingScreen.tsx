@@ -43,7 +43,7 @@ const SettingScreen = () => {
 						<View style={{width:35,height:35,backgroundColor:item.color,borderRadius:25,alignItems:'center',justifyContent:'center'}}>
 							<Ionicons name={item.icon} size={20} style={{color:whiteColor}}/>
 						</View>
-						<TextItem style={{color: themeStyle[theme].textColor}}>{item.name}</TextItem>
+						<TextItem style={{color: themeStyle[theme].textColor}}>{tr(item.name)}</TextItem>
 					</HStack>			
 					<HStack alignItems={'center'}>
 						{/* {item.name== "Notification" && <Switch 
@@ -132,7 +132,7 @@ const SettingScreen = () => {
 						renderItem={_renderItem}
 					/>
 					<TouchableOpacity onPress={()=>setIsOpen(true)} style={{width:'100%',height:45,backgroundColor: themeStyle[theme].primary,marginTop:main_padding,borderRadius:10,justifyContent:'center',alignItems:'center'}}>
-						<Text style={[style.pBold,{color:offlineColor}]}>Log Out</Text>
+						<Text style={[style.pBold,{color:offlineColor}]}>{tr("log_out")}</Text>
 					</TouchableOpacity>
 					<Footer />
 				</FlatListScroll>
@@ -141,10 +141,10 @@ const SettingScreen = () => {
                 visible={loading}
             />
 			<AlertBox
-                title={'Log Out!'}
-                des={"Are you sure you want to log out?"}
-                btn_cancle={"No"}
-                btn_name={'Yes'}
+                title={tr("log_out") + "!"}
+                des={tr("log_out_question")}
+                btn_cancle={tr("no")}
+                btn_name={tr("yes")}
                 onCloseAlert={() => setIsOpen(false)}
                 onConfirm={handleLogout}
                 isOpen={isOpen}

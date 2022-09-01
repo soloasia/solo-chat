@@ -18,6 +18,7 @@ import ImagePicker from 'react-native-image-crop-picker';
 import reactotron from 'reactotron-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import base64File from '../../functions/BaseFuntion';
+import { LanguageContext } from '../../utils/LangaugeManager';
 let audioRecorderPlayer:any = null;
 const dirs = RNFetchBlob.fs.dirs;
 const path = Platform.select({
@@ -29,6 +30,7 @@ const ChatRecord = (props: any) => {
     const { onOpen, onSend, message, onChangeMessage,onOpenGallery,onChange,singleFile,onClearFile,onChangeVoice,msgRef } = props;
     const textsize = useSelector((state: any) => state.textSizeChange);
     const {theme} : any = useContext(ThemeContext);
+    const {tr} : any = useContext(LanguageContext);
     const [isRecord, setIsRecord] = useState(false);
     const [duration, setDuration] = useState<any>("00:00");
     const [totalDuration, setTotalDuration] = useState(0);
@@ -137,13 +139,13 @@ const ChatRecord = (props: any) => {
                     value={message}
                     ref={msgRef}
                     placeholderTextColor={chatText}
-                    selectionColor = {textColor} 
+                    selectionColor = {themeStyle[theme].textColor} 
                     multiline={true}
                     numberOfLines={50}
                     scrollEnabled
-                    placeholder={"Type a message..."}
+                    placeholder={tr("type_message_hint")}
                     onChangeText={(_text) =>  onChangeMessage(_text) }
-                    style={{ flex: message? 5:3, height: 40 ,color:themeStyle[theme].textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize,fontFamily:'Montserrat-Regular'}}
+                    style={{flex: message? 5:3, height: 40 ,color:themeStyle[theme].textColor,backgroundColor: themeStyle[theme].primary,padding:main_padding,borderRadius:20,textAlignVertical: "top",paddingTop:12,paddingBottom:10, fontSize: textsize,fontFamily:'Montserrat-Regular'}}
                 />
                 :
                 <HStack style={{ height: 40, alignItems: 'center',flex:6,backgroundColor:'#ADB9C6',justifyContent:'space-between',borderRadius:20,paddingLeft:20}}>
