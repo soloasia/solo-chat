@@ -2,7 +2,7 @@ import moment from 'moment';
 import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
@@ -38,6 +38,7 @@ import { LanguageContext } from '../../utils/LangaugeManager';
 import translate from 'translate-google-api';
 import { WebView } from 'react-native-webview';
 import Pusher from 'pusher-js/react-native';
+import { loadData } from '../../functions/LoadData';
 var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
@@ -75,6 +76,7 @@ const ChatListScreen = (props: any) => {
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
     const route = useRoute();
+    const dispatch: any = useDispatch();
     
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
@@ -94,6 +96,11 @@ const ChatListScreen = (props: any) => {
         showDailog: false,
         vdoIdPlaying: null
     });
+    useEffect(() => (
+        navigate.addListener('beforeRemove', (e:any) => {
+            loadData(dispatch);
+        })
+    ), [navigate]);
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
         seenMessage(last_message);
@@ -109,7 +116,7 @@ const ChatListScreen = (props: any) => {
         return () => {
             pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
-    },[route.name =='ChatList'])
+    },[])
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();

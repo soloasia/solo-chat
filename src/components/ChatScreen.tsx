@@ -47,10 +47,8 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
-	const route = useRoute();
 
 	useEffect(() => {
-		reactotron.log(route.name)
 		var pusher = new Pusher(config.key, config);
 		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (data:any) => {
@@ -78,7 +76,7 @@ const ChatScreen = () => {
 		return () => {
 			  pusher.unsubscribe(`App.User.${userInfo.id}`);
 		  }
-	}, [route.name =='Chat']);
+	}, []);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
