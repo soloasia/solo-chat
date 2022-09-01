@@ -17,6 +17,7 @@ import { AlertBox, TextItem } from '../../customs_items/Components';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import { loadUser } from '../../actions/User';
 import { LanguageContext } from '../../utils/LangaugeManager';
+import reactotron from 'reactotron-react-native';
 
 const LoginScreen = (props: any) => {
     const usernameRef = createRef<TextInput>();
@@ -28,7 +29,6 @@ const LoginScreen = (props: any) => {
     const [inputBorder, setborderColor] = useState<any>(borderColor);
     const [isOpen, setIsOpen] = React.useState(false);
     const dispatch: any = useDispatch();
-
     const insets = useSafeAreaInsets();
     const [state, setState] = useState<any>({
         username: '',

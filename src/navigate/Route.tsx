@@ -1,6 +1,6 @@
 import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
-import React, { createContext, useContext, useState } from 'react'
-import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider,} from "@react-navigation/native";
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider, CommonActions,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
@@ -37,6 +37,7 @@ import MemberScreen from "../containers/chat/MemberScreen";
 import VideoFullScreen from "../containers/chat/VideoFullScreen";
 import reactotron from "reactotron-react-native";
 import { LanguageContext } from "../utils/LangaugeManager";
+import { onPushPublicNotification } from "../functions/PublicNotification";
 
 
 // import MemberScreen from "../containers/chat/MemberScreen";
@@ -47,6 +48,7 @@ const Tab = createBottomTabNavigator();
 
 export const navigationRef: any = createNavigationContainerRef()
 
+
 const Route = () => {
   const dispatch = useDispatch();
   const auth:any = useAuth();
@@ -55,25 +57,24 @@ const Route = () => {
   const {theme} : any = useContext(ThemeContext);
   const {tr} : any = useContext(LanguageContext);
 
-  React.useEffect(() => {
+  useEffect(() => {
     checkPermissionNotification();
-	requestMobileToken();
-	if (auth !== null) {
-		const init = async () => {
-			if(user){
-				loadData(dispatch);
-			}
-		};
-		init().finally(async () => {
-		  const timer = setTimeout(() => {
-			  setSplash(false)
-		  }, 1500);
-		  return () => clearTimeout(timer);
-		});
-	  }
+    requestMobileToken();
+    if (auth !== null) {
+      const init = async () => {
+        if(user){
+          loadData(dispatch);
+        }
+      };
+      init().finally(async () => {
+        const timer = setTimeout(() => {
+          setSplash(false)
+        }, 1500);
+        return () => clearTimeout(timer);
+      });
+      }
   }, [user])
-
-
+ 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
     if (Platform.OS === 'ios' || !check) {
@@ -220,4 +221,8 @@ const Route = () => {
 export default Route;
 
 
+
+function PublicNotification() {
+  throw new Error("Function not implemented.");
+}
 

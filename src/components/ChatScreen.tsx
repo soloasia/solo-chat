@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl, ActivityIndicator } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl, ActivityIndicator, AppState } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
 import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor, whiteSmoke } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
@@ -27,6 +27,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Pusher from 'pusher-js/react-native';
 import reactotron from 'reactotron-react-native';
 import { loadContact } from '../actions/Contact';
+import messaging from '@react-native-firebase/messaging';
+import { onPushPublicNotification } from '../functions/PublicNotification';
 
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
@@ -49,6 +51,7 @@ const ChatScreen = () => {
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
 	const route = useRoute();
+    const appState = useRef(AppState.currentState);
 
 	useEffect(() => {
 		if(userInfo){
@@ -81,6 +84,49 @@ const ChatScreen = () => {
 			}
 		}
 	}, []);
+
+	useEffect(() => {
+		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
+		const { data } = remoteMessage
+		if(data.type =='create-group'){
+			getData();
+		}
+		});
+		return unsubscribe;
+	}, [])
+  
+	useEffect(() => {
+        const subscription = AppState.addEventListener("change", nextAppState => {
+        if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+			// setTimeout(() => {
+				onNavigate();
+			// }, 1500);
+        }
+        appState.current = nextAppState;
+        });
+        return () => {
+            subscription.remove();
+        };
+
+    }, []);
+	const onNavigate = async () => {
+        messaging().getInitialNotification()
+            .then((notificationOpen: any) => {
+                if (notificationOpen !== null && notificationOpen !== undefined) {
+					GET(`chatroom/detail/${notificationOpen.data.chatroom_id}?per_page=${perPage}`)
+						.then(async (result: any) => {
+							if(result.status){
+								navigate.navigate('ChatList', { chatItem: result.data,last_message:null });
+							}
+						})
+						.catch(e => {
+					});
+				}
+
+            })
+            .catch(() => {});
+    };
+
  	const [state, setState] = useState<any>({
 		searchText: '',
 		searchContactText: ''
