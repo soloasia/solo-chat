@@ -604,6 +604,11 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     }
+
+    const _onEndVDO = () => {
+        handleChange('vdoIdPlaying',null)
+        console.log('end')
+    }
     const messageVideo = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>   
@@ -627,12 +632,14 @@ const ChatListScreen = (props: any) => {
                     <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
+                                
                                 <Video
                                     source={{uri:state.localVideo}}
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
                                     ignoreSilentSwitch={"ignore"}
                                     resizeMode='cover'
                                     paused={true}
+                                    repeat={true}
                                 />
                                 :
                                 <Video
@@ -643,14 +650,15 @@ const ChatListScreen = (props: any) => {
                                     playInBackground={false}
                                     playWhenInactive={false}  
                                     paused={state.vdoIdPlaying == mess.id ? false : true}
-                                    onEnd={() => handleChange('vdoIdPlaying',null)} 
+                                    onEnd={_onEndVDO} 
                                     // paused={isShowControl}
                                     // onEnd={() => setControll(true)} 
                                     muted={isMute}
+                                    repeat={true}
                                 />
                             }
                         </View>
-                        {state.vdoIdPlaying != mess.id ?
+                        {state.vdoIdPlaying ==null || state.vdoIdPlaying != mess.id ?
                             <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
                                 <FontAwesome name='play' size={20} color={whiteColor} />
                             </TouchableOpacity>
