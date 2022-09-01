@@ -34,7 +34,7 @@ export const borderDivider = '#94949428'
 
 /** Dark Mode */
 export const backgroundDark = "#222831";
-export const primaryDark = "#393E46";
+export const primaryDark = "#2C394B";
 export const greyDark = "#EEEEEE";
 
 

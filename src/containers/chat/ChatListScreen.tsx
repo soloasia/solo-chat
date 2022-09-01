@@ -889,7 +889,7 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
-                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' :'#F0F0F2' ,
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? themeStyle[theme].primary :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                             borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                             marginVertical: 1,
