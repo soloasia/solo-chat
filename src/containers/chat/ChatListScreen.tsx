@@ -10,7 +10,7 @@ import style, { deviceWidth } from '../../styles';
 import ChatRecord from './ChatRecord';
 import _ from 'lodash'
 import { deviceHeight, paddingHorizontalItem } from '../../styles/index';
-import { PreventRemoveContext, useIsFocused, useNavigation } from '@react-navigation/native';
+import { PreventRemoveContext, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -74,8 +74,8 @@ const ChatListScreen = (props: any) => {
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
-    const isFocused = useIsFocused();
-
+    const route = useRoute();
+    
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
@@ -100,7 +100,7 @@ const ChatListScreen = (props: any) => {
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (newMessage:any) => {
-            if(chatItem.id ==newMessage.data.data.chatroom_id){
+            if(chatItem.id == newMessage.data.data.chatroom_id){
                 ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
@@ -109,7 +109,7 @@ const ChatListScreen = (props: any) => {
         return () => {
             pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
-    },[])
+    },[route.name =='ChatList'])
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();
@@ -394,16 +394,16 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 seenMessage(result.data);
-                chatData.splice(chatData.length, 1);
-                setChatData(chatData)
-                let body:any = {
-                    ...result.data,
-                    user:{
-                        first_name:userInfo.first_name,
-                        profile_photo:userInfo.profile_photo,
-                    }
-                }
-                setChatData((chatData:any) => [...chatData,body]);
+                // chatData.splice(chatData.length, 1);
+                // setChatData(chatData)
+                // let body:any = {
+                //     ...result.data,
+                //     user:{
+                //         first_name:userInfo.first_name,
+                //         profile_photo:userInfo.profile_photo,
+                //     }
+                // }
+                // setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })

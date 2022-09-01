@@ -20,7 +20,7 @@ const ChatHeader = (props: any) => {
     const dispatch: any = useDispatch();
 
     const handleBack = () => {
-        // loadData(dispatch);
+        loadData(dispatch);
         navigate.reset({
             index: 0,
             routes: [{ name: 'Main' }]
