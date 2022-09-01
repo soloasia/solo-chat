@@ -142,23 +142,23 @@ const Route = () => {
         backBehavior="initialRoute"
         initialRouteName="Chats"
         screenOptions={({ route }) => ({
-			headerShown: false,
-			resetOnBlur : false,
-			tabBarHideOnKeyboard: true,
-			tabBarStyle: {
-				height:Platform.OS ==='ios'? 90:50,
-				paddingHorizontal: 5,
-				paddingTop: 0,
-				paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
-				backgroundColor: themeStyle[theme].backgroundColor,
-				position: 'absolute',
-				borderStartWidth:1,
-			},
-			tabBarLabelStyle: {
-				fontSize: 14,
-				fontFamily:'Montserrat-Regular'
-			},
-      })}
+          headerShown: false,
+          resetOnBlur : false,
+          tabBarHideOnKeyboard: true,
+          tabBarStyle: {
+            height:Platform.OS ==='ios'? 90:50,
+            paddingHorizontal: 5,
+            paddingTop: 0,
+            paddingBottom:Platform.OS ==='ios'?main_padding+10:5,
+            backgroundColor: themeStyle[theme].backgroundColor,
+            position: 'absolute',
+            borderStartWidth:1,
+          },
+          tabBarLabelStyle: {
+            fontSize: 14,
+            fontFamily:'Montserrat-Regular'
+          },
+        })}
       >
         <Tab.Screen
           name={tr("contacts")}
