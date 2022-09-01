@@ -161,7 +161,7 @@ const SignupScreen = (props: any) => {
                             <TextInput 
                                 ref={firstNameRef}
                                 style={[styles.input,style.p,{width: '100%',backgroundColor: themeStyle[theme].primary,borderColor:state.validateFirstname?offlineColor:inputBorder}]}
-                                placeholder='Firstname'
+                                placeholder={tr("firstname")}
                                 value={state.firstname}
                                 returnKeyType='next'
                                 onSubmitEditing={() => onEnter(lastNameRef)}
@@ -177,7 +177,7 @@ const SignupScreen = (props: any) => {
                             <TextInput 
                                 ref={lastNameRef}
                                 style={[styles.input,style.p,{width: '100%',backgroundColor: themeStyle[theme].primary,borderColor:inputBorder}]}
-                                placeholder='Lastname'
+                                placeholder={tr("lastname")}
                                 value={state.lastname}
                                 returnKeyType='next'
                                 onSubmitEditing={() => onEnter(usernameRef)}
@@ -195,7 +195,7 @@ const SignupScreen = (props: any) => {
                         <TextInput 
                             ref={usernameRef}
                             style={[styles.input,style.p,{backgroundColor: themeStyle[theme].primary,borderColor:inputBorder}]}
-                            placeholder='Username'
+                            placeholder={tr("username")}
                             autoCapitalize='none'
                             value={state.username}
                             returnKeyType='next'
@@ -221,14 +221,14 @@ const SignupScreen = (props: any) => {
                             placeholder="XX XXX XXXX"
                             textContainerStyle={{backgroundColor:themeStyle[theme].primary,borderRadius:25}}
                             containerStyle={{width:'100%',height:45,borderColor:state.phoneNumberError?offlineColor:borderColor,borderWidth:0.4,borderRadius:25,marginTop:20,backgroundColor:themeStyle[theme].primary}}
-                            textInputStyle={[style.p,{height:45}]}
+                            textInputStyle={[style.p,{height:45,color :themeStyle[theme].textColor}]}
                         />
                         {state.phoneNumberError?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your phone number</Text>:''}
                         <View style={{ marginTop: 20}}>
                             <TextInput 
                                 ref={passwordRef}
                                 style={[styles.input,style.p,{backgroundColor: themeStyle[theme].primary,borderColor:inputBorder}]}
-                                placeholder='Password'
+                                placeholder={tr("password")}
                                 value={state.password}
                                 returnKeyType='go'
                                 onSubmitEditing={onSignup}
@@ -247,12 +247,12 @@ const SignupScreen = (props: any) => {
                     </VStack>
                     <View style={{width: deviceWidth*.9,justifyContent: 'center',alignItems:'center',marginTop:20,alignSelf:'center'}}>
                         <TouchableOpacity onPress={onSignup} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
-                            <Text style={[style.p,{color:whiteColor}]}>Sign Up</Text>
+                            <Text style={[style.p,{color:whiteColor}]}>{tr("sign_up")}</Text>
                         </TouchableOpacity>
                         <HStack marginTop='3' alignItems='center' justifyContent='center'>
-                            <Text style={[style.p,{color: textDesColor,fontSize:12}]}>Already have an account? </Text>
+                            <Text style={[style.p,{color: textDesColor,fontSize:12}]}>{tr("already_have_acc")}? </Text>
                             <TouchableOpacity onPress={()=>navigate.navigate('Login')}>
-                                <Text style={[style.p,{color: startBtn}]}> Log In </Text>
+                                <Text style={[style.p,{color: startBtn}]}> {tr("log_in")} </Text>
                             </TouchableOpacity>
                         </HStack>
                     </View> 

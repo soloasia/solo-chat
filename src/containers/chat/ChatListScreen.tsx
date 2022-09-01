@@ -327,13 +327,13 @@ const ChatListScreen = (props: any) => {
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
-				<Text style={[style.p,{color:baseColor, fontSize:13}]}>CANCEL</Text>
+				<Text style={[style.p,{color:baseColor, fontSize:13}]}>{tr("cancel")}</Text>
 			</TouchableOpacity>
 			<View style={styles.panelHeader}>
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>DONE</Text>:<Box style={{width:50}}/>}
+				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>{tr("done")}</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
