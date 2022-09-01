@@ -130,3 +130,37 @@ export const actionGroupChatProfile = [
         
                 //     }
                 // })
+
+                // <FlatList
+                //                     style={{paddingHorizontal: main_padding}}
+                //                     ref={ref}
+                //                     listKey={makeid()}
+                //                     renderItem={Item}
+                //                     data={chatData}
+                //                     keyExtractor={(_, index) => index.toString()}
+                //                     initialNumToRender={chatData.length}
+                //                     ListHeaderComponent={
+                //                         <>
+                //                             {isMoreLoading && lastDoc !== 0 && renderFooter()}
+                //                             <Footer />
+                //                         </>
+                //                     }
+                //                     ListFooterComponent={
+                //                         <>
+                //                             <View style={{
+                //                                 height: insets.bottom > 0 ? (insets.bottom + 20):70
+                //                             }} />
+                //                         </>
+                //                     }
+                //                     onContentSizeChange={() => {
+                //                         if (lastDoc == 1 && isTranslate.length == 0) {
+                //                             ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                //                         }
+                //                     }}
+                //                     refreshControl={
+                //                         <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
+                //                     }
+				// 	                onTouchMove={_onScroll}
+                //                     scrollEventThrottle={16}
+                //                     onEndReachedThreshold={0.5}
+                //                 />
