@@ -7,7 +7,7 @@ import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items
 import SearchBox from '../customs_items/SearchBox';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
@@ -47,15 +47,15 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
-    const isFocused = useIsFocused();
+	const route = useRoute();
 
 	useEffect(() => {
+		reactotron.log(route.name)
 		var pusher = new Pusher(config.key, config);
 		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-		orderChannel.bind(`new-message`, () => {
+		orderChannel.bind(`new-message`, (data:any) => {
 			getData();
 		})
-
 		// async function configPsher() {
 		// 	await pusher.init({
 		// 		apiKey: config.key,
@@ -78,7 +78,7 @@ const ChatScreen = () => {
 		return () => {
 			  pusher.unsubscribe(`App.User.${userInfo.id}`);
 		  }
-	}, []);
+	}, [route.name =='Chat']);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
