@@ -537,7 +537,7 @@ const ChatListScreen = (props: any) => {
         // const filterVdoMessage = chatData.find((element:any)=>element.id == mess.id)
 		const filterVdoMessage = chatData.find((element : any) => element.id != mess.id);
         // reactotron.log(filterVdoMessage)
-
+        console.log('=======', mess.id)
         handleChange('vdoIdPlaying', mess.id)
         // setControll(isShowControl => !isShowControl);
     }
