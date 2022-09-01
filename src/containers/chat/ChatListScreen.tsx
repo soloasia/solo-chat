@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast, ScrollView } from 'native-base';
+import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking,ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -42,7 +42,7 @@ var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
-let perPage: any=50;
+let perPage: any=20;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
@@ -106,10 +106,8 @@ const ChatListScreen = (props: any) => {
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (newMessage:any) => {
-            reactotron.log(newMessage.data.data)
-            
             if(chatItem.id == newMessage.data.data.chatroom_id){
-                ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                ref.current != null? ref.current.scrollToEnd({animated: true}):{}
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
             }
@@ -373,21 +371,21 @@ const ChatListScreen = (props: any) => {
     }
     const onSend = () => {
         const formdata = new FormData();
-        let body:any = {
-            message:state.message,
-            type :state.type,
-            file_url : state.type === 'text'?'':state.file,
-            created_by: userInfo.id,
-            created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-            localVideo:state.localVideo?state.localVideo:null,
-            user:{
-                first_name:userInfo.first_name,
-                profile_photo:userInfo.profile_photo,
-            }
-        }
-        setChatData((chatData:any) => [...chatData,body]);
+        // let body:any = {
+        //     message:state.message,
+        //     type :state.type,
+        //     file_url : state.type === 'text'?'':state.file,
+        //     created_by: userInfo.id,
+        //     created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
+        //     localVideo:state.localVideo?state.localVideo:null,
+        //     user:{
+        //         first_name:userInfo.first_name,
+        //         profile_photo:userInfo.profile_photo,
+        //     }
+        // }
+        // setChatData((chatData:any) => [...chatData,body]);
         setLocalLoading(chatData.length)
-        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+        ref.current != null? ref.current.scrollToEnd({animated: true}):{}
         formdata.append("message", state.message);
         formdata.append("type", state.type);
         formdata.append("file",state.type === 'text'?'':state.file);
@@ -398,16 +396,16 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 seenMessage(result.data);
-                chatData.splice(chatData.length, 1);
-                setChatData(chatData)
-                let body:any = {
-                    ...result.data,
-                    user:{
-                        first_name:userInfo.first_name,
-                        profile_photo:userInfo.profile_photo,
-                    }
-                }
-                setChatData((chatData:any) => [...chatData,body]);
+                // chatData.splice(chatData.length, 1);
+                // setChatData(chatData)
+                // let body:any = {
+                //     ...result.data,
+                //     user:{
+                //         first_name:userInfo.first_name,
+                //         profile_photo:userInfo.profile_photo,
+                //     }
+                // }
+                // setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -930,7 +928,7 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     };
-    const Item = (item:any, index: any) => {
+    const Item = ({item, index}:any) => {
         if(transDate){
             if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
                 countTransDate+=1;
@@ -1083,7 +1081,7 @@ const ChatListScreen = (props: any) => {
     };
     return (
         <>
-            <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
+            <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor,}}>
                 <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} onPress={()=>_onTabHeader({chatItem,contactItem})} />
                 <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                     <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -1111,38 +1109,33 @@ const ChatListScreen = (props: any) => {
                                     </View>
                                 </View>
                                 :
-                                <>
-                                {renderFooter()}
-                                <ScrollView
-                                    ref={scrollRef}
-                                    showsVerticalScrollIndicator={false}
-                                    // onLayout={() => 
-                                    //     lastDoc == 1 && isTranslate.length == 0? scrollRef.current.scrollToEnd():{}
-                                    // }
+                                <FlatList
+                                    style={{paddingHorizontal: main_padding}}
+                                    ref={ref}
+                                    listKey={makeid()}
+                                    renderItem={Item}
+                                    data={chatData}
+                                    keyExtractor={(_, index) => index.toString()}
+                                    initialNumToRender={chatData.length}
+                                    ListFooterComponent={
+                                        <>
+                                            <View style={{
+                                                height: insets.bottom > 0 ? (insets.bottom + 20):70
+                                            }} />
+                                        </>
+                                    }
                                     onContentSizeChange={() => {
                                         if (lastDoc == 1 && isTranslate.length == 0) {
-                                            scrollRef.current.scrollToEnd({y:0,animated: true})
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
                                         }
-                                        }
+                                    }}
+                                    refreshControl={
+                                        <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
                                     }
-                                    scrollEventThrottle={400}
-                                    onScroll={({ nativeEvent }) => {
-                                        if (ifCloseToTop(nativeEvent)) {
-                                            getMore();
-                                        }
-                                    }}
-                                    contentInset={{
-                                        top: 10,
-                                        left: 30,
-                                        bottom: 0,
-                                        right: 30,
-                                    }}
-                                >
-                                    <View style={{padding:main_padding,paddingTop:0}}>
-                                        {chatData.map((item:any,index:any)=>Item(item,index))}
-                                    </View>
-                                </ScrollView>
-                                </>
+					                onTouchMove={_onScroll}
+                                    scrollEventThrottle={16}
+                                    onEndReachedThreshold={0.5}
+                                />
                                
                             }
                         </TouchableWithoutFeedback>

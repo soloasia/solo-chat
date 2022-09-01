@@ -31,7 +31,7 @@ import { loadContact } from '../actions/Contact';
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
 let lastDoc: any = 1;
-let perPage: any = 50;
+let perPage: any = 20;
 // const pusher:any = Pusher.getInstance();
 
 const ChatScreen = () => {
