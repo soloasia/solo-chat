@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity, View, Image, Modal, TextInput, Animated, RefreshControl, ActivityIndicator } from 'react-native';
 import { Divider, HStack, VStack } from 'native-base';
-import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor } from '../config/colors';
+import colors, { bageColor, baseColor, borderDivider, boxColor, chatText, inputColor, offlineColor, onlineColor, textDesColor, whiteColor, whiteSmoke } from '../config/colors';
 import { large_padding, main_padding } from '../config/settings';
 import { FlatListVertical, Footer, TextItem, UserAvatar } from '../customs_items/Components';
 import SearchBox from '../customs_items/SearchBox';
 import BaseComponent, { baseComponentData } from '../functions/BaseComponent';
 import { ChatData, UserData } from '../temp_data/Contact';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import style, { deviceHeight, deviceWidth } from '../styles';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CreateGroup from '../containers/chat/CreateGroup';
@@ -22,11 +22,17 @@ import Lottie from 'lottie-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 import { GET } from '../functions/BaseFuntion';
 import moment from 'moment';
-import reactotron from 'reactotron-react-native';
 import { loadListChat } from '../actions/ListChat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Pusher from 'pusher-js/react-native';
+import reactotron from 'reactotron-react-native';
 
+// import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
+var config = require('../config/pusher.json');
 let lastDoc: any = 1;
+let perPage: any = 10;
+// const pusher:any = Pusher.getInstance();
+
 const ChatScreen = () => {
     const navigate:any = useNavigation();
 	const [showModal,setShowModal] = useState(false);
@@ -41,7 +47,38 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
+	const route = useRoute();
 
+	useEffect(() => {
+		reactotron.log(route.name)
+		var pusher = new Pusher(config.key, config);
+		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+		orderChannel.bind(`new-message`, (data:any) => {
+			getData();
+		})
+		// async function configPsher() {
+		// 	await pusher.init({
+		// 		apiKey: config.key,
+		// 		cluster:config.cluster
+		// 	})  
+		// 	await pusher.subscribe(
+		// 		{
+		// 			channelName: `App.User.${userInfo.id}`,
+		// 			onEvent: (event:any) => {
+		// 				getData();
+		// 			},
+		// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
+		// 				console.log(`Connection: ${currentState}`);
+		// 			}
+		// 		}
+		// 	);
+		// 	await pusher.connect();
+		// }
+		// configPsher();
+		return () => {
+			  pusher.unsubscribe(`App.User.${userInfo.id}`);
+		  }
+	}, [route.name =='Chat']);
  	const [state, setState] = useState<any>({
 		searchText: ''
 	});
@@ -57,10 +94,10 @@ const ChatScreen = () => {
 	}
 
 	const onSelectChat = (item: any) => {
-		GET(`chatroom/detail/${item.id}`)
+		GET(`chatroom/detail/${item.id}?per_page=${perPage}`)
 			.then(async (result: any) => {
 				if(result.status){
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.navigate('ChatList', { chatItem: result.data,last_message:item.last_chatroom_messages });
 				}
 			})
 			.catch(e => {
@@ -120,13 +157,13 @@ const ChatScreen = () => {
 					<Text style={[style.p,{fontSize:12,paddingTop:5,color:textDesColor}]}>Created by {filterIsAdmin[0].user.first_name} {filterIsAdmin[0].user.last_name}</Text>
 				:
 				<></>
-			: item.last_chatroom_messages.type == 'image'?
+			: item.last_chatroom_messages.type == 'png'?
 				<HStack alignItems={'center'}>
 					<FastImage style={{width:35,height: 35,borderRadius:5,marginTop:10}} source={{uri: item.last_chatroom_messages.file_url}} />
 					<Text style={[style.p,{paddingTop:5,color:textDesColor,paddingLeft:10,fontSize: 12}]}>Photo</Text>
 				</HStack>
 				:
-				item.last_chatroom_messages.type == 'video'?
+				item.last_chatroom_messages.type == 'mp4'?
 					<HStack alignItems={'center'} paddingTop={1}>
 						<Ionicons name='videocam-outline' size={22} color={textDesColor} />
 						<Text style={[style.p,{color:textDesColor,paddingLeft:10, fontSize: 12}]}>Video</Text>
@@ -137,8 +174,15 @@ const ChatScreen = () => {
 					<Text style={[style.p,{color:textDesColor,paddingTop:10, fontSize: 12}]}>Voice message</Text>
 				:
 					<HStack alignItems={'center'} paddingTop={1}>
-						<FontAwesome name='file-text' size={25} color={textDesColor} />
-						<Text style={[style.p,{color:textDesColor,paddingLeft:10}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
+						<FontAwesome
+                            name={
+                                item.last_chatroom_messages.type == 'pdf' ? "file-pdf-o" : item.last_chatroom_messages.type == 'xls' || item.last_chatroom_messages.type == 'xlsx' ? 'file-excel-o'
+                                    : item.last_chatroom_messages.type == 'ppt' || item.last_chatroom_messages.type == 'pptx' || item.last_chatroom_messages.type == 'csv' ? 'file-powerpoint-o'
+                                        : item.last_chatroom_messages.type == 'doc' || item.last_chatroom_messages.type == 'docx' ? 'file-word-o' : item.last_chatroom_messages.type == 'zip' ? 'file-zip-o' : 'link'
+                            } size={18} color={textSecondColor } />
+                        
+						{/* <FontAwesome name='file-text' size={18} color={textDesColor} /> */}
+						<Text style={[style.p,{color:textDesColor,paddingLeft:10,fontSize: 12}]}>{item.last_chatroom_messages.message}.{item.last_chatroom_messages.type}</Text>
 					</HStack>
 			
 		)
@@ -173,9 +217,9 @@ const ChatScreen = () => {
 									moment(item.created_at).format('DD-MMM')
 							}
 						</Text>
-						{item.last_chatroom_messages && item.last_chatroom_messages.total_unread_messages > 0 ?
+						{item.total_unread_messages > 0 ?
 							<View style={{width:25,height:25,borderRadius:30,backgroundColor:bageColor,alignItems:'center',justifyContent:'center'}}>
-								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.last_chatroom_messages.total_unread_messages}</Text>
+								<Text style={{textAlign:'center',fontSize:14,color:whiteColor}}>{item.total_unread_messages}</Text>
 							</View>
 							:
 							<></>
@@ -191,7 +235,7 @@ const ChatScreen = () => {
 			.then(async (result: any) => {
 				if(result.status){
 					onClose()
-					navigate.navigate('ChatList', { chatItem: result.data });
+					navigate.navigate('ChatList', { chatItem: result.data,last_message:item.last_chatroom_messages });
 				}
 			})
 			.catch(e => {
@@ -230,7 +274,6 @@ const ChatScreen = () => {
 
 	const onRefresh = () => {
         setIsRefresh(true)
-		console.log("on refresh");
         lastDoc = 1;
         getData();
         setTimeout(() => {
@@ -261,7 +304,6 @@ const ChatScreen = () => {
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
 			setTimeout(async () => {
-
 				GET(`me/chatrooms?page=${lastDoc + 1}`)
 				.then(async (result) => {
 					console.log("result",result);
@@ -284,24 +326,6 @@ const ChatScreen = () => {
 				.catch(e => {
 					setIsMoreLoading(false)
 				});
-				// GET(`me/contact?page=${lastDoc + 1}`)
-				// .then(async (result: any) => {
-				// 	let _data: any = mycontact;
-				// 	if (result.status && result.data.data.length !== 0) {
-				// 		_data.push(...result.data.data)
-				// 	}
-				// 	dispatch(loadContact(_data))
-				// 	lastDoc = Math.ceil(_data.length / 20);
-				// 	if (result.data.data !== undefined) {
-				// 		if (result.data.total <= mycontact.length) {
-				// 			lastDoc = 0;
-				// 		}
-				// 	}
-				// 	setIsMoreLoading(false)
-				// })
-				// .catch(e => {
-				// 	setIsMoreLoading(false)
-				// });
 			}, 200);
         }
     };
@@ -324,7 +348,7 @@ const ChatScreen = () => {
 					renderItem={_renderChatView}
 					data={myChatList}
 					refreshControl={
-						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} tintColor={ themeStyle[theme].textColor}/>
+						<RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor} />
 					}
 					ListFooterComponent={
 						<>

@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
 import { useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -10,14 +10,14 @@ import style, { deviceWidth } from '../../styles';
 import ChatRecord from './ChatRecord';
 import _ from 'lodash'
 import { deviceHeight, paddingHorizontalItem } from '../../styles/index';
-import { PreventRemoveContext, useNavigation } from '@react-navigation/native';
+import { PreventRemoveContext, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import ChatHeader from '../../components/ChatHeader';
-import base64File, { convertHMS, POST } from '../../functions/BaseFuntion';
+import base64File, { convertHMS, GET, POST,hasAndroidPermission,validURL } from '../../functions/BaseFuntion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video'
 import { options } from '../../temp_data/Setting';
@@ -32,18 +32,22 @@ import reactotron from 'reactotron-react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import LottieView from 'lottie-react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import translate from 'translate-google-api';
+import RNFS from "react-native-fs";
+import FileViewer from "react-native-file-viewer";
 import { LanguageContext } from '../../utils/LangaugeManager';
+import translate from 'translate-google-api';
+import { WebView } from 'react-native-webview';
+import Pusher from 'pusher-js/react-native';
+var config = require('../../config/pusher.json');
 
-
-
+let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
+let perPage: any=10;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
 	const msgRef = useRef<any>(null);
     const mycontact = useSelector((state: any) => state.mycontact);
-
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
@@ -53,7 +57,7 @@ const ChatListScreen = (props: any) => {
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
-    const { chatItem, contactItem } = props.route.params;
+    const { chatItem, contactItem,last_message } = props.route.params;
     const { isOpen, onOpen, onClose } = useDisclose();
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
@@ -65,10 +69,13 @@ const ChatListScreen = (props: any) => {
     const [voiceId, setVoiceId] = useState(null);
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
-    const [isSending, setIsSending] = useState(false);
+    const [isShowControl, setControll] = useState(true);
+    const [isMute, setMute] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
+    const route = useRoute();
+    
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
@@ -84,32 +91,41 @@ const ChatListScreen = (props: any) => {
         voice:'',
         isShowActionMess: false, 
         isEdit: false,
-        showDailog: false
+        showDailog: false,
+        vdoIdPlaying: null
     });
-
-
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
-        // _handleTranslateText("Hello");
-    },[])
-    
-    async function hasAndroidPermission() {
-        const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
-      
-        const hasPermission = await PermissionsAndroid.check(permission);
-        if (hasPermission) {
-          return true;
+        seenMessage(last_message);
+		var pusher = new Pusher(config.key, config);
+        var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+		orderChannel.bind(`new-message`, (newMessage:any) => {
+            if(chatItem.id == newMessage.data.data.chatroom_id){
+                ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                setChatData((chatData:any) => [...chatData,newMessage.data.data]);
+                seenMessage(newMessage.data.data);
+            }
+		})
+        return () => {
+            pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
-      
-        const status = await PermissionsAndroid.request(permission);
-        return status === 'granted';
+    },[route.name =='ChatList'])
+    function seenMessage(last_message:any){
+        if(last_message){
+            const formdata = new FormData();
+            formdata.append("chatroom_id",chatItem.id);
+            formdata.append("chatroom_message_id",last_message.id);
+            POST('chatroom_message/seen', formdata)
+            .then(async (result: any) => {
+                if(result.status){
+                }
+            })
+        }
     }
-      
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
     };
-
     // function get all gallery from device
     const getPhotos = () => {
 		CameraRoll.getPhotos({
@@ -123,44 +139,45 @@ const ChatListScreen = (props: any) => {
 			console.log(error);
 		});
 	};
-
-    // function getPhotosFromDevice(refresh = false) {
-    //     if ((state.isEnd && !refresh)) return;
-    //     const params:any = { first: PAGE_SIZE,include: ['filename', 'fileSize','imageSize','playableDuration'] };
-    //     if (state.endCursor && !refresh) {
-    //       params.after = state.endCursor;
-    //       params.first = parseInt(state.endCursor) + PAGE_SIZE;
-    //     }
-    //     CameraRoll.getPhotos(params).then(
-    //       resp => {
-    //         handleChange('endCursor',resp.page_info.end_cursor);
-    //         handleChange('isEnd',!resp.page_info.has_next_page);
-    //         const imgs = resp?.edges?.map(e => e.node) || []
-    //         const currentImgs = (data || [])
-    //         setData(!refresh ? currentImgs.concat(imgs.filter(img => !currentImgs.find((cImg:any) => cImg.image.uri === img.image.uri))) : (resp?.edges?.map(e => e.node) || []) );
-    //       },
-    //     );
-    // }
-
-    const renderFooter: any = () => {
-        if (!isMoreLoading) return true;
-        return (
-            <ActivityIndicator
-                size={25}
-                color={baseColor}
-                style={{ marginVertical: 15 }}
-            />
-        )
-    };
 	const _onScroll = () => {
         if (!hasScrolled)
             setHasScrolled(true)
     };
+    const getMore = async () =>{
+        if (!hasScrolled) return null;
+        if (lastDoc > 0) {
+			setIsMoreLoading(true)
+            setTimeout(async () => {
+                GET(`chatroom/detail/${chatItem.id}?page=${lastDoc + 1}&per_page=${perPage}`)
+				.then(async (result) => {
+					if(result.status) {
+						let _data : any = chatData;
+                        if (result.status && result.data.chatroom_messages.data.length !== 0) {
+                            setChatData([...result.data.chatroom_messages.data,..._data])
+                            _data.push(...result.data.chatroom_messages.data)
+						}
+                        lastDoc = Math.ceil(_data.length / 10);
+						if (result.data.chatroom_messages !== undefined) {
+							if (result.data.chatroom_messages.total <= chatData.length) {
+								lastDoc = 0;
+							}
+						}
+					}
+					setIsMoreLoading(false)
+				})
+				.catch(e => {
+					setIsMoreLoading(false)
+				});
+                
+			    setIsMoreLoading(false)
+			}, 200);
+        }
+    }
 
     async function onSelectImage (item:any,type:any,index:any) {
 		handleChange('index',index)
 		handleChange('image',item)
-		handleChange('type',type)
+		handleChange('type','png')
         base64File(item).then((res:any)=>{
             handleChange('file',res)
         })
@@ -203,7 +220,7 @@ const ChatListScreen = (props: any) => {
                 let localUrl =  Platform.OS === 'ios'?images.sourceURL: images.path
                 handleChange('localVideo',localUrl)
                 base64File(images.path).then((res:any)=>{
-		            handleChange('type','video')
+		            handleChange('type','mp4')
                     handleChange('file',res)
                     onSend()
                 })
@@ -215,7 +232,7 @@ const ChatListScreen = (props: any) => {
                 cropping: false,
             }).then(response => {
                 base64File(response.path).then((res:any)=>{
-                    handleChange('type','image')
+                    handleChange('type','png')
                     handleChange('file',res)
                     onSend()
                 })
@@ -295,13 +312,12 @@ const ChatListScreen = (props: any) => {
         let localUrl =  Platform.OS === 'ios'?data.sourceURL: data.path
         handleChange('localVideo',localUrl)
         base64File(data.path).then((res:any)=>{
-            handleChange('type','video')
+            handleChange('type','mp4')
             handleChange('file',res)
             onSend()
         })
     }
     const onChangeVoice = (data:any,duration:any) =>{
-        // reactotron.log('--voice', data)
         handleChange('message',duration)
         handleChange('type','mp3')
         handleChange('file',data)
@@ -321,7 +337,6 @@ const ChatListScreen = (props: any) => {
         </View>
     )
     // end function get all gallery from device
-
     function _onTabHeader ({chatItem,contactItem}:any){
         if(!_.isEmpty(contactItem)) {
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: contactItem })
@@ -329,7 +344,6 @@ const ChatListScreen = (props: any) => {
             const filterUser = chatItem.chatroom_users.find((element: any) => element.user_id != userInfo.id);
             const userContact = filterUser ? mycontact.find((element: any) => element.contact_user.id == filterUser.user_id) : contactItem;
             navigate.navigate('ProfileChat', { chatItem: chatItem, contactItem: userContact })
-
         }
     }
     const rightIcon = () => {
@@ -346,7 +360,7 @@ const ChatListScreen = (props: any) => {
     const onChangeMessage = useCallback(
         (text: any) => {
             handleChange('message', text);
-		    handleChange('type','text')
+		    handleChange('type',validURL(text)?'url':'text')
         },
         [state.message],
     );
@@ -369,6 +383,7 @@ const ChatListScreen = (props: any) => {
         }
         setChatData((chatData:any) => [...chatData,body]);
         setLocalLoading(chatData.length)
+        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
         formdata.append("message", state.message);
         formdata.append("type", state.type);
         formdata.append("file",state.type === 'text'?'':state.file);
@@ -378,16 +393,23 @@ const ChatListScreen = (props: any) => {
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
-                // reactotron.log('===v', result)
+                seenMessage(result.data);
+                // chatData.splice(chatData.length, 1);
+                // setChatData(chatData)
+                // let body:any = {
+                //     ...result.data,
+                //     user:{
+                //         first_name:userInfo.first_name,
+                //         profile_photo:userInfo.profile_photo,
+                //     }
+                // }
+                // setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
     }
-
     const onUpdateMsg = () => {
         if(state.message != itemMessageEdit.message) {
-            // const filterUpdateChat = chatData.filter((element:any)=>element.id == itemMessageEdit.id)
-            
             const formdata = new FormData();
             formdata.append('message', state.message);
             formdata.append('type',itemMessageEdit.type);
@@ -424,16 +446,16 @@ const ChatListScreen = (props: any) => {
             handleChange('message', '')
         }
     }
-
     const onPlayVoice = async (mess:any) => {
         setVoiceId(mess.id);
         setLoadingVoice(true);
         setTimeout(async () => {
             if (voiceId === mess.id) {
-                setIsSending(false);
                 if (playVoice) {
                     setPlayVoice(false);
                     audioRecorderPlayer.pausePlayer();
+                    setVoiceId(null)
+                    audioRecorderPlayer.removePlayBackListener();
 
                 } else {
                     setPlayVoice(true);
@@ -448,28 +470,47 @@ const ChatListScreen = (props: any) => {
                 }
                 audioRecorderPlayer = new AudioRecorderPlayer()
                 const msg = await audioRecorderPlayer.startPlayer(mess.file_url);
-                setIsSending(false);
                 audioRecorderPlayer.addPlayBackListener((e:any) => {
-                    let _duration = Number(mess.message) - e.currentPosition;
+                    let _duration = Number(e.duration) - e.currentPosition;
                     setVoiceDuration(_duration);
                     if (_duration <= 0) {
                         setPlayVoice(false);
                         setVoiceId(null)
                         setVoiceDuration(mess.message);
                         audioRecorderPlayer.removePlayBackListener();
-
                     }
                 });
             }
             setLoadingVoice(false);
         }, 250);
     };
+    const _onOpenFile = (mess:any) => {
+        const headers = {
+            'Accept': 'application/pdf',
+            'Content-Type': 'application/pdf',
+            'Authorization': `Bearer [token]`
+          }
+        const localFile = `${RNFS.DocumentDirectoryPath}/${mess.message+'.'+mess.type}`;
+
+        const options = {
+            fromUrl: mess.file_url,
+            toFile: localFile,
+            headers: headers
+        };
+        RNFS.downloadFile(options)
+        .promise.then(() => FileViewer.open(localFile, { showOpenWithDialog: true }))
+        .then(() => {
+            console.log('success')
+        })
+        .catch((error) => {
+            console.log('error')
+        });
+    }
 
     const actionOnMessage =(mess:any)=> {
         setItemMessageEdit(mess)
         handleChange('isShowActionMess', true)
     }
-
     const _handleTranslateText = async (id : number, text : string) => {
 
         if(!isTranslate.includes(id)){
@@ -510,6 +551,21 @@ const ChatListScreen = (props: any) => {
         // });
     }
 
+    const onPlayVideo = (mess:any,index:any) =>{
+        // const filterVdoMessage = chatData.find((element:any)=>element.id == mess.id)
+		const filterVdoMessage = chatData.find((element : any) => element.id != mess.id);
+        // reactotron.log(filterVdoMessage)
+        console.log('=======', mess.id)
+        handleChange('vdoIdPlaying', mess.id)
+        // setControll(isShowControl => !isShowControl);
+    }
+    const onFullVideo = (url:any) =>{
+        navigate.navigate('VideoFull',{videos:url});
+        setControll(true);
+    }
+    const onMuteVideo =()=>{
+        setMute(isMute => !isMute);
+    }
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -579,7 +635,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {state.localVideo && isLocalLoading == index?
                                 <Video
@@ -595,14 +651,26 @@ const ChatListScreen = (props: any) => {
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
                                     ignoreSilentSwitch={"ignore"}
                                     resizeMode='cover'
-                                    paused={true}
-                                    controls={true}
+                                    playInBackground={false}
+                                    playWhenInactive={false}  
+                                    paused={state.vdoIdPlaying == mess.id ? false : true}
+                                    onEnd={() => handleChange('vdoIdPlaying',null)} 
+                                    // paused={isShowControl}
+                                    // onEnd={() => setControll(true)} 
+                                    muted={isMute}
                                 />
-
                             }
-                            
                         </View>
-                            
+                        {state.vdoIdPlaying != mess.id ?
+                            <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
+                                <FontAwesome name='play' size={20} color={whiteColor} />
+                            </TouchableOpacity>
+                            :
+                            <TouchableOpacity onPress={onMuteVideo} style={{position:'absolute',bottom:'5%',left:'5%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:40,height:40,justifyContent:'center',alignItems:'center'}}>
+                                <Ionicons name={isMute? "volume-mute":'volume-high'} size={20} color={whiteColor} />
+                            </TouchableOpacity>
+                        }
+                       
                     </TouchableOpacity> 
                     <View style={{position:'absolute',bottom:10,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7}}>
                         <Text style={{ fontSize: 10, color:whiteColor, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
@@ -650,20 +718,78 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<View style={[styles.chatBack,
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
 				{
-					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
 					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-					marginVertical: 1,
+					marginVertical: 1
 				}
 				]}>
-                    <HStack alignItems={'center'} paddingTop={2}>
-                        <FontAwesome name='file-text' size={20} color={mess.created_by == userInfo.id ? whiteColor:textDesColor } />
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:textColor ,paddingLeft:10, fontSize: textsize}]}>{mess.message}.{mess.type}</Text>
+                    <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2, paddingRight: 2}}>
+                        <View style={{}}>
+                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
+                        </View>
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
-					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
-				</View>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+				</TouchableOpacity>
+                {chatItem.type =='group'?
+                    mess.created_by == userInfo.id?
+                        <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
+                            <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                        </View>
+                        :
+                        <></>
+                    :
+                    <></>
+                }
+                </HStack>
+            </View>
+        )
+    };
+    const openLinkChat = (mess:any) =>{
+        let checkUrlLink = mess.message.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
+        checkUrlLink != null ? Linking.openURL(checkUrlLink[0]) : null;
+    }
+
+    const messageURL = (mess: any,index:any) => {
+        return (
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>     
+                {chatItem.type =='group'?
+                    <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
+                    :
+                    <></>
+                }     
+                <HStack>
+                    {chatItem.type =='group'?
+                        mess.created_by == userInfo.id?
+                            <></>
+                            :
+                            <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginRight:5}}>
+                                <Image source={!_.isEmpty(mess.user.profile_photo)?{uri:mess.user.profile_photo}:require('../../assets/profile.png')} resizeMode='cover' style={{ width: '100%', height: '100%',borderRadius:40 }} />
+                            </View> 
+                            
+                        :
+                        <></>
+                    }
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				{
+					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
+					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
+					borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
+					marginVertical: 1
+				}
+				]}>
+                    <View style={{width:deviceWidth/2,height:deviceWidth/2,marginTop:5}}>
+                        <Text selectable={true} selectionColor={'blue'} onPress={() => openLinkChat(mess)} style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5 }}>{mess.message}</Text>
+                        <WebView 
+                            source={{ uri: mess.message}}
+                            scalesPageToFit={false}
+                        />
+                    </View>
+					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+				</TouchableOpacity>
                 {chatItem.type =='group'?
                     mess.created_by == userInfo.id?
                         <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
@@ -681,7 +807,7 @@ const ChatListScreen = (props: any) => {
 
     const messageVoice = (mess:any,index:any) => {
         return (
-            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}> 
+            <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}> 
                 {chatItem.type =='group'?
                     <Text style={{color:textSecondColor,fontFamily: 'Montserrat-Regular',fontSize:12}}>{mess.user.first_name}</Text>
                     :
@@ -702,22 +828,24 @@ const ChatListScreen = (props: any) => {
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} 
                         style={[styles.chatBack,
                             {
-                                backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                                backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2',
                                 borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                                 borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
-                                marginVertical: 1,
+                                paddingHorizontal:10,
+                                paddingVertical: 3,
+
                             }
                         ]}
                     >
-                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? '#1F6BADDC': '#CCCCCC',transform: [{ scaleX: 1 }] }]}>
+                        <TouchableOpacity activeOpacity={0.9} onPress={() => !loadingVoice && onPlayVoice(mess)} style={[styles.voiceItem,{backgroundColor:mess.created_by == userInfo.id? '#1F6BADDC': theme == 'dark' ? '#252525DA' : '#E6E6E6DA',transform: [{ scaleX: 1 }] }]}>
                             {
                                 (!loadingVoice || mess.id !== voiceId) ? <Entypo name={(voiceId === mess.id && playVoice) ? "controller-paus" : "controller-play"} size={20} color={"#aaa"} /> :
                                     <ActivityIndicator size={"small"} color={"#aaa"} />
                             }
                             {((voiceId === mess.id && playVoice) || (voiceId === mess.id && voiceDuration !== mess.message)) && <LottieView style={{ height: 30 }} source={require('../../assets/voice_graph.json')} autoPlay loop />}
-                            {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
+                            {(voiceId === mess.id) ? <Text style={{color: '#aaa'}} >{voiceDuration > 0&& playVoice?convertHMS(Number(voiceDuration) / 1000):mess.message}</Text> : <Text style={{color: '#aaa'}}>{mess.message}</Text>}
                         </TouchableOpacity>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                     </TouchableOpacity>
                     {chatItem.type =='group' && mess.created_by == userInfo.id?
                         <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
@@ -752,17 +880,17 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
-                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor:'#DBDBDBE3' ,
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                             borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                             marginVertical: 1,
                         }
                     ]}>
-                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
-                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular' }}>{mess.message}</Text>
+                        <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                         <TouchableOpacity onPress={() => _handleTranslateText(mess.id,mess.message)}>
                             {
-                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor}}>Translate</Text> 
+                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
                             }
                         </TouchableOpacity>
                     </TouchableOpacity>
@@ -802,7 +930,7 @@ const ChatListScreen = (props: any) => {
                     :
                     <></>
                 }
-                {item.type == 'text'?messageText(item,index) : item.type =='image'?messageImage(item,index) :item.type =='video'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index): messageFile(item,index)}
+                {item.type == 'text'?messageText(item,index) : item.type =='png'?messageImage(item,index) :item.type =='mp4'?messageVideo(item,index): item.type =='mp3'?messageVoice(item,index):item.type =='url'?messageURL(item,index): messageFile(item,index)}
             </>
         )
     }
@@ -835,7 +963,6 @@ const ChatListScreen = (props: any) => {
 			</>
 		)
 	}
-
     const _onCloseAction = () => {
         handleChange('isShowActionMess', false)
     }
@@ -844,21 +971,16 @@ const ChatListScreen = (props: any) => {
         handleChange('isShowActionMess', false)
         handleChange('isEdit', true)
         msgRef.current!.focus();
-
-
     }
-
     const _onCloseEdit = () => {
         handleChange('isEdit', false)
         setItemMessageEdit(null)
         handleChange('message', '')
         Keyboard.dismiss()
     }
-
     const _removeMessageAction = () => {
         handleChange('isShowActionMess', false)
         handleChange('showDailog', true)
-
     }
     const onCloseAlert = () => {
         handleChange('showDailog', false)
@@ -899,8 +1021,7 @@ const ChatListScreen = (props: any) => {
                     </Box>;
             }
         })
-      }
-
+    }
     const modalMessageAction = (isShowActionMess: any) => {
         return (
           <Actionsheet isOpen={isShowActionMess} onClose={_onCloseAction}>
@@ -936,8 +1057,7 @@ const ChatListScreen = (props: any) => {
             </Actionsheet.Content>
           </Actionsheet>
         )
-      }
-
+    }
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
@@ -974,7 +1094,7 @@ const ChatListScreen = (props: any) => {
                                     listKey={makeid()}
                                     renderItem={Item}
                                     data={chatData}
-                                    showsVerticalScrollIndicator={false}
+                                    keyExtractor={(_, index) => index.toString()}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
@@ -982,9 +1102,22 @@ const ChatListScreen = (props: any) => {
                                             }} />
                                         </>
                                     }
+                                    onContentSizeChange={() => {
+                                        if (lastDoc == 1 && isTranslate.length == 0) {
+                                            ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                                        }
+                                    }}
+                                    // onLayout={() => {
+                                    //     if (lastDoc ==1 && isTranslate.length == 0) {
+                                    //         ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                                    //     }
+                                    // }}
+                                    refreshControl={
+                                        <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
+                                    }
+					                onTouchMove={_onScroll}
                                     scrollEventThrottle={16}
                                     onEndReachedThreshold={0.5}
-                                    keyExtractor={(_, index) => index.toString()}
                                 />
                             }
                         </TouchableWithoutFeedback>
@@ -1003,8 +1136,7 @@ const ChatListScreen = (props: any) => {
                                 </TouchableOpacity>        
                             </View>
                         :<></>}
-                        <View style={{ width: deviceWidth, height: deviceHeight*.2, paddingTop: main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
-                            
+                        <View style={{ width: deviceWidth, height: deviceHeight*.22, paddingTop:main_padding, borderTopColor: borderDivider, borderTopWidth: 0.4}}>
                             <ChatRecord
                                 message={state.message}
                                 loading={state.loadSendMess}
@@ -1069,7 +1201,6 @@ const styles = StyleSheet.create({
     chatBody: {
         transform: [{ scaleY: 1 }],
         marginTop: 10,
-
     },
     chatBack: {
         maxWidth: deviceWidth / 1.3,
@@ -1109,15 +1240,13 @@ const styles = StyleSheet.create({
         marginBottom: 10,
       },
       voiceItem: {
-        transform: [{ scaleY: -1 }],
+        // transform: [{ scaleY: -1 }],
         paddingHorizontal: 10,
         marginTop: 10,
-        paddingVertical: 10,
         borderRadius: 30,
         width: deviceWidth / 2,
-        backgroundColor: "#fff",
+        // backgroundColor: "#fff",
         paddingLeft: 10,
-        marginHorizontal: 10,
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",

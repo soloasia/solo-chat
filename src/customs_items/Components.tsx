@@ -9,6 +9,7 @@ import colors, { baseColor, borderColor, boxColor, buttonColor, buttonSecondColo
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ThemeContext } from "../utils/ThemeManager";
 import themeStyle from "../styles/theme";
+import reactotron from "reactotron-react-native";
 
 export const makeid = () => {
     var text = "";
@@ -179,7 +180,7 @@ export function FlatListScroll(props:any) {
     const insets = useSafeAreaInsets()
     return (
         <View style={{
-            height: insets.bottom > 0 ? (insets.bottom + 15):70
+            height: insets.bottom > 0 ? (insets.bottom + 70):100
         }} />
     )
 }

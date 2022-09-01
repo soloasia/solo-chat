@@ -85,7 +85,7 @@ const SettingScreen = () => {
 		<BaseComponent {...baseComponentData} title={tr('settings')} is_main={true} rightIcon={rightIcon}>
 			<Transitioning.View style={{ flex: 1 }} {...{ ref, transition }}>
 				<View style={{ ...StyleSheet.absoluteFillObject, backgroundColor: themeStyle[theme].backgroundColor}} />
-				<FlatListScroll style={{padding: main_padding}}>
+				<FlatListScroll style={{padding: main_padding,marginBottom: 30,}}>
 					<View style={{justifyContent: 'center',alignItems:'center',paddingBottom:20}}>
 						<UserAvatar style={{width:120,height:120}}>
 							{userInfo.profile_photo != null ? 

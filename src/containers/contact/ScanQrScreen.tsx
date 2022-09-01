@@ -13,6 +13,7 @@ import reactotron from 'reactotron-react-native';
 import { GET, POST, showToast, ToastStatus } from '../../functions/BaseFuntion';
 import { useDispatch } from 'react-redux';
 import { loadContact } from '../../actions/Contact';
+import themeStyle from '../../styles/theme';
 
 const ScanQrScreen = (props:any) => {
     const navigate: any = useNavigation();
