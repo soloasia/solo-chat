@@ -86,7 +86,8 @@ const ChatListScreen = (props: any) => {
         voice:'',
         isShowActionMess: false, 
         isEdit: false,
-        showDailog: false
+        showDailog: false,
+        vdoIdPlaying: null
     });
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
@@ -515,8 +516,13 @@ const ChatListScreen = (props: any) => {
         setChatData((chatData:any) => [...chatData]); 
     }
 
-    const onPlayVideo = () =>{
-        setControll(isShowControl => !isShowControl);
+    const onPlayVideo = (mess:any,index:any) =>{
+        // const filterVdoMessage = chatData.find((element:any)=>element.id == mess.id)
+		const filterVdoMessage = chatData.find((element : any) => element.id != mess.id);
+        reactotron.log(filterVdoMessage)
+
+        handleChange('vdoIdPlaying', mess.id)
+        // setControll(isShowControl => !isShowControl);
     }
     const onFullVideo = (url:any) =>{
         navigate.navigate('VideoFull',{videos:url});
@@ -617,14 +623,14 @@ const ChatListScreen = (props: any) => {
                                     resizeMode='cover'
                                     playInBackground={false}
                                     playWhenInactive={false}  
-                                    paused={isShowControl}
-                                    onEnd={() => setControll(true)} 
+                                    paused={state.vdoIdPlaying == mess.id ? false : true}
+                                    onEnd={() => handleChange('vdoIdPlaying',null)} 
                                     muted={isMute}
                                 />
                             }
                         </View>
-                        {isShowControl?
-                            <TouchableOpacity onPress={onPlayVideo} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
+                        {state.vdoIdPlaying != mess.id ?
+                            <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
                                 <FontAwesome name='play' size={20} color={whiteColor} />
                             </TouchableOpacity>
                             :
