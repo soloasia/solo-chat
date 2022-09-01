@@ -330,13 +330,13 @@ const ChatListScreen = (props: any) => {
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
-				<Text style={[style.p,{color:baseColor, fontSize:13}]}>CANCEL</Text>
+				<Text style={[style.p,{color:baseColor, fontSize:13}]}>{tr("cancel")}</Text>
 			</TouchableOpacity>
 			<View style={styles.panelHeader}>
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>DONE</Text>:<Box style={{width:50}}/>}
+				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>{tr("done")}</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
@@ -900,7 +900,7 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
-                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' :'#F0F0F2' ,
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? themeStyle[theme].primary :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                             borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                             marginVertical: 1,

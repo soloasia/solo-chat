@@ -54,6 +54,16 @@ let translation  = {
         type_message_hint : "Type a message...",
         translate : "Translate",
         show_original : "Show Original",
+        log_in : "Log In",
+        sign_up_here : "Sign Up here",
+        dont_have_acc : "Don't have an account?",
+        get_started: "Get Started",
+        welcome_to_chat_app : "Welcome to Chat APP",
+        chat_app_desc : "Chat app provided secure and fast messaging, join our team and enjoy online communication.",
+        firstname: "Firstname",
+        lastname : "Lastname",
+        sign_up : "Sign Up",
+        already_have_acc : "Already have an account"
     },
     "zh-cn" : {
         language: "语",
@@ -106,6 +116,16 @@ let translation  = {
         type_message_hint : "键入消息...",
         translate : "翻译",
         show_original : "显示原件",
+        log_in : "登录",
+        sign_up_here : "在此注册",
+        dont_have_acc : "没有帐户？",
+        get_started: "开始使用",
+        welcome_to_chat_app : "欢迎使用聊天应用",
+        chat_app_desc : "聊天应用程序提供安全快速的消息传递，加入我们的团队并享受在线交流。",
+        firstname: "名",
+        lastname : "姓",
+        sign_up : "报名",
+        already_have_acc : "已有账号"
     },
     ar : {
         language: "لغة",
@@ -158,6 +178,16 @@ let translation  = {
         type_message_hint : "Type a message...",
         translate : "Translate",
         show_original : "Show Original",
+        log_in : "Log In",
+        sign_up_here : "Sign Up here",
+        dont_have_acc : "Don't have an account?",
+        get_started: "Get Started",
+        welcome_to_chat_app : "Welcome to Chat APP",
+        chat_app_desc : "Chat app provided secure and fast messaging, join our team and enjoy online communication.",
+        firstname: "Firstname",
+        lastname : "Lastname",
+        sign_up : "Sign Up",
+        already_have_acc : "Already have an account"
     },
     th : {
         language: "ภาษา",
@@ -210,6 +240,16 @@ let translation  = {
         type_message_hint : "Type a message...",
         translate : "Translate",
         show_original : "Show Original",
+        log_in : "Log In",
+        sign_up_here : "Sign Up here",
+        dont_have_acc : "Don't have an account?",
+        get_started: "Get Started",
+        welcome_to_chat_app : "Welcome to Chat APP",
+        chat_app_desc : "Chat app provided secure and fast messaging, join our team and enjoy online communication.",
+        firstname: "Firstname",
+        lastname : "Lastname",
+        sign_up : "Sign Up",
+        already_have_acc : "Already have an account"
     }
 }
 
@@ -266,7 +306,7 @@ const LanguageManager = ({children} : any) => {
             }
         });
        
-        //addLanguageJson();
+        // addLanguageJson();
         return () => subscriber();
     }, []);
 

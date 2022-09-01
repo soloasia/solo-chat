@@ -33,8 +33,8 @@ export const chatText = '#BDBCBC'
 export const borderDivider = '#94949428'
 
 /** Dark Mode */
-export const backgroundDark = "#222831";
-export const primaryDark = "#393E46";
+export const backgroundDark = "#18202b";
+export const primaryDark = "#2C394B";
 export const greyDark = "#EEEEEE";
 
 
