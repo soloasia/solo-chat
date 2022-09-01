@@ -899,11 +899,10 @@ const ChatListScreen = (props: any) => {
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                         <TouchableOpacity onPress={() => _handleTranslateText(mess.id,mess.message)}>
                             {
-                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
+                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 14, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 14, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
                             }
                         </TouchableOpacity>
                     </TouchableOpacity>
-            
                     {chatItem.type =='group'?
                         mess.created_by == userInfo.id?
                             <View style={{width:40,height:40,marginTop: 10,borderRadius:40,marginLeft:5}}>
