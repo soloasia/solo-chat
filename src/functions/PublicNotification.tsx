@@ -1,11 +1,12 @@
 import PushNotification from "react-native-push-notification";
+import reactotron from "reactotron-react-native";
 
 export const onPushPublicNotification = (data: any) => {
     PushNotification.configure({
         onNotification: function (notification: any) {
-            if (notification.action === 'Clear') {
+            // if (notification.action === 'Clear') {
                 // PushNotification.cancelAllLocalNotifications();
-            }
+            // }
         },
         // IOS ONLY (optional): default: all - Permissions to register.
         permissions: {
@@ -25,7 +26,6 @@ export const onPushPublicNotification = (data: any) => {
          */
         requestPermissions: true
     })
-
     PushNotification.localNotification({
         channelId: "solochat-notification",
         title: data.title,

@@ -146,7 +146,7 @@ const ChatListScreen = (props: any) => {
             setHasScrolled(true)
     };
     const getMore = async () =>{
-        // if (!hasScrolled) return null;
+        if (!hasScrolled) return null;
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
             setTimeout(async () => {
@@ -384,7 +384,7 @@ const ChatListScreen = (props: any) => {
         //     }
         // }
         // setChatData((chatData:any) => [...chatData,body]);
-        setLocalLoading(chatData.length)
+        // setLocalLoading(chatData.length)
         ref.current != null? ref.current.scrollToEnd({animated: true}):{}
         formdata.append("message", state.message);
         formdata.append("type", state.type);
@@ -406,7 +406,7 @@ const ChatListScreen = (props: any) => {
                 //     }
                 // }
                 // setChatData((chatData:any) => [...chatData,body]);
-                setLocalLoading(null)
+                // setLocalLoading(null)
             }
         })
     }
@@ -628,7 +628,6 @@ const ChatListScreen = (props: any) => {
 
     const _onEndVDO = () => {
         handleChange('vdoIdPlaying',null)
-        console.log('end')
     }
     const messageVideo = (mess:any,index:any) =>{
         return (
@@ -652,7 +651,7 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
-                            {state.localVideo && isLocalLoading == index?
+                            {/* {state.localVideo && isLocalLoading == index?
                                 
                                 <Video
                                     source={{uri:state.localVideo}}
@@ -662,7 +661,7 @@ const ChatListScreen = (props: any) => {
                                     paused={true}
                                     repeat={true}
                                 />
-                                :
+                                : */}
                                 <Video
                                     source={{uri:mess.file_url}}
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
@@ -677,7 +676,7 @@ const ChatListScreen = (props: any) => {
                                     muted={isMute}
                                     repeat={true}
                                 />
-                            }
+                            {/* } */}
                         </View>
                         {state.vdoIdPlaying ==null || state.vdoIdPlaying != mess.id ?
                             <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>

@@ -14,12 +14,14 @@
 
  import { View } from 'react-native';
  import { Provider } from 'react-redux';
- import Route from './src/navigate/Route';
+ import Route, { navigate } from './src/navigate/Route';
  import store from './src/store';
  import { ThemeProvider } from './src/utils/ThemeManager';
  import LanguageManager from './src/utils/LangaugeManager';
  import { ProvideAuth } from './src/functions/UserAuth';
-
+ import messaging from '@react-native-firebase/messaging';
+import reactotron from 'reactotron-react-native';
+import { onPushPublicNotification } from './src/functions/PublicNotification';
  
  const theme = extendTheme({
    components: {
@@ -31,6 +33,10 @@
      }
    }
  });
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    const { data } = remoteMessage
+    onPushPublicNotification(data)
+  });
 
  const App = () => {
    return ( 
