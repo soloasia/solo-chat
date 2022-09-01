@@ -5,12 +5,11 @@ import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedba
 import { useDispatch, useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
-import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import style, { deviceWidth } from '../../styles';
 import ChatRecord from './ChatRecord';
 import _ from 'lodash'
-import { deviceHeight, paddingHorizontalItem } from '../../styles/index';
-import { PreventRemoveContext, useIsFocused, useNavigation, useRoute } from '@react-navigation/native';
+import { deviceHeight } from '../../styles/index';
+import {  useNavigation } from '@react-navigation/native';
 import { main_padding } from '../../config/settings';
 import BottomSheet from 'reanimated-bottom-sheet';
 import CameraRoll from '@react-native-community/cameraroll';
@@ -53,7 +52,6 @@ const ChatListScreen = (props: any) => {
     const ref = useRef<FlatList>(null);
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
-    const [refreshing, setRefreshing] = useState(false);
     const {language,tr} : any = useContext(LanguageContext);
     const appearanceTheme = useSelector((state: any) => state.appearance);
 	const {theme} : any = useContext(ThemeContext);
@@ -75,9 +73,8 @@ const ChatListScreen = (props: any) => {
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
-    const route = useRoute();
     const dispatch: any = useDispatch();
-    
+
     let countTransDate: any = 0;
     const [state, setState] = useState<any>({
         message: '',
@@ -101,6 +98,7 @@ const ChatListScreen = (props: any) => {
             loadData(dispatch);
         })
     ), [navigate]);
+
     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
         seenMessage(last_message);
@@ -123,10 +121,6 @@ const ChatListScreen = (props: any) => {
             formdata.append("chatroom_id",chatItem.id);
             formdata.append("chatroom_message_id",last_message.id);
             POST('chatroom_message/seen', formdata)
-            .then(async (result: any) => {
-                if(result.status){
-                }
-            })
         }
     }
     const handleChange = (stateName: string, value: any) => {
@@ -1084,6 +1078,7 @@ const ChatListScreen = (props: any) => {
                                     renderItem={Item}
                                     data={chatData}
                                     keyExtractor={(_, index) => index.toString()}
+                                    initialNumToRender={chatData.length}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
