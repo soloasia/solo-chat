@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
+import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast, ScrollView } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,7 +42,7 @@ var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
-let perPage: any=10;
+let perPage: any=50;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
@@ -50,6 +50,7 @@ const ChatListScreen = (props: any) => {
     const mycontact = useSelector((state: any) => state.mycontact);
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
+    const scrollRef:any = useRef();
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
     const {language,tr} : any = useContext(LanguageContext);
@@ -105,6 +106,8 @@ const ChatListScreen = (props: any) => {
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (newMessage:any) => {
+            reactotron.log(newMessage.data.data)
+            
             if(chatItem.id == newMessage.data.data.chatroom_id){
                 ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
@@ -145,7 +148,7 @@ const ChatListScreen = (props: any) => {
             setHasScrolled(true)
     };
     const getMore = async () =>{
-        if (!hasScrolled) return null;
+        // if (!hasScrolled) return null;
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
             setTimeout(async () => {
@@ -157,7 +160,7 @@ const ChatListScreen = (props: any) => {
                             setChatData([...result.data.chatroom_messages.data,..._data])
                             _data.push(...result.data.chatroom_messages.data)
 						}
-                        lastDoc = Math.ceil(_data.length / 10);
+                        lastDoc = Math.ceil(_data.length / perPage);
 						if (result.data.chatroom_messages !== undefined) {
 							if (result.data.chatroom_messages.total <= chatData.length) {
 								lastDoc = 0;
@@ -395,16 +398,16 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 seenMessage(result.data);
-                // chatData.splice(chatData.length, 1);
-                // setChatData(chatData)
-                // let body:any = {
-                //     ...result.data,
-                //     user:{
-                //         first_name:userInfo.first_name,
-                //         profile_photo:userInfo.profile_photo,
-                //     }
-                // }
-                // setChatData((chatData:any) => [...chatData,body]);
+                chatData.splice(chatData.length, 1);
+                setChatData(chatData)
+                let body:any = {
+                    ...result.data,
+                    user:{
+                        first_name:userInfo.first_name,
+                        profile_photo:userInfo.profile_photo,
+                    }
+                }
+                setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -563,6 +566,18 @@ const ChatListScreen = (props: any) => {
     const onMuteVideo =()=>{
         setMute(isMute => !isMute);
     }
+
+    const renderFooter: any = () => {
+        if (!isMoreLoading) return true;
+        return (
+            <ActivityIndicator
+                size={25}
+                color={baseColor}
+                style={{ marginVertical: 15 }}
+            />
+        )
+    };
+
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -915,7 +930,7 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     };
-    const Item = ({ item, index }: any) => {
+    const Item = (item:any, index: any) => {
         if(transDate){
             if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
                 countTransDate+=1;
@@ -1063,6 +1078,9 @@ const ChatListScreen = (props: any) => {
           </Actionsheet>
         )
     }
+    const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
+        return contentOffset.y == 0;
+    };
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
@@ -1093,38 +1111,39 @@ const ChatListScreen = (props: any) => {
                                     </View>
                                 </View>
                                 :
-                                <FlatList
-                                    style={{paddingHorizontal: main_padding}}
-                                    ref={ref}
-                                    listKey={makeid()}
-                                    renderItem={Item}
-                                    data={chatData}
-                                    keyExtractor={(_, index) => index.toString()}
-                                    initialNumToRender={chatData.length}
-                                    ListFooterComponent={
-                                        <>
-                                            <View style={{
-                                                height: insets.bottom > 0 ? (insets.bottom + 20):70
-                                            }} />
-                                        </>
-                                    }
+                                <>
+                                {renderFooter()}
+                                <ScrollView
+                                    ref={scrollRef}
+                                    showsVerticalScrollIndicator={false}
+                                    // onLayout={() => 
+                                    //     lastDoc == 1 && isTranslate.length == 0? scrollRef.current.scrollToEnd():{}
+                                    // }
                                     onContentSizeChange={() => {
                                         if (lastDoc == 1 && isTranslate.length == 0) {
-                                            ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                                            scrollRef.current.scrollToEnd({y:0,animated: true})
+                                        }
+                                        }
+                                    }
+                                    scrollEventThrottle={400}
+                                    onScroll={({ nativeEvent }) => {
+                                        if (ifCloseToTop(nativeEvent)) {
+                                            getMore();
                                         }
                                     }}
-                                    // onLayout={() => {
-                                    //     if (lastDoc ==1 && isTranslate.length == 0) {
-                                    //         ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
-                                    //     }
-                                    // }}
-                                    refreshControl={
-                                        <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
-                                    }
-					                onTouchMove={_onScroll}
-                                    scrollEventThrottle={16}
-                                    onEndReachedThreshold={0.5}
-                                />
+                                    contentInset={{
+                                        top: 10,
+                                        left: 30,
+                                        bottom: 0,
+                                        right: 30,
+                                    }}
+                                >
+                                    <View style={{padding:main_padding,paddingTop:0}}>
+                                        {chatData.map((item:any,index:any)=>Item(item,index))}
+                                    </View>
+                                </ScrollView>
+                                </>
+                               
                             }
                         </TouchableWithoutFeedback>
                         {state.isEdit ? 

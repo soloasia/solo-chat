@@ -126,16 +126,11 @@ const CreateGroup = (props: any) => {
             name: state.groupName,
             group_user_ids: userIds
         }
-        
-        // const formdata = new FormData();
-        // formdata.append("name", state.groupName);
-        // formdata.append('group_user_ids[]', [userIds]);
-        // reactotron.log(formdata)
         if (state.groupName != '') {
             await postCreateGroup('group/create', requestBody).then(async (result: any) => {
                 if (result.status) {
                     navigate.navigate('ChatList', { chatItem: result.data });
-		            loadData(dispatch);
+		            // loadData(dispatch);
                     onClose()
                 } else {
                     Alert.alert('Something went wrong!\n', 'Please try again later')
