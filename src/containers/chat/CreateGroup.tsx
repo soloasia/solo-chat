@@ -177,6 +177,7 @@ const CreateGroup = (props: any) => {
             <SearchBox
                 onChangeText={(text:any)=> onChangeText(text)}
                 onClear = {(text:any)=> onChangeText('')}
+				placeholderText='Search'
                 value = {state.searchText}
             />
 

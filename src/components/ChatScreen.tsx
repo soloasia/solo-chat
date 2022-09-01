@@ -26,6 +26,7 @@ import { loadListChat } from '../actions/ListChat';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Pusher from 'pusher-js/react-native';
 import reactotron from 'reactotron-react-native';
+import { loadContact } from '../actions/Contact';
 
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
@@ -78,7 +79,8 @@ const ChatScreen = () => {
 		  }
 	}, []);
  	const [state, setState] = useState<any>({
-		searchText: ''
+		searchText: '',
+		searchContactText: ''
 	});
 	
 	const handleChange = (stateName: string, value: any) => {
@@ -87,6 +89,17 @@ const ChatScreen = () => {
 	};
 	const onChangeText = (text: any) => {
 		handleChange('searchText', text)
+		if(text != ''){
+			GET(`me/chatrooms?search=${text}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadListChat(result.data.data))
+				}
+			})
+			.catch(e => {});
+		}else{
+			getData();
+		}
 	}
 	const onConfirmSearch = () => {
 	}
@@ -328,11 +341,42 @@ const ChatScreen = () => {
         }
     };
 
+	const onChangeContactSearch = (text:any) => {
+		handleChange('searchContactText',text)
+		if(text != ''){
+			GET(`search/contact?value=${text}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadContact(result.data))
+				}
+			})
+			.catch(e => {});
+		}else{
+			GET(`me/contact?page=${lastDoc}`)
+			.then(async (result: any) => {
+				if(result.status){
+					dispatch(loadContact(result.data.data))
+					// setLoading(false)
+				}
+			})
+			.catch(e => {});
+		}
+	}
+
+	const _onCancelModal = () => {
+		onChangeContactSearch('')
+		setShowModal(false)
+	}
+
 	return (
 		<BaseComponent {...baseComponentData} title={tr('chats')} is_main={true} rightIcon={rightIcon}>
 			<SearchBox
+				placeholderText='Search group'
 				onChangeText={(text: any) => onChangeText(text)}
 				onSearch={onConfirmSearch}
+                onClear = {(text:any)=> onChangeText('')}
+				value = {state.searchText}
+
 			/>
 			{_.isEmpty(myChatList)?
 				<View style={{width: deviceWidth, height: deviceHeight*0.6, }}>
@@ -371,7 +415,7 @@ const ChatScreen = () => {
 				<View style={{ flex: 1, backgroundColor: themeStyle[theme].backgroundColor }}>
 					<View style={{ margin: main_padding, marginTop: large_padding, }}>
 						<View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-							<TouchableOpacity onPress={createGroup ? () => setCreateGroup(!createGroup) : () => setShowModal(false)}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16 }}>{tr("cancel")}</Text></TouchableOpacity>
+							<TouchableOpacity onPress={createGroup ? () => setCreateGroup(!createGroup) : () => _onCancelModal()}><Text style={{ color: baseColor, fontWeight: '500', fontSize: 16 }}>{tr("cancel")}</Text></TouchableOpacity>
 							{createGroup ? <TextItem style={{ fontWeight: '600', fontSize: 16 }}>{tr("create_new_group")}</TextItem> : <TextItem style={{ fontWeight: '600', fontSize: 16 }}>{tr("new_message")}</TextItem>}
 							<View></View>
 						</View>
@@ -384,8 +428,11 @@ const ChatScreen = () => {
 						:
 						<>
 							<SearchBox
-								onChangeText={(text: any) => onChangeText(text)}
-								onSearch={onConfirmSearch}
+								onChangeText={(text: any) => onChangeContactSearch(text)}
+								placeholderText='Search'
+								value = {state.searchContactText}
+								onClear = {(text:any)=> onChangeContactSearch('')}
+
 							/>
 							<TouchableOpacity onPress={() => setCreateGroup(true)} style={{ marginVertical: main_padding, flexDirection: "row", alignItems: 'center', justifyContent: 'space-between', marginHorizontal: main_padding }}>
 								<View style={{ flexDirection: "row", justifyContent: 'center', alignItems: 'center' }}>

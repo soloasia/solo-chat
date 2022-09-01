@@ -37,7 +37,7 @@ const SettingScreen = () => {
 	)
 	const _renderItem = ({item,index}:any) =>{
 		return(
-			<TouchableOpacity onPress={()=>item.name == "Notification" ? Linking.openSettings() : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
+			<TouchableOpacity onPress={()=>item.name == "notification" ? Linking.openSettings() : navigate.navigate(item.to) } style={{padding:8,justifyContent:'center',marginBottom:10,borderRadius:10}}>
 				<HStack justifyContent={'space-between'}>
 					<HStack alignItems={'center'} space={3}>
 						<View style={{width:35,height:35,backgroundColor:item.color,borderRadius:25,alignItems:'center',justifyContent:'center'}}>

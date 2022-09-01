@@ -10,7 +10,7 @@ import themeStyle from '../styles/theme';
 import reactotron from 'reactotron-react-native';
 import { LanguageContext } from '../utils/LangaugeManager';
 const SearchBox = (props:any) => {
-    const {onChangeText,onClear,value } = props
+    const {onChangeText,onClear,value, placeholderText } = props
     const [state, setstate] = useState("");
     const {theme} : any = useContext(ThemeContext);
     const {tr} : any = useContext(LanguageContext);
@@ -27,7 +27,7 @@ const SearchBox = (props:any) => {
                     autoCorrect={false}
                     value={value}
                     placeholderTextColor={'#ADB9C6'}
-                    placeholder={tr("search")}
+                    placeholder={placeholderText}
                     onChangeText={(value) => {
                         onChangeText(value)
                         setstate(value);
