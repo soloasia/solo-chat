@@ -42,7 +42,7 @@ var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
-let perPage: any=10;
+let perPage: any=30;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
@@ -105,11 +105,9 @@ const ChatListScreen = (props: any) => {
         seenMessage(last_message);
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-		orderChannel.bind(`new-message`, (newMessage:any) => {
-            // _.remove(chatData, function(n:any) {return n.id == 0; });
+		orderChannel.bind('new-message', (newMessage:any) => {
             if(chatItem.id == newMessage.data.data.chatroom_id){
-                ref.current != null? ref.current.scrollToEnd({animated: true}):{}
-                // var mergrChats = [...chatData,newMessage.data.dat];
+                scrollRef.current.scrollToEnd({animated: true})
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
             }
@@ -118,7 +116,27 @@ const ChatListScreen = (props: any) => {
             pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
     },[chatData])
-    
+
+    useEffect(() => {
+        const keyboardDidShowListener = Keyboard.addListener(
+            'keyboardDidShow',
+            () => {
+                scrollRef.current.scrollToEnd({animated: true})
+            }
+        );
+        const keyboardDidHideListener = Keyboard.addListener(
+            'keyboardDidHide',
+            () => {
+                scrollRef.current.scrollToEnd({animated: true})
+            }
+        );
+        return () => {
+            keyboardDidHideListener.remove();
+            keyboardDidShowListener.remove();
+        };
+
+    }, []);
+
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();
@@ -144,12 +162,7 @@ const ChatListScreen = (props: any) => {
 			console.log(error);
 		});
 	};
-	const _onScroll = () => {
-        if (!hasScrolled)
-            setHasScrolled(true)
-    };
     const getMore = async () =>{
-        if (!hasScrolled) return null;
         if (lastDoc > 0) {
 			setIsMoreLoading(true)
             setTimeout(async () => {
@@ -374,27 +387,36 @@ const ChatListScreen = (props: any) => {
     }
     const onSend = () => {
         const formdata = new FormData();
+        formdata.append("message", state.message);
+        formdata.append("type", state.type);
+        formdata.append("file",state.type === 'text'?'':state.file);
+        formdata.append("chatroom_id", chatItem.id);
         // let body:any = {
         //     id:0,
         //     message:state.message,
         //     type :state.type,
         //     file_url : state.type === 'text'?'':state.file,
+        //     chatroom_id: chatItem.id,
+        //     user_id: userInfo.id,
         //     created_by: userInfo.id,
+        //     updated_by: userInfo.id,
+        //     deleted_by:null,
         //     created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-        //     localVideo:state.localVideo?state.localVideo:null,
+        //     updated_at: moment().format('YYYY-MM-DD hh:mm:ss'),
+        //     // localVideo:state.localVideo?state.localVideo:null,
+        //     deleted_at:null,
         //     user:{
         //         first_name:userInfo.first_name,
+        //         last_name:userInfo.last_name,
+        //         username:userInfo.username,
         //         profile_photo:userInfo.profile_photo,
-        //     }
+        //     },
+        //     chatroom_messages_status:[]
         // }
         // let mergeArray = [...chatData,body]
         // setChatData(mergeArray);
         // setLocalLoading(chatData.length)
-        ref.current != null? ref.current.scrollToEnd({animated: true}):{}
-        formdata.append("message", state.message);
-        formdata.append("type", state.type);
-        formdata.append("file",state.type === 'text'?'':state.file);
-        formdata.append("chatroom_id", chatItem.id);
+        scrollRef.current.scrollToEnd({animated: true})
         handleChange('message', '');
         handleChange('singleFile', '');
         POST('chatroom_message/create', formdata)
@@ -541,16 +563,8 @@ const ChatListScreen = (props: any) => {
         
         setChatData((chatData:any) => [...chatData]); 
     }
-
-    const existingTranslateList = () => {
-        // nonTranslate.forEach(function (value) {
-        //     console.log(value);
-        // });
-    }
-
     const onPlayVideo = (mess:any,index:any) =>{
         handleChange('vdoIdPlaying', mess.id)
-        // setControll(isShowControl => !isShowControl);
     }
     const onFullVideo = (url:any) =>{
         navigate.navigate('VideoFull',{videos:url});
@@ -565,12 +579,11 @@ const ChatListScreen = (props: any) => {
         return (
             <ActivityIndicator
                 size={25}
-                color={baseColor}
+                color={themeStyle[theme].textColor}
                 style={{ marginVertical: 15 }}
             />
         )
     };
-
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -929,7 +942,7 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     };
-    const Item = ({item, index}:any) => {
+    const Item = (item:any, index:any) => {
         if(transDate){
             if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
                 countTransDate+=1;
@@ -1119,32 +1132,28 @@ const ChatListScreen = (props: any) => {
                                     </View>
                                 </View>
                                 :
-                                <FlatList
-                                    style={{paddingHorizontal: main_padding}}
-                                    ref={ref}
-                                    listKey={makeid()}
-                                    renderItem={Item}
-                                    data={chatData}
-                                    keyExtractor={(_, index) => index.toString()}
-                                    ListFooterComponent={
-                                        <>
-                                            <View style={{
-                                                height: insets.bottom > 0 ? (insets.bottom + 20):70
-                                            }} />
-                                        </>
-                                    }
-                                    onContentSizeChange={() => {
-                                        if (lastDoc == 1 && isTranslate.length == 0) {
-                                            ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                                <>
+                                    {renderFooter()}
+                                    <ScrollView
+                                        ref={scrollRef}
+                                        scrollEventThrottle={400}
+                                        showsVerticalScrollIndicator={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        onContentSizeChange={() => {
+                                            if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
+                                            }
                                         }
-                                    }}
-                                    refreshControl={
-                                        <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
-                                    }
-					                onTouchMove={_onScroll}
-                                    scrollEventThrottle={16}
-                                    onEndReachedThreshold={0.5}
-                                />
+                                        onScroll={({ nativeEvent }) => {
+                                            if (ifCloseToTop(nativeEvent)) {
+                                                getMore();
+                                            }
+                                        }}
+                                    >
+                                        <View style={{padding:main_padding}}>
+                                            {chatData.map((item:any,index:any)=> Item(item,index))}
+                                        </View>
+                                    </ScrollView>
+                                </>
                                
                             }
                         </TouchableWithoutFeedback>
