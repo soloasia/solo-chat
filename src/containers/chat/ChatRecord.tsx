@@ -19,6 +19,8 @@ import reactotron from 'reactotron-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import base64File from '../../functions/BaseFuntion';
 import { LanguageContext } from '../../utils/LangaugeManager';
+import RNFS from 'react-native-fs'
+
 let audioRecorderPlayer:any = null;
 const dirs = RNFetchBlob.fs.dirs;
 const path = Platform.select({
@@ -80,10 +82,20 @@ const ChatRecord = (props: any) => {
         setIsRecord(false);
         const result = await audioRecorderPlayer.stopRecorder();
         await audioRecorderPlayer.removeRecordBackListener();
-        base64File(result).then((res:any)=>{
-            onChangeVoice(res,duration)
-            RNFetchBlob.fs.unlink(result);
-        })
+        if(Platform.OS === 'android'){
+            await RNFS.readFile(result, 'base64').then(res => {
+                onChangeVoice(res,duration)
+                RNFetchBlob.fs.unlink(result);
+            })
+            .catch(err => {
+                console.log(err.message, err.code);
+            });
+        }else{
+            base64File(result).then((res:any)=>{
+                onChangeVoice(res,duration)
+                RNFetchBlob.fs.unlink(result);
+            })
+        }
         // if (!isStop) {
         //     onSendVoice(result);
         // } else {

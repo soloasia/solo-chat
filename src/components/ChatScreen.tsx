@@ -33,7 +33,7 @@ import { onPushPublicNotification } from '../functions/PublicNotification';
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
 let lastDoc: any = 1;
-let perPage: any = 20;
+let perPage: any = 10;
 // const pusher:any = Pusher.getInstance();
 
 const ChatScreen = () => {
@@ -97,9 +97,7 @@ const ChatScreen = () => {
 	useEffect(() => {
         const subscription = AppState.addEventListener("change", nextAppState => {
         if (appState.current.match(/inactive|background/) && nextAppState === "active") {
-			// setTimeout(() => {
-				onNavigate();
-			// }, 1500);
+			onNavigate();
         }
         appState.current = nextAppState;
         });
