@@ -34,9 +34,9 @@ import { onPushPublicNotification } from './src/functions/PublicNotification';
    }
  });
   messaging().setBackgroundMessageHandler(async remoteMessage => {
-    const { data } = remoteMessage
-    reactotron.log(data)
-    onPushPublicNotification(data)
+    // const { data } = remoteMessage
+    // reactotron.log(data)
+    // onPushPublicNotification(data)
   });
 
  const App = () => {

@@ -50,54 +50,52 @@ const ChatScreen = () => {
 	const mycontact = useSelector((state: any) => state.mycontact);
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
-	const route = useRoute();
     const appState = useRef(AppState.currentState);
-
-	useEffect(() => {
-		if(userInfo){
-			var pusher = new Pusher(config.key, config);
-			var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-			orderChannel.bind(`new-message`, (data:any) => {
-				getData();
-			})
-			// async function configPsher() {
-			// 	await pusher.init({
-			// 		apiKey: config.key,
-			// 		cluster:config.cluster
-			// 	})  
-			// 	await pusher.subscribe(
-			// 		{
-			// 			channelName: `App.User.${userInfo.id}`,
-			// 			onEvent: (event:any) => {
-			// 				getData();
-			// 			},
-			// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
-			// 				console.log(`Connection: ${currentState}`);
-			// 			}
-			// 		}
-			// 	);
-			// 	await pusher.connect();
-			// }
-			// configPsher();
-			return () => {
-				pusher.unsubscribe(`App.User.${userInfo.id}`);
-			}
-		}
-	}, []);
-
+	// useEffect(() => {
+	// 	if(userInfo){
+	// 		var pusher = new Pusher(config.key, config);
+	// 		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+	// 		orderChannel.bind(`new-message`, (data:any) => {
+	// 			getData();
+	// 		})
+	// 		// async function configPsher() {
+	// 		// 	await pusher.init({
+	// 		// 		apiKey: config.key,
+	// 		// 		cluster:config.cluster
+	// 		// 	})  
+	// 		// 	await pusher.subscribe(
+	// 		// 		{
+	// 		// 			channelName: `App.User.${userInfo.id}`,
+	// 		// 			onEvent: (event:any) => {
+	// 		// 				getData();
+	// 		// 			},
+	// 		// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
+	// 		// 				console.log(`Connection: ${currentState}`);
+	// 		// 			}
+	// 		// 		}
+	// 		// 	);
+	// 		// 	await pusher.connect();
+	// 		// }
+	// 		// configPsher();
+	// 		return () => {
+	// 			pusher.unsubscribe(`App.User.${userInfo.id}`);
+	// 		}
+	// 	}
+	// }, []);
 	useEffect(() => {
 		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
 		const { data } = remoteMessage
-		if(data.type =='create-group'){
+		onPushPublicNotification(data)
+		if(data.type =='create-group' || data.type =='new-message'){
 			getData();
 		}
 		});
 		return unsubscribe;
 	}, [])
-  
 	useEffect(() => {
         const subscription = AppState.addEventListener("change", nextAppState => {
         if (appState.current.match(/inactive|background/) && nextAppState === "active") {
+			getData();
 			onNavigate();
         }
         appState.current = nextAppState;
@@ -129,7 +127,6 @@ const ChatScreen = () => {
 		searchText: '',
 		searchContactText: ''
 	});
-	
 	const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({ ...state });
@@ -338,12 +335,10 @@ const ChatScreen = () => {
             setIsRefresh(false)
         }, 200);
     };
-
 	const _onScroll = () => {
         if (!hasScrolled)
             setHasScrolled(true)
     };
-
 	function getData() {
 		GET(`me/chatrooms?page=${lastDoc}`)
 		.then(async (result: any) => {
@@ -356,7 +351,6 @@ const ChatScreen = () => {
 			setLoading(false)
 		});
 	}
-
 	const getMore = async () => {
         if (!hasScrolled) return null;
         if (lastDoc > 0) {
@@ -386,7 +380,6 @@ const ChatScreen = () => {
 			}, 200);
         }
     };
-
 	const onChangeContactSearch = (text:any) => {
 		handleChange('searchContactText',text)
 		if(text != ''){
