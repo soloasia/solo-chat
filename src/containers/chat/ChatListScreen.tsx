@@ -38,8 +38,6 @@ import translate from 'translate-google-api';
 import { WebView } from 'react-native-webview';
 import Pusher from 'pusher-js/react-native';
 import { loadData } from '../../functions/LoadData';
-import messaging from '@react-native-firebase/messaging';
-
 
 var config = require('../../config/pusher.json');
 

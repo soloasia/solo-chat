@@ -4,7 +4,7 @@ import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkT
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 import style, { deviceWidth } from "../styles";
-import { backgroundDark, baseColor, greyDark } from "../config/colors";
+import NetInfo from '@react-native-community/netinfo';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ChatScreen from "../components/ChatScreen";
@@ -37,8 +37,8 @@ import MemberScreen from "../containers/chat/MemberScreen";
 import VideoFullScreen from "../containers/chat/VideoFullScreen";
 import reactotron from "reactotron-react-native";
 import { LanguageContext } from "../utils/LangaugeManager";
-import Test from '../components/Test'
-
+import { showToast, ToastStatus } from "../functions/BaseFuntion";
+import { useToast } from "native-base";
 
 // import MemberScreen from "../containers/chat/MemberScreen";
 
@@ -51,12 +51,15 @@ export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
   const dispatch = useDispatch();
+  const no_connection = useSelector( (state: {no_connection: any}) => state.no_connection);
   const auth:any = useAuth();
   const user = useSelector((state: any) => state.user);
   const [splashscreen,setSplash] = useState(true)
   const {theme} : any = useContext(ThemeContext);
   const {tr} : any = useContext(LanguageContext);
-
+  const id = "test-toast"
+  const toast = useToast()
+  
   useEffect(() => {
     checkPermissionNotification();
     requestMobileToken();
@@ -74,6 +77,30 @@ const Route = () => {
       });
       }
   }, [user])
+
+  useEffect(() => {
+    const inter = setInterval(() => {
+      const unsubscribe = NetInfo.addEventListener(
+        (state: {isConnected: any}) => {
+          if (!state.isConnected) {
+            dispatch({type: 'LOAD_NO_CONNECTION', value: true});
+          //  if(!toast.isActive(id)) {
+            // showToast("No Internet Connection", 2000,id);
+            // }
+          } else {
+            dispatch({type: 'LOAD_NO_CONNECTION', value: false});
+          }
+        },
+      );
+      unsubscribe();
+    }, 1000);
+
+    if (no_connection) {
+      clearInterval(inter);
+     
+    }
+  }, []);
+
  
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
@@ -211,7 +238,11 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          {splashscreen? <SplashScreen/>:<MainStack />}
+          {splashscreen?
+           <SplashScreen/>
+            :
+              <MainStack />
+          }
         </NavigationContainer>
     </SafeAreaProvider>
   );
