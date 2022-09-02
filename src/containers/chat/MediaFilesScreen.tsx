@@ -90,9 +90,9 @@ const MediaFilesScreen = (props: any) => {
 
     const _renderMedia = ({ item, index }: any) => {
         return (
-            <TouchableOpacity style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
+            <TouchableOpacity onPress={()=> item.type !='mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)}  style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?
-                    <TouchableOpacity onPress={() => onFullVideo(item.file_url)}>
+                    <View>
                         <Video
                             source={{ uri: item.file_url }}
                             style={{ height: '100%', width: '100%', borderRadius: 5 }}
@@ -108,8 +108,8 @@ const MediaFilesScreen = (props: any) => {
                             <FontAwesome name='play' size={20} color={whiteColor} style={{ marginLeft: 5 }} />
                         </View>
 
-                    </TouchableOpacity>
-                    : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
+                    </View>
+                : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
             </TouchableOpacity>
         )
     }

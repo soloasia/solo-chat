@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking,ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -50,6 +50,7 @@ const ChatListScreen = (props: any) => {
     const mycontact = useSelector((state: any) => state.mycontact);
     const sheetRefGallery = React.useRef<any>(null);
     const ref = useRef<FlatList>(null);
+    const scrollRef:any = useRef();
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
     const {language,tr} : any = useContext(LanguageContext);
@@ -105,8 +106,10 @@ const ChatListScreen = (props: any) => {
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (newMessage:any) => {
+            // _.remove(chatData, function(n:any) {return n.id == 0; });
             if(chatItem.id == newMessage.data.data.chatroom_id){
-                ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
+                ref.current != null? ref.current.scrollToEnd({animated: true}):{}
+                // var mergrChats = [...chatData,newMessage.data.dat];
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
             }
@@ -114,7 +117,8 @@ const ChatListScreen = (props: any) => {
         return () => {
             pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
-    },[])
+    },[chatData])
+    
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();
@@ -157,7 +161,7 @@ const ChatListScreen = (props: any) => {
                             setChatData([...result.data.chatroom_messages.data,..._data])
                             _data.push(...result.data.chatroom_messages.data)
 						}
-                        lastDoc = Math.ceil(_data.length / 10);
+                        lastDoc = Math.ceil(_data.length / perPage);
 						if (result.data.chatroom_messages !== undefined) {
 							if (result.data.chatroom_messages.total <= chatData.length) {
 								lastDoc = 0;
@@ -221,7 +225,7 @@ const ChatListScreen = (props: any) => {
                 let localUrl =  Platform.OS === 'ios'?images.sourceURL: images.path
                 handleChange('localVideo',localUrl)
                 base64File(images.path).then((res:any)=>{
-		            handleChange('type','mp4')
+                    handleChange('type','mp4')
                     handleChange('file',res)
                     onSend()
                 })
@@ -370,21 +374,23 @@ const ChatListScreen = (props: any) => {
     }
     const onSend = () => {
         const formdata = new FormData();
-        let body:any = {
-            message:state.message,
-            type :state.type,
-            file_url : state.type === 'text'?'':state.file,
-            created_by: userInfo.id,
-            created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-            localVideo:state.localVideo?state.localVideo:null,
-            user:{
-                first_name:userInfo.first_name,
-                profile_photo:userInfo.profile_photo,
-            }
-        }
-        setChatData((chatData:any) => [...chatData,body]);
-        setLocalLoading(chatData.length)
-        ref.current != null ? ref.current.scrollToEnd({ animated: true }) : {}
+        // let body:any = {
+        //     id:0,
+        //     message:state.message,
+        //     type :state.type,
+        //     file_url : state.type === 'text'?'':state.file,
+        //     created_by: userInfo.id,
+        //     created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
+        //     localVideo:state.localVideo?state.localVideo:null,
+        //     user:{
+        //         first_name:userInfo.first_name,
+        //         profile_photo:userInfo.profile_photo,
+        //     }
+        // }
+        // let mergeArray = [...chatData,body]
+        // setChatData(mergeArray);
+        // setLocalLoading(chatData.length)
+        ref.current != null? ref.current.scrollToEnd({animated: true}):{}
         formdata.append("message", state.message);
         formdata.append("type", state.type);
         formdata.append("file",state.type === 'text'?'':state.file);
@@ -395,16 +401,6 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 seenMessage(result.data);
-                // chatData.splice(chatData.length, 1);
-                // setChatData(chatData)
-                // let body:any = {
-                //     ...result.data,
-                //     user:{
-                //         first_name:userInfo.first_name,
-                //         profile_photo:userInfo.profile_photo,
-                //     }
-                // }
-                // setChatData((chatData:any) => [...chatData,body]);
                 setLocalLoading(null)
             }
         })
@@ -553,10 +549,6 @@ const ChatListScreen = (props: any) => {
     }
 
     const onPlayVideo = (mess:any,index:any) =>{
-        // const filterVdoMessage = chatData.find((element:any)=>element.id == mess.id)
-		const filterVdoMessage = chatData.find((element : any) => element.id != mess.id);
-        // reactotron.log(filterVdoMessage)
-        console.log('=======', mess.id)
         handleChange('vdoIdPlaying', mess.id)
         // setControll(isShowControl => !isShowControl);
     }
@@ -567,6 +559,18 @@ const ChatListScreen = (props: any) => {
     const onMuteVideo =()=>{
         setMute(isMute => !isMute);
     }
+
+    const renderFooter: any = () => {
+        if (!isMoreLoading) return true;
+        return (
+            <ActivityIndicator
+                size={25}
+                color={baseColor}
+                style={{ marginVertical: 15 }}
+            />
+        )
+    };
+
     const messageImage = (mess:any,index:any) =>{
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start"}]}>    
@@ -619,7 +623,6 @@ const ChatListScreen = (props: any) => {
 
     const _onEndVDO = () => {
         handleChange('vdoIdPlaying',null)
-        console.log('end')
     }
     const messageVideo = (mess:any,index:any) =>{
         return (
@@ -641,9 +644,9 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null } onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
-                            {state.localVideo && isLocalLoading == index?
+                            {/* {state.localVideo && isLocalLoading == index?
                                 
                                 <Video
                                     source={{uri:state.localVideo}}
@@ -653,7 +656,7 @@ const ChatListScreen = (props: any) => {
                                     paused={true}
                                     repeat={true}
                                 />
-                                :
+                                : */}
                                 <Video
                                     source={{uri:mess.file_url}}
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
@@ -668,7 +671,7 @@ const ChatListScreen = (props: any) => {
                                     muted={isMute}
                                     repeat={true}
                                 />
-                            }
+                            {/* } */}
                         </View>
                         {state.vdoIdPlaying ==null || state.vdoIdPlaying != mess.id ?
                             <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
@@ -737,9 +740,14 @@ const ChatListScreen = (props: any) => {
 				]}>
                     <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2, paddingRight: 2}}>
                         <View style={{}}>
-                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
+                            <FontAwesome
+                                name={
+                                    mess.type == 'pdf' ? "file-pdf-o" : mess.type == 'xls' || mess.type == 'xlsx' ? 'file-excel-o'
+                                    : mess.type == 'ppt' || mess.type == 'pptx' || mess.type == 'csv' ? 'file-powerpoint-o'
+                                    : mess.type == 'doc' || mess.type == 'docx' ? 'file-word-o' : mess.type == 'zip' ? 'file-zip-o' : 'link'
+                                } size={20} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
                         </View>
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12, textDecorationLine: 'underline'}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
@@ -782,7 +790,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				<TouchableOpacity onPress={() => openLinkChat(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -790,11 +798,13 @@ const ChatListScreen = (props: any) => {
 					marginVertical: 1
 				}
 				]}>
-                    <View style={{width:deviceWidth/2,height:deviceWidth/2,marginTop:5}}>
-                        <Text selectable={true} selectionColor={'blue'} onPress={() => openLinkChat(mess)} style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5 }}>{mess.message}</Text>
+                    <View style={{width:deviceWidth/1.5,height:deviceWidth/1.2,marginTop:5}}>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5, textDecorationLine: 'underline' }}>{mess.message}</Text>
                         <WebView 
+                            style={{borderRadius: 10}}
                             source={{ uri: mess.message}}
                             scalesPageToFit={false}
+                            scrollEnabled={false}
                         />
                     </View>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
@@ -899,7 +909,7 @@ const ChatListScreen = (props: any) => {
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                         <TouchableOpacity onPress={() => _handleTranslateText(mess.id,mess.message)}>
                             {
-                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 14, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 14, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
+                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Show Orignal</Text> :<Text style = {{color : mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular'}}>Translate</Text> 
                             }
                         </TouchableOpacity>
                     </TouchableOpacity>
@@ -919,7 +929,7 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     };
-    const Item = ({ item, index }: any) => {
+    const Item = ({item, index}:any) => {
         if(transDate){
             if(transDate== moment(item.created_at).format('MMMM DD, YYYY')) {
                 countTransDate+=1;
@@ -1036,40 +1046,52 @@ const ChatListScreen = (props: any) => {
           <Actionsheet isOpen={isShowActionMess} onClose={_onCloseAction}>
             <Actionsheet.Content backgroundColor={themeStyle[theme].backgroundColor}>
                 {itemMessageEdit && itemMessageEdit.type !='text'?
+                    <VStack>
+                        {itemMessageEdit.type == 'url' ? 
+                            <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
+                                <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                                    <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                                    <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
+                                </View>
+                            </TouchableOpacity>
+                        :<View/>}
+                        <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
+                            <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                                <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                                <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </VStack>
+                :<VStack>
+                    <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
+                        <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                            <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                            <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={_editMessageAction} style={{ width: deviceWidth, padding: 10,  }}>
+                        <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                            <Ionicons name='create-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                            <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Edit message text</Text>
+                        </View>
+                    </TouchableOpacity>      
                     <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
                         <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
                             <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
                             <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
                         </View>
                     </TouchableOpacity>
-            
-                :<VStack >
-                    <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
-                    </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={_editMessageAction} style={{ width: deviceWidth, padding: 10,  }}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='create-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Edit message text</Text>
-                    </View>
-                    </TouchableOpacity>      
-                    <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
-                    </View>
-                    </TouchableOpacity>
                 </VStack>}
             </Actionsheet.Content>
           </Actionsheet>
         )
     }
+    const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
+        return contentOffset.y == 0;
+    };
     return (
         <>
-            <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor}}>
+            <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor,}}>
                 <ChatHeader title={getName(chatItem)} rightIcon={rightIcon} onPress={()=>_onTabHeader({chatItem,contactItem})} />
                 <ImageBackground source={{ uri: appearanceTheme.themurl }} resizeMode="cover" style={{ width: deviceWidth, height: deviceHeight }}>
                     <KeyboardAvoidingView style={{ ...styles.chatContent, height: deviceHeight * .8, }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -1104,7 +1126,6 @@ const ChatListScreen = (props: any) => {
                                     renderItem={Item}
                                     data={chatData}
                                     keyExtractor={(_, index) => index.toString()}
-                                    initialNumToRender={chatData.length}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
@@ -1117,11 +1138,6 @@ const ChatListScreen = (props: any) => {
                                             ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
                                         }
                                     }}
-                                    // onLayout={() => {
-                                    //     if (lastDoc ==1 && isTranslate.length == 0) {
-                                    //         ref.current != null ? ref.current.scrollToEnd({ animated: true}) : {}
-                                    //     }
-                                    // }}
                                     refreshControl={
                                         <RefreshControl refreshing={isMoreLoading} onRefresh={getMore} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor}/>
                                     }
@@ -1129,6 +1145,7 @@ const ChatListScreen = (props: any) => {
                                     scrollEventThrottle={16}
                                     onEndReachedThreshold={0.5}
                                 />
+                               
                             }
                         </TouchableWithoutFeedback>
                         {state.isEdit ? 

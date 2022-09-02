@@ -164,3 +164,35 @@ export const actionGroupChatProfile = [
                 //                     scrollEventThrottle={16}
                 //                     onEndReachedThreshold={0.5}
                 //                 />
+
+            //     <ScrollView
+            //     ref={scrollRef}
+            //     showsVerticalScrollIndicator={false}
+            //     showsHorizontalScrollIndicator={false}
+            //     onContentSizeChange={() => {
+            //         if (lastDoc == 1 && isTranslate.length == 0) {
+            //             scrollRef.current.scrollToEnd({y:0,animated: true})
+            //         }
+            //         }
+            //     }
+            //     nestedScrollEnabled
+            //     alwaysBounceVertical={false}
+            //     scrollEventThrottle={400}
+            //     pinchGestureEnabled={false}
+            //     onScroll={({ nativeEvent }) => {
+            //         reactotron.log(nativeEvent)
+            //         if (ifCloseToTop(nativeEvent)) {
+            //             getMore();
+            //         }
+            //     }}
+            //     contentInset={{
+            //         top: 10,
+            //         left: 30,
+            //         bottom: 0,
+            //         right: 30,
+            //     }}
+            // >
+            //     <View style={{padding:main_padding,paddingTop:0}}>
+            //         {chatData.map((item:any,index:any)=>Item(item,index))}
+            //     </View>
+            // </ScrollView>
