@@ -1,9 +1,9 @@
 //import liraries
 import React, { Component, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator, RefreshControl } from 'react-native';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { main_padding } from '../../config/settings';
-import { FlatListHorizontal, makeid } from '../../customs_items/Components';
+import { FlatListHorizontal, Footer, makeid } from '../../customs_items/Components';
 import { deviceWidth } from '../../styles/index';
 import { textDesColor, whiteColor, baseColor, whiteSmoke, textColor, placeholderDarkTextColor, borderDivider, textSecondColor, primaryDark } from '../../config/colors';
 import MediaWidget from '../../components/MediaWidget';
@@ -21,9 +21,11 @@ import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
+import themeStyle from '../../styles/theme';
 
 const listheadertext = ['Media', 'File', 'Link']
 let lastDoc: any = 1;
+let perPage: any = 30;
 
 const MediaFilesScreen = (props: any) => {
     const { userChat } = props.route.params
@@ -31,21 +33,20 @@ const MediaFilesScreen = (props: any) => {
     const [documents, setDocuments] = useState<any>([])
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
-
+    const [hasScrolled, setHasScrolled] = useState(false);
+	const [isRefresh, setIsRefresh] = useState(false);
+	const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [selectedHeader, setSeletedHeader] = useState('media')
+
     useEffect(() => {
         requestDocumentAPI(selectedHeader)
     }, []);
-
-
-
     const onSetHeaderItem = ({ item, index }: any) => {
         requestDocumentAPI(item.toLowerCase())
         setHeaderIdx(index)
     }
-
     const requestDocumentAPI = (selectedHeader: any) => {
-        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}`)
+        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}&per_page=${perPage}`)
             .then(async (result: any) => {
                 if (result.status) {
                     setDocuments(result.data.data)
@@ -54,12 +55,9 @@ const MediaFilesScreen = (props: any) => {
             .catch(e => {
             });
     }
-
-
     const onFullVideo = (url: any) => {
         navigate.navigate('VideoFull', { videos: url });
     }
-
     const _onOpenFile = (mess: any) => {
         const headers = {
             'Accept': 'application/pdf',
@@ -82,17 +80,69 @@ const MediaFilesScreen = (props: any) => {
                 console.log('error')
             });
     }
-
     const openLinkChat = (mess:any) =>{
         let checkUrlLink = mess.message.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
         checkUrlLink != null ? Linking.openURL(checkUrlLink[0]) : null;
     }
+    
+    const renderFooter: any = () => {
+        if (!isMoreLoading) return true;
+        return (
+            <ActivityIndicator
+                size={25}
+                color={baseColor}
+                style={{ marginVertical: 15 }}
+            />
+        )
+    };
+
+	const onRefresh = () => {
+        setIsRefresh(true)
+        lastDoc = 1;
+        requestDocumentAPI(selectedHeader);
+        setTimeout(() => {
+            setIsRefresh(false)
+        }, 200);
+    };
+	const _onScroll = () => {
+        if (!hasScrolled)
+            setHasScrolled(true)
+    };
+    const getMore = async () => {
+        if (!hasScrolled) return null;
+        if (lastDoc > 0) {
+			setIsMoreLoading(true)
+			setTimeout(async () => {
+				GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc + 1}&per_page=${perPage}`)
+				.then(async (result) => {
+					if(result.status) {
+						lastDoc += 1;
+						let _data : any = documents;
+						if (result.status && result.data.data.length !== 0) {
+                            setDocuments([_data,...result.data.data])
+							_data.push(...result.data.data)
+						}
+						lastDoc = Math.ceil(_data.length / 20);
+						if (result.data.data !== undefined) {
+							if (result.data.total <= documents.length) {
+								lastDoc = 0;
+							}
+						}
+					}
+					setIsMoreLoading(false)
+				})
+				.catch(e => {
+					setIsMoreLoading(false)
+				});
+			}, 200);
+        }
+    };
 
     const _renderMedia = ({ item, index }: any) => {
         return (
-            <TouchableOpacity style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
+            <TouchableOpacity onPress={()=> item.type !='mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)}  style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?
-                    <TouchableOpacity onPress={() => onFullVideo(item.file_url)}>
+                    <View>
                         <Video
                             source={{ uri: item.file_url }}
                             style={{ height: '100%', width: '100%', borderRadius: 5 }}
@@ -108,12 +158,11 @@ const MediaFilesScreen = (props: any) => {
                             <FontAwesome name='play' size={20} color={whiteColor} style={{ marginLeft: 5 }} />
                         </View>
 
-                    </TouchableOpacity>
-                    : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
+                    </View>
+                : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
             </TouchableOpacity>
         )
     }
-
     const _renderFileandLink = ({ item, index }: any) => {
         if(item.type =='mp3') return null;
         return (
@@ -135,7 +184,6 @@ const MediaFilesScreen = (props: any) => {
             </TouchableOpacity>
         )
     }
-
     const _renderItem = ({ item, index }: any) => {
         return (
             <View style={{ width: deviceWidth / 3.5, marginLeft: index == 0 ? 5 : 10 }}>
@@ -152,7 +200,6 @@ const MediaFilesScreen = (props: any) => {
             </View>
         )
     }
-
     const _mediaContainer = () => {
         return (
             <FlatList
@@ -167,7 +214,6 @@ const MediaFilesScreen = (props: any) => {
             />
         )
     }
-
     return (
         <BaseComponent {...baseComponentData} title='Media, files & links'>
             <View style={{ flex: 1, paddingHorizontal: main_padding, marginTop: main_padding - 5 }}>
@@ -191,6 +237,21 @@ const MediaFilesScreen = (props: any) => {
                             data={documents}
                             renderItem={_renderFileandLink}
                             keyExtractor={(_, index) => index.toString()}
+                            refreshControl={
+                                <RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor} />
+                            }
+                            ListFooterComponent={
+                                <>
+                                    {isMoreLoading && lastDoc !== 0 && renderFooter()}
+                                    <Footer />
+                                </>
+                            }
+                            onTouchMove={_onScroll}
+                            onEndReached={() => {
+                                if (!isMoreLoading &&  documents.length > 8) {
+                                    getMore();
+                                }
+                            }}
                         />}
                 </View>
             </View>

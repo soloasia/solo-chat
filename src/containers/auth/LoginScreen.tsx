@@ -142,12 +142,12 @@ const LoginScreen = (props: any) => {
                     </TouchableWithoutFeedback>
                     <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:Platform.OS ==='ios'? insets.bottom:20}}>
                         <TouchableOpacity onPress={onLogin} style={{height: 45,backgroundColor: startBtn, width: deviceWidth*.9, borderRadius: 25, alignItems: 'center', justifyContent: 'center'}}>
-                            <Text style={[style.p,{color:whiteSmoke}]}>Log In</Text>
+                            <Text style={[style.p,{color:whiteSmoke}]}>{tr("log_in")}</Text>
                         </TouchableOpacity>
                         <HStack marginTop='3' alignItems='center' justifyContent='center'>
-                            <TextItem style={[style.p,{fontSize:12}]}>Don't have an account? </TextItem>
+                            <TextItem style={[style.p,{fontSize:12}]}>{tr("dont_have_acc")} </TextItem>
                             <TouchableOpacity onPress={()=>navigate.navigate('Signup')}>
-                                <Text style={[style.p,{color:startBtn}]}> Sign Up here</Text>
+                                <Text style={[style.p,{color:startBtn}]}> {tr("sign_up_here")}</Text>
                             </TouchableOpacity>
                         </HStack>
                     </View>

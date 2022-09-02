@@ -105,12 +105,9 @@ const ChatListScreen = (props: any) => {
         seenMessage(last_message);
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-		orderChannel.bind(`new-message`, (newMessage:any) => {
-            reactotron.log( newMessage.data.data)
-            // _.remove(chatData, function(n:any) {return n.id == 0; });
+		orderChannel.bind('new-message', (newMessage:any) => {
             if(chatItem.id == newMessage.data.data.chatroom_id){
                 scrollRef.current.scrollToEnd({animated: true})
-                // var mergrChats = [...chatData,newMessage.data.dat];
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
             }
@@ -347,13 +344,13 @@ const ChatListScreen = (props: any) => {
     const renderHeader = () => (
         <View style={styles.header}>
 			<TouchableOpacity onPress={() => sheetRefGallery.current.snapTo(2)} style={styles.panelHeader}>
-				<Text style={[style.p,{color:baseColor, fontSize:13}]}>CANCEL</Text>
+				<Text style={[style.p,{color:baseColor, fontSize:13}]}>{tr("cancel")}</Text>
 			</TouchableOpacity>
 			<View style={styles.panelHeader}>
 				<View style={styles.panelHandle} />
 			</View>
 			<TouchableOpacity onPress={onSendImage} style={styles.panelHeader}>
-				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>DONE</Text>:<Box style={{width:50}}/>}
+				{state.image?<Text style={[style.p,{color:baseColor, fontSize: 14, fontWeight: '700'}]}>{tr("done")}</Text>:<Box style={{width:50}}/>}
 			</TouchableOpacity>
         </View>
     )
@@ -390,27 +387,36 @@ const ChatListScreen = (props: any) => {
     }
     const onSend = () => {
         const formdata = new FormData();
+        formdata.append("message", state.message);
+        formdata.append("type", state.type);
+        formdata.append("file",state.type === 'text'?'':state.file);
+        formdata.append("chatroom_id", chatItem.id);
         // let body:any = {
         //     id:0,
         //     message:state.message,
         //     type :state.type,
         //     file_url : state.type === 'text'?'':state.file,
+        //     chatroom_id: chatItem.id,
+        //     user_id: userInfo.id,
         //     created_by: userInfo.id,
+        //     updated_by: userInfo.id,
+        //     deleted_by:null,
         //     created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-        //     localVideo:state.localVideo?state.localVideo:null,
+        //     updated_at: moment().format('YYYY-MM-DD hh:mm:ss'),
+        //     // localVideo:state.localVideo?state.localVideo:null,
+        //     deleted_at:null,
         //     user:{
         //         first_name:userInfo.first_name,
+        //         last_name:userInfo.last_name,
+        //         username:userInfo.username,
         //         profile_photo:userInfo.profile_photo,
-        //     }
+        //     },
+        //     chatroom_messages_status:[]
         // }
         // let mergeArray = [...chatData,body]
         // setChatData(mergeArray);
         // setLocalLoading(chatData.length)
         scrollRef.current.scrollToEnd({animated: true})
-        formdata.append("message", state.message);
-        formdata.append("type", state.type);
-        formdata.append("file",state.type === 'text'?'':state.file);
-        formdata.append("chatroom_id", chatItem.id);
         handleChange('message', '');
         handleChange('singleFile', '');
         POST('chatroom_message/create', formdata)
@@ -651,7 +657,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null } onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
                             {/* {state.localVideo && isLocalLoading == index?
                                 
@@ -747,9 +753,14 @@ const ChatListScreen = (props: any) => {
 				]}>
                     <HStack alignItems={'center'} paddingTop={2} style={{maxWidth: deviceWidth/2, paddingRight: 2}}>
                         <View style={{}}>
-                            <FontAwesome name='file-text' size={25} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
+                            <FontAwesome
+                                name={
+                                    mess.type == 'pdf' ? "file-pdf-o" : mess.type == 'xls' || mess.type == 'xlsx' ? 'file-excel-o'
+                                    : mess.type == 'ppt' || mess.type == 'pptx' || mess.type == 'csv' ? 'file-powerpoint-o'
+                                    : mess.type == 'doc' || mess.type == 'docx' ? 'file-word-o' : mess.type == 'zip' ? 'file-zip-o' : 'link'
+                                } size={20} color={mess.created_by == userInfo.id ? whiteColor:textSecondColor } />
                         </View>
-						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12}]}>{mess.message}.{mess.type}</Text>
+						<Text style={[style.p,{color:mess.created_by == userInfo.id ? whiteColor:  theme == 'dark' ? '#D1D1D1' : baseColor ,paddingLeft:10, fontSize: 12, textDecorationLine: 'underline'}]}>{mess.message}.{mess.type}</Text>
                     </HStack>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
 				</TouchableOpacity>
@@ -792,7 +803,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				<TouchableOpacity onPress={() => openLinkChat(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -800,11 +811,13 @@ const ChatListScreen = (props: any) => {
 					marginVertical: 1
 				}
 				]}>
-                    <View style={{width:deviceWidth/2,height:deviceWidth/2,marginTop:5}}>
-                        <Text selectable={true} selectionColor={'blue'} onPress={() => openLinkChat(mess)} style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5 }}>{mess.message}</Text>
+                    <View style={{width:deviceWidth/1.5,height:deviceWidth/1.2,marginTop:5}}>
+                        <Text style={{ color: mess.created_by == userInfo.id ? whiteColor:theme == 'dark' ? '#D1D1D1' : textColor  , fontSize: textsize, fontFamily: 'Montserrat-Regular',paddingBottom:5, textDecorationLine: 'underline' }}>{mess.message}</Text>
                         <WebView 
+                            style={{borderRadius: 10}}
                             source={{ uri: mess.message}}
                             scalesPageToFit={false}
+                            scrollEnabled={false}
                         />
                     </View>
 					<Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ?  whiteColor:  theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft:100, fontFamily: 'Montserrat-Regular',marginTop:3 }}>{moment(mess.created_at).format('HH:mm A')}</Text>
@@ -899,7 +912,7 @@ const ChatListScreen = (props: any) => {
                     }
                     <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
-                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' :'#F0F0F2' ,
+                            backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? themeStyle[theme].primary :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
                             borderBottomLeftRadius: mess.created_by == userInfo.id? 20 : 0,
                             marginVertical: 1,
@@ -1046,31 +1059,40 @@ const ChatListScreen = (props: any) => {
           <Actionsheet isOpen={isShowActionMess} onClose={_onCloseAction}>
             <Actionsheet.Content backgroundColor={themeStyle[theme].backgroundColor}>
                 {itemMessageEdit && itemMessageEdit.type !='text'?
+                    <VStack>
+                        {itemMessageEdit.type == 'url' ? 
+                            <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
+                                <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                                    <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                                    <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
+                                </View>
+                            </TouchableOpacity>
+                        :<View/>}
+                        <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
+                            <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                                <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                                <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
+                            </View>
+                        </TouchableOpacity>
+                    </VStack>
+                :<VStack>
+                    <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
+                        <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                            <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                            <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
+                        </View>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={_editMessageAction} style={{ width: deviceWidth, padding: 10,  }}>
+                        <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
+                            <Ionicons name='create-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
+                            <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Edit message text</Text>
+                        </View>
+                    </TouchableOpacity>      
                     <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
                         <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
                             <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
                             <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
                         </View>
-                    </TouchableOpacity>
-            
-                :<VStack >
-                    <TouchableOpacity onPress={_onCopy} style={{ width: deviceWidth, padding: 10, }}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='copy-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Copy message text</Text>
-                    </View>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={_editMessageAction} style={{ width: deviceWidth, padding: 10,  }}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='create-outline' size={20} color={textDesColor} style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center', fontSize: 13, fontFamily: 'Montserrat-Regular', color: textDesColor, marginLeft: 10  }}>Edit message text</Text>
-                    </View>
-                    </TouchableOpacity>      
-                    <TouchableOpacity onPress={_removeMessageAction} style={{ width: deviceWidth, padding: 10}}>
-                    <View style ={{alignContent : 'flex-start',flexDirection : 'row',alignItems : 'center' ,padding : 8}}>
-                        <Ionicons name='trash-outline' size={20} color='red' style={{ alignSelf: 'flex-end' ,paddingRight : 6}} />
-                        <Text style={{ textAlign: 'center',color : '#AF0909', fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: 10  }}>Remove message</Text>
-                    </View>
                     </TouchableOpacity>
                 </VStack>}
             </Actionsheet.Content>

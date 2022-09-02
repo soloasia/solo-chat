@@ -141,7 +141,7 @@ const Route = () => {
     return (
       <Tab.Navigator
         backBehavior="initialRoute"
-        initialRouteName="Chats"
+        initialRouteName={tr("chats")}
         screenOptions={({ route }) => ({
           headerShown: false,
           resetOnBlur : false,
