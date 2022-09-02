@@ -42,7 +42,7 @@ var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
-let perPage: any=20;
+let perPage: any=10;
 let transDate: any = null;
 let audioRecorderPlayer:any = null;
 const ChatListScreen = (props: any) => {
@@ -106,8 +106,10 @@ const ChatListScreen = (props: any) => {
 		var pusher = new Pusher(config.key, config);
         var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 		orderChannel.bind(`new-message`, (newMessage:any) => {
+            // _.remove(chatData, function(n:any) {return n.id == 0; });
             if(chatItem.id == newMessage.data.data.chatroom_id){
                 ref.current != null? ref.current.scrollToEnd({animated: true}):{}
+                // var mergrChats = [...chatData,newMessage.data.dat];
                 setChatData((chatData:any) => [...chatData,newMessage.data.data]);
                 seenMessage(newMessage.data.data);
             }
@@ -115,7 +117,8 @@ const ChatListScreen = (props: any) => {
         return () => {
             pusher.unsubscribe(`App.User.${userInfo.id}`);
         }
-    },[])
+    },[chatData])
+    
     function seenMessage(last_message:any){
         if(last_message){
             const formdata = new FormData();
@@ -222,7 +225,7 @@ const ChatListScreen = (props: any) => {
                 let localUrl =  Platform.OS === 'ios'?images.sourceURL: images.path
                 handleChange('localVideo',localUrl)
                 base64File(images.path).then((res:any)=>{
-		            handleChange('type','mp4')
+                    handleChange('type','mp4')
                     handleChange('file',res)
                     onSend()
                 })
@@ -372,6 +375,7 @@ const ChatListScreen = (props: any) => {
     const onSend = () => {
         const formdata = new FormData();
         // let body:any = {
+        //     id:0,
         //     message:state.message,
         //     type :state.type,
         //     file_url : state.type === 'text'?'':state.file,
@@ -383,7 +387,8 @@ const ChatListScreen = (props: any) => {
         //         profile_photo:userInfo.profile_photo,
         //     }
         // }
-        // setChatData((chatData:any) => [...chatData,body]);
+        // let mergeArray = [...chatData,body]
+        // setChatData(mergeArray);
         // setLocalLoading(chatData.length)
         ref.current != null? ref.current.scrollToEnd({animated: true}):{}
         formdata.append("message", state.message);
@@ -396,17 +401,7 @@ const ChatListScreen = (props: any) => {
         .then(async (result: any) => {
             if(result.status){
                 seenMessage(result.data);
-                // chatData.splice(chatData.length, 1);
-                // setChatData(chatData)
-                // let body:any = {
-                //     ...result.data,
-                //     user:{
-                //         first_name:userInfo.first_name,
-                //         profile_photo:userInfo.profile_photo,
-                //     }
-                // }
-                // setChatData((chatData:any) => [...chatData,body]);
-                // setLocalLoading(null)
+                setLocalLoading(null)
             }
         })
     }
@@ -1131,7 +1126,6 @@ const ChatListScreen = (props: any) => {
                                     renderItem={Item}
                                     data={chatData}
                                     keyExtractor={(_, index) => index.toString()}
-                                    initialNumToRender={chatData.length}
                                     ListFooterComponent={
                                         <>
                                             <View style={{
