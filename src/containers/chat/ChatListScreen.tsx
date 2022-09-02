@@ -38,6 +38,9 @@ import translate from 'translate-google-api';
 import { WebView } from 'react-native-webview';
 import Pusher from 'pusher-js/react-native';
 import { loadData } from '../../functions/LoadData';
+import messaging from '@react-native-firebase/messaging';
+
+
 var config = require('../../config/pusher.json');
 
 let lastDoc: any = 1;
@@ -99,8 +102,7 @@ const ChatListScreen = (props: any) => {
             loadData(dispatch);
         })
     ), [navigate]);
-
-    useEffect(()=>{
+     useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
         seenMessage(last_message);
 		var pusher = new Pusher(config.key, config);
