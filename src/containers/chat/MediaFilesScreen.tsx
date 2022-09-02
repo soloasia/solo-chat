@@ -119,7 +119,7 @@ const MediaFilesScreen = (props: any) => {
 						lastDoc += 1;
 						let _data : any = documents;
 						if (result.status && result.data.data.length !== 0) {
-                            setDocuments([_data,...result.data.data])
+                            setDocuments([...result.data.data,_data])
 							_data.push(...result.data.data)
 						}
 						lastDoc = Math.ceil(_data.length / 20);
