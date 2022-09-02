@@ -18,7 +18,7 @@
 		E808DC7328ACD5E7000485CD /* Montserrat-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E808DC7128ACD5D0000485CD /* Montserrat-Regular.ttf */; };
 		E89597082899176200A5FC47 /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E89597062899175400A5FC47 /* Lato-Bold.ttf */; };
 		E89597092899176200A5FC47 /* Lato-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E89597072899175400A5FC47 /* Lato-Regular.ttf */; };
-		E8CC700628C088D900B12A21 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E8CC700528C088D900B12A21 /* GoogleService-Info.plist */; };
+		EE3E29F028C1DA6600B25AA0 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = EE3E29EF28C1DA6600B25AA0 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,9 +52,9 @@
 		E808DC7128ACD5D0000485CD /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Montserrat-Regular.ttf"; sourceTree = "<group>"; };
 		E89597062899175400A5FC47 /* Lato-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Bold.ttf"; sourceTree = "<group>"; };
 		E89597072899175400A5FC47 /* Lato-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Lato-Regular.ttf"; sourceTree = "<group>"; };
-		E8CC700528C088D900B12A21 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../GoogleService-Info.plist"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		EE2BDAA1289CCB0000D142E9 /* solochat.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = solochat.entitlements; path = solochat/solochat.entitlements; sourceTree = "<group>"; };
+		EE3E29EF28C1DA6600B25AA0 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,7 +97,7 @@
 		13B07FAE1A68108700A75B9A /* solochat */ = {
 			isa = PBXGroup;
 			children = (
-				E8CC700528C088D900B12A21 /* GoogleService-Info.plist */,
+				EE3E29EF28C1DA6600B25AA0 /* GoogleService-Info.plist */,
 				EE2BDAA1289CCB0000D142E9 /* solochat.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -274,7 +274,7 @@
 				E89597092899176200A5FC47 /* Lato-Regular.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				E8CC700628C088D900B12A21 /* GoogleService-Info.plist in Resources */,
+				EE3E29F028C1DA6600B25AA0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,6 @@
 //import liraries
-import React, { Component, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { Component, useContext, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { main_padding } from '../../config/settings';
 import { FlatListHorizontal, Footer, makeid } from '../../customs_items/Components';
@@ -10,49 +10,61 @@ import MediaWidget from '../../components/MediaWidget';
 import FileWidget from '../../components/FileWidget';
 import reactotron from 'reactotron-react-native';
 import { GET } from '../../functions/BaseFuntion';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import Video from 'react-native-video';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { HStack } from 'native-base';
 import { ThemeContext } from '../../utils/ThemeManager';
-import moment from 'moment';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import themeStyle from '../../styles/theme';
+import moment from 'moment';
+import CustomLoading from '../../customs_items/CustomLoading';
+import FastImage from 'react-native-fast-image';
 
 const listheadertext = ['Media', 'File', 'Link']
 let lastDoc: any = 1;
-let perPage: any = 30;
-
+let perPage: any = 10;
+// let selectedHeader = 'media';
 const MediaFilesScreen = (props: any) => {
     const { userChat } = props.route.params
+    const scrollRef:any = useRef();
     const [headerIdx, setHeaderIdx] = useState(0)
     const [documents, setDocuments] = useState<any>([])
+    const [mediaData, setMediaData] = useState<any>([])
+
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
     const [hasScrolled, setHasScrolled] = useState(false);
-	const [isRefresh, setIsRefresh] = useState(false);
-	const [isMoreLoading, setIsMoreLoading] = useState(false);
+    const [isRefresh, setIsRefresh] = useState(false);
+    const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [selectedHeader, setSeletedHeader] = useState('media')
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         requestDocumentAPI(selectedHeader)
     }, []);
     const onSetHeaderItem = ({ item, index }: any) => {
+        setLoading(true)
+        setSeletedHeader(item.toLowerCase())
         requestDocumentAPI(item.toLowerCase())
         setHeaderIdx(index)
     }
     const requestDocumentAPI = (selectedHeader: any) => {
-        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}&per_page=${perPage}`)
+        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}`)
             .then(async (result: any) => {
                 if (result.status) {
-                    setDocuments(result.data.data)
+                    const reverseDocData = result.data.data.reverse()
+                    selectedHeader == 'media' ? setMediaData(reverseDocData) :setDocuments(reverseDocData)
+                    setLoading(false)
+
                 }
             })
             .catch(e => {
+                setLoading(false)
             });
     }
     const onFullVideo = (url: any) => {
@@ -80,11 +92,11 @@ const MediaFilesScreen = (props: any) => {
                 console.log('error')
             });
     }
-    const openLinkChat = (mess:any) =>{
+    const openLinkChat = (mess: any) => {
         let checkUrlLink = mess.message.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g);
         checkUrlLink != null ? Linking.openURL(checkUrlLink[0]) : null;
     }
-    
+
     const renderFooter: any = () => {
         if (!isMoreLoading) return true;
         return (
@@ -96,7 +108,7 @@ const MediaFilesScreen = (props: any) => {
         )
     };
 
-	const onRefresh = () => {
+    const onRefresh = () => {
         setIsRefresh(true)
         lastDoc = 1;
         requestDocumentAPI(selectedHeader);
@@ -104,43 +116,43 @@ const MediaFilesScreen = (props: any) => {
             setIsRefresh(false)
         }, 200);
     };
-	const _onScroll = () => {
+    const _onScroll = () => {
         if (!hasScrolled)
             setHasScrolled(true)
     };
     const getMore = async () => {
         if (!hasScrolled) return null;
         if (lastDoc > 0) {
-			setIsMoreLoading(true)
-			setTimeout(async () => {
-				GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc + 1}&per_page=${perPage}`)
-				.then(async (result) => {
-					if(result.status) {
-						lastDoc += 1;
-						let _data : any = documents;
-						if (result.status && result.data.data.length !== 0) {
-                            setDocuments([...result.data.data,_data])
-							_data.push(...result.data.data)
-						}
-						lastDoc = Math.ceil(_data.length / 20);
-						if (result.data.data !== undefined) {
-							if (result.data.total <= documents.length) {
-								lastDoc = 0;
-							}
-						}
-					}
-					setIsMoreLoading(false)
-				})
-				.catch(e => {
-					setIsMoreLoading(false)
-				});
-			}, 200);
+            setIsMoreLoading(true)
+            setTimeout(async () => {
+                GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc + 1}&per_page=${perPage}`)
+                    .then(async (result) => {
+                        if (result.status) {
+                            lastDoc += 1;
+                            let _data: any = documents;
+                            if (result.status && result.data.data.length !== 0) {
+                                selectedHeader == 'media' ? setMediaData([...result.data.data, _data]) :setDocuments([...result.data.data, _data])
+                                _data.push(...result.data.data.reverse())
+                            }
+                            lastDoc = Math.ceil(_data.length / 20);
+                            if (result.data.data !== undefined) {
+                                if (result.data.total <= documents.length) {
+                                    lastDoc = 0;
+                                }
+                            }
+                        }
+                        setIsMoreLoading(false)
+                    })
+                    .catch(e => {
+                        setIsMoreLoading(false)
+                    });
+            }, 200);
         }
     };
 
     const _renderMedia = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={()=> item.type !='mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)}  style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
+            <TouchableOpacity onPress={() => item.type != 'mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)} style={{ backgroundColor: '#E9E9E99D', height: 140, width: '31.6%', margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?
                     <View>
                         <Video
@@ -159,26 +171,26 @@ const MediaFilesScreen = (props: any) => {
                         </View>
 
                     </View>
-                : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
+                : <FastImage source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
             </TouchableOpacity>
         )
     }
     const _renderFileandLink = ({ item, index }: any) => {
-        if(item.type =='mp3') return null;
+        if (item.type == 'mp3') return null;
         return (
             <TouchableOpacity onPress={() => item.type == 'url' ? openLinkChat(item) : _onOpenFile(item)} style={{ backgroundColor: theme == 'dark' ? primaryDark : '#F0F0F2', padding: main_padding, paddingBottom: 5, marginTop: 7, borderRadius: 10 }}>
                 <HStack alignItems='center'>
-                    {item.type == 'url' ? 
-                        <Feather name='link' size={25} color={textSecondColor}/>
-                    :
-                    <FontAwesome
-                        name={
-                            item.type == 'pdf' ? "file-pdf-o" : item.type == 'xls' || item.type == 'xlsx' ? 'file-excel-o'
-                                : item.type == 'ppt' || item.type == 'pptx' || item.type == 'csv' ? 'file-powerpoint-o'
-                                    : item.type == 'doc' || item.type == 'docx' ? 'file-word-o' : item.type == 'zip' ? 'file-zip-o' : 'file-text-o'
-                        } size={25} color={textSecondColor} />
+                    {item.type == 'url' ?
+                        <Feather name='link' size={25} color={textSecondColor} />
+                        :
+                        <FontAwesome
+                            name={
+                                item.type == 'pdf' ? "file-pdf-o" : item.type == 'xls' || item.type == 'xlsx' ? 'file-excel-o'
+                                    : item.type == 'ppt' || item.type == 'pptx' || item.type == 'csv' ? 'file-powerpoint-o'
+                                        : item.type == 'doc' || item.type == 'docx' ? 'file-word-o' : item.type == 'zip' ? 'file-zip-o' : 'file-text-o'
+                            } size={25} color={textSecondColor} />
                     }
-                    <Text style={{ fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: main_padding - 5, textDecorationLine: item.type =='url' ? 'underline' : 'none', color: item.type == 'url' ? baseColor : theme == 'dark' ? '#D1D1D1' : textColor }}>{item.message + '.' + item.type}</Text>
+                    <Text style={{ fontSize: 13, fontFamily: 'Montserrat-Regular', marginLeft: main_padding - 5, textDecorationLine: item.type == 'url' ? 'underline' : 'none', color: item.type == 'url' ? baseColor : theme == 'dark' ? '#D1D1D1' : textColor }}>{item.message + '.' + item.type}</Text>
                 </HStack>
                 <Text style={{ fontFamily: 'Montserrat-Regular', textAlign: 'right', color: textSecondColor, fontSize: 10, marginTop: 5 }}>{moment(item.created_at).format('MMMM DD, YYYY  HH:mm')}</Text>
             </TouchableOpacity>
@@ -190,12 +202,12 @@ const MediaFilesScreen = (props: any) => {
                 <TouchableOpacity
                     onPress={() => onSetHeaderItem({ item, index })}
                     style={{
-                        backgroundColor: index == headerIdx ? baseColor : whiteColor,
+                        backgroundColor: index == headerIdx ? baseColor : themeStyle[theme].backgroundColor,
                         borderRadius: 20,
                         alignItems: 'center', padding: 5
                     }}
                 >
-                    <Text style={{ fontSize: 14, fontFamily: 'lato', fontWeight: index == headerIdx ? 'bold' : 'normal', color: index == headerIdx ? whiteSmoke : textColor }}>{item.toUpperCase()}{index != 0 ? 'S' : ""}</Text>
+                    <Text style={{ fontSize: 14, fontFamily: 'lato', fontWeight: index == headerIdx ? 'bold' : 'normal', color: index == headerIdx ? whiteSmoke : themeStyle[theme].textColor }}>{item.toUpperCase()}{index != 0 ? 'S' : ""}</Text>
                 </TouchableOpacity>
             </View>
         )
@@ -206,14 +218,32 @@ const MediaFilesScreen = (props: any) => {
                 key='media'
                 listKey={makeid()}
                 showsVerticalScrollIndicator={false}
-                scrollEnabled={true}
-                data={documents}
+                // inverted
+                data={mediaData}
                 renderItem={_renderMedia}
                 numColumns={3}
                 keyExtractor={(_, index) => index.toString()}
+                refreshControl={
+                    <RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]} tintColor={themeStyle[theme].textColor} />
+                }
+                ListFooterComponent={
+                    <>
+                        {isMoreLoading && lastDoc !== 0 && renderFooter()}
+                        <Footer />
+                    </>
+                }
+                onTouchMove={_onScroll}
+                onEndReached={() => {
+                    if (!isMoreLoading && documents.length > 8) {
+                        getMore();
+                    }
+                }}
             />
         )
     }
+    const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
+        return contentOffset.y == 0;
+    };
     return (
         <BaseComponent {...baseComponentData} title='Media, files & links'>
             <View style={{ flex: 1, paddingHorizontal: main_padding, marginTop: main_padding - 5 }}>
@@ -228,17 +258,37 @@ const MediaFilesScreen = (props: any) => {
                 <View style={{ paddingTop: main_padding - 5, flex: 1 }}>
                     {headerIdx == 0 ?
                         _mediaContainer()
+
+                        // <>
+                        //     {renderFooter()}
+                        //     <ScrollView contentContainerStyle={{width:'100%', flexWrap:'wrap'}}
+                        //         ref={scrollRef}
+                        //         scrollEventThrottle={400}
+                        //         showsVerticalScrollIndicator={false}
+                        //         showsHorizontalScrollIndicator={false}
+                                
+                        //         onScroll={({ nativeEvent }) => {
+                        //             if (ifCloseToTop(nativeEvent)) {
+                        //                 getMore();
+                        //             }
+                        //         }}
+                        //     >
+                        //         <View style={{ flexDirection: 'row', flexWrap: 'wrap'}}>
+                        //             {mediaData.map((item:any,index:any)=> _renderMedia({item,index}))}
+                        //         </View>
+                        //     </ScrollView>
+                        // </>
                         :
                         <FlatList
                             key='file'
                             listKey={makeid()}
                             showsVerticalScrollIndicator={false}
-                            scrollEnabled={true}
                             data={documents}
+                            // inverted
                             renderItem={_renderFileandLink}
                             keyExtractor={(_, index) => index.toString()}
                             refreshControl={
-                                <RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]}  tintColor={themeStyle[theme].textColor} />
+                                <RefreshControl refreshing={isRefresh} onRefresh={onRefresh} colors={[themeStyle[theme].textColor]} tintColor={themeStyle[theme].textColor} />
                             }
                             ListFooterComponent={
                                 <>
@@ -248,13 +298,16 @@ const MediaFilesScreen = (props: any) => {
                             }
                             onTouchMove={_onScroll}
                             onEndReached={() => {
-                                if (!isMoreLoading &&  documents.length > 8) {
+                                if (!isMoreLoading && documents.length > 8) {
                                     getMore();
                                 }
                             }}
                         />}
                 </View>
             </View>
+            <CustomLoading
+                visible={loading}
+            />
         </BaseComponent>
     );
 };

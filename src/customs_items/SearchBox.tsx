@@ -34,7 +34,7 @@ const SearchBox = (props:any) => {
                     }}
                 />
                 {
-                    state && <TouchableOpacity onPress={onClear} activeOpacity={activeOpacity}>
+                    value && <TouchableOpacity onPress={onClear} activeOpacity={activeOpacity}>
                         <Ionicons style={styles.searchIcon} name="close-circle"/>
                     </TouchableOpacity>
                 }
