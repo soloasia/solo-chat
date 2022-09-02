@@ -1,6 +1,6 @@
 //import liraries
-import React, { Component, useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator, RefreshControl } from 'react-native';
+import React, { Component, useContext, useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Linking, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import BaseComponent, { baseComponentData } from '../../functions/BaseComponent';
 import { main_padding } from '../../config/settings';
 import { FlatListHorizontal, Footer, makeid } from '../../customs_items/Components';
@@ -10,50 +10,61 @@ import MediaWidget from '../../components/MediaWidget';
 import FileWidget from '../../components/FileWidget';
 import reactotron from 'reactotron-react-native';
 import { GET } from '../../functions/BaseFuntion';
-import _ from 'lodash';
+import _, { set } from 'lodash';
 import Video from 'react-native-video';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { HStack } from 'native-base';
 import { ThemeContext } from '../../utils/ThemeManager';
-import moment from 'moment';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import themeStyle from '../../styles/theme';
+import moment from 'moment';
+import CustomLoading from '../../customs_items/CustomLoading';
+import FastImage from 'react-native-fast-image';
 
 const listheadertext = ['Media', 'File', 'Link']
 let lastDoc: any = 1;
-let perPage: any = 20;
+let perPage: any = 10;
 // let selectedHeader = 'media';
 const MediaFilesScreen = (props: any) => {
     const { userChat } = props.route.params
+    const scrollRef:any = useRef();
     const [headerIdx, setHeaderIdx] = useState(0)
     const [documents, setDocuments] = useState<any>([])
+    const [mediaData, setMediaData] = useState<any>([])
+
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isRefresh, setIsRefresh] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [selectedHeader, setSeletedHeader] = useState('media')
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         requestDocumentAPI(selectedHeader)
     }, []);
     const onSetHeaderItem = ({ item, index }: any) => {
+        setLoading(true)
         setSeletedHeader(item.toLowerCase())
         requestDocumentAPI(item.toLowerCase())
         setHeaderIdx(index)
     }
     const requestDocumentAPI = (selectedHeader: any) => {
-        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}&per_page=${perPage}`)
+        GET(`chatroom/document/detail/${userChat.id}?type=${selectedHeader}&page=${lastDoc}`)
             .then(async (result: any) => {
                 if (result.status) {
-                    setDocuments(result.data.data)
+                    const reverseDocData = result.data.data.reverse()
+                    selectedHeader == 'media' ? setMediaData(reverseDocData) :setDocuments(reverseDocData)
+                    setLoading(false)
+
                 }
             })
             .catch(e => {
+                setLoading(false)
             });
     }
     const onFullVideo = (url: any) => {
@@ -120,8 +131,8 @@ const MediaFilesScreen = (props: any) => {
                             lastDoc += 1;
                             let _data: any = documents;
                             if (result.status && result.data.data.length !== 0) {
-                                setDocuments([...result.data.data, _data])
-                                _data.push(...result.data.data)
+                                selectedHeader == 'media' ? setMediaData([...result.data.data, _data]) :setDocuments([...result.data.data, _data])
+                                _data.push(...result.data.data.reverse())
                             }
                             lastDoc = Math.ceil(_data.length / 20);
                             if (result.data.data !== undefined) {
@@ -141,7 +152,7 @@ const MediaFilesScreen = (props: any) => {
 
     const _renderMedia = ({ item, index }: any) => {
         return (
-            <TouchableOpacity onPress={() => item.type != 'mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)} style={{ backgroundColor: '#E9E9E99D', height: 140, width: deviceWidth / 3.4, margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
+            <TouchableOpacity onPress={() => item.type != 'mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)} style={{ backgroundColor: '#E9E9E99D', height: 140, width: '31.6%', margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?
                     <View>
                         <Video
@@ -160,7 +171,7 @@ const MediaFilesScreen = (props: any) => {
                         </View>
 
                     </View>
-                    : <Image source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
+                : <FastImage source={{ uri: item.file_url }} style={{ width: '100%', height: '100%', borderRadius: 5 }} />}
             </TouchableOpacity>
         )
     }
@@ -191,12 +202,12 @@ const MediaFilesScreen = (props: any) => {
                 <TouchableOpacity
                     onPress={() => onSetHeaderItem({ item, index })}
                     style={{
-                        backgroundColor: index == headerIdx ? baseColor : whiteColor,
+                        backgroundColor: index == headerIdx ? baseColor : themeStyle[theme].backgroundColor,
                         borderRadius: 20,
                         alignItems: 'center', padding: 5
                     }}
                 >
-                    <Text style={{ fontSize: 14, fontFamily: 'lato', fontWeight: index == headerIdx ? 'bold' : 'normal', color: index == headerIdx ? whiteSmoke : textColor }}>{item.toUpperCase()}{index != 0 ? 'S' : ""}</Text>
+                    <Text style={{ fontSize: 14, fontFamily: 'lato', fontWeight: index == headerIdx ? 'bold' : 'normal', color: index == headerIdx ? whiteSmoke : themeStyle[theme].textColor }}>{item.toUpperCase()}{index != 0 ? 'S' : ""}</Text>
                 </TouchableOpacity>
             </View>
         )
@@ -208,7 +219,7 @@ const MediaFilesScreen = (props: any) => {
                 listKey={makeid()}
                 showsVerticalScrollIndicator={false}
                 // inverted
-                data={documents}
+                data={mediaData}
                 renderItem={_renderMedia}
                 numColumns={3}
                 keyExtractor={(_, index) => index.toString()}
@@ -230,6 +241,9 @@ const MediaFilesScreen = (props: any) => {
             />
         )
     }
+    const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
+        return contentOffset.y == 0;
+    };
     return (
         <BaseComponent {...baseComponentData} title='Media, files & links'>
             <View style={{ flex: 1, paddingHorizontal: main_padding, marginTop: main_padding - 5 }}>
@@ -244,6 +258,26 @@ const MediaFilesScreen = (props: any) => {
                 <View style={{ paddingTop: main_padding - 5, flex: 1 }}>
                     {headerIdx == 0 ?
                         _mediaContainer()
+
+                        // <>
+                        //     {renderFooter()}
+                        //     <ScrollView contentContainerStyle={{width:'100%', flexWrap:'wrap'}}
+                        //         ref={scrollRef}
+                        //         scrollEventThrottle={400}
+                        //         showsVerticalScrollIndicator={false}
+                        //         showsHorizontalScrollIndicator={false}
+                                
+                        //         onScroll={({ nativeEvent }) => {
+                        //             if (ifCloseToTop(nativeEvent)) {
+                        //                 getMore();
+                        //             }
+                        //         }}
+                        //     >
+                        //         <View style={{ flexDirection: 'row', flexWrap: 'wrap'}}>
+                        //             {mediaData.map((item:any,index:any)=> _renderMedia({item,index}))}
+                        //         </View>
+                        //     </ScrollView>
+                        // </>
                         :
                         <FlatList
                             key='file'
@@ -271,6 +305,9 @@ const MediaFilesScreen = (props: any) => {
                         />}
                 </View>
             </View>
+            <CustomLoading
+                visible={loading}
+            />
         </BaseComponent>
     );
 };
