@@ -33,7 +33,7 @@ import { onPushPublicNotification } from '../functions/PublicNotification';
 // import { Pusher, PusherMember,PusherChannel, PusherEvent,} from '@pusher/pusher-websocket-react-native';
 var config = require('../config/pusher.json');
 let lastDoc: any = 1;
-let perPage: any = 10;
+let perPage: any = 30;
 // const pusher:any = Pusher.getInstance();
 
 const ChatScreen = () => {

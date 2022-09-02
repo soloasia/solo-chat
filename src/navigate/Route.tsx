@@ -37,7 +37,7 @@ import MemberScreen from "../containers/chat/MemberScreen";
 import VideoFullScreen from "../containers/chat/VideoFullScreen";
 import reactotron from "reactotron-react-native";
 import { LanguageContext } from "../utils/LangaugeManager";
-import { onPushPublicNotification } from "../functions/PublicNotification";
+import Test from '../components/Test'
 
 
 // import MemberScreen from "../containers/chat/MemberScreen";
@@ -211,7 +211,6 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          {/* <TestScreen/> */}
           {splashscreen? <SplashScreen/>:<MainStack />}
         </NavigationContainer>
     </SafeAreaProvider>
