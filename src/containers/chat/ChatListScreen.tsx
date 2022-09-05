@@ -458,7 +458,7 @@ const ChatListScreen = (props: any) => {
             formdata.append('type',itemMessageEdit.type);
             formdata.append('chatroom_message_id', itemMessageEdit.id)
             chatData[state.currentindex].message = state.message;
-            setChatData(chatData)
+            // setChatData(chatData)
             handleChange('isEdit', false)
             setItemMessageEdit(null)
             handleChange('message', '')
@@ -1119,8 +1119,6 @@ const ChatListScreen = (props: any) => {
         return contentOffset.y == 0;
     };
 
-    reactotron.log(lastDoc)
-    reactotron.log(chatData)
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor,}}>
