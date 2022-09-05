@@ -63,13 +63,12 @@ export const ToastStatus = {
     WARNING: 'warning',
     ERROR: 'error',
   };
-  export const showToast = (title, status, duration,id) => {
+  export const showToast = (title, status, duration) => {
     return Toast.show({
       fontFamily: Battambang.fontFamily,
       title: title,
       duration: duration,
-      status: status,
-      id :id
+      status: status
     });
   };
 

@@ -1,4 +1,4 @@
-import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
+import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar, Text } from "react-native";
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider, CommonActions,} from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -38,7 +38,9 @@ import VideoFullScreen from "../containers/chat/VideoFullScreen";
 import reactotron from "reactotron-react-native";
 import { LanguageContext } from "../utils/LangaugeManager";
 import { showToast, ToastStatus } from "../functions/BaseFuntion";
-import { useToast } from "native-base";
+import { Box, useToast } from "native-base";
+import { whiteSmoke } from "../config/colors";
+import Toast from 'react-native-simple-toast';
 
 // import MemberScreen from "../containers/chat/MemberScreen";
 
@@ -84,9 +86,10 @@ const Route = () => {
         (state: {isConnected: any}) => {
           if (!state.isConnected) {
             dispatch({type: 'LOAD_NO_CONNECTION', value: true});
+            // Toast.showWithGravity('No Internet Connection', Toast.LONG, Toast.BOTTOM);
           //  if(!toast.isActive(id)) {
-            // showToast("No Internet Connection", 2000,id);
-            // }
+          //   showToast("No Internet Connection", 2000);
+          //   }
           } else {
             dispatch({type: 'LOAD_NO_CONNECTION', value: false});
           }
