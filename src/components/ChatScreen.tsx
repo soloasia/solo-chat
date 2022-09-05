@@ -86,7 +86,7 @@ const ChatScreen = () => {
 	useEffect(() => {
 		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
 		const { data } = remoteMessage
-		onPushPublicNotification(data)
+		// onPushPublicNotification(data)
 		if(data.type =='create-group' || data.type =='new-message'){
 			getData();
 		}
