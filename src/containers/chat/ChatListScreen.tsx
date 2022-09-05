@@ -464,16 +464,9 @@ const ChatListScreen = (props: any) => {
             POST('chatroom_message/update', formdata).then(async (result: any) => {
                 if(result.status){
                     Keyboard.dismiss()
-                    Toast.showWithGravity('Message updated!', Toast.LONG, Toast.BOTTOM);
-                    // Toast.show({
-                    //     render: () => {
-                    //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-                    //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message updated!</Text> 
-                    //               </Box>;
-                    //     }
-                    // })
+                    Toast.showWithGravity('Message updated!', Toast.SHORT, Toast.BOTTOM);
                 }else {
-                    // Alert.alert('Something went wrong!\n', 'You cannot edit message text, try again')
+                Toast.showWithGravity('You cannot edit message text, try again', Toast.SHORT, Toast.BOTTOM);
                 }
             })
 
@@ -1045,32 +1038,17 @@ const ChatListScreen = (props: any) => {
         setItemMessageEdit(null)
         POST('chatroom_message/delete', formdata).then(async (result: any) => {
             if(result.status){
-                Toast.showWithGravity('Message deleted!', Toast.LONG, Toast.BOTTOM);
-                // Toast.show({
-                //     render: () => {
-                //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-                //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message deleted!</Text> 
-                //             </Box>;
-                //     }
-                // })
+                Toast.showWithGravity('Message deleted!', Toast.SHORT, Toast.BOTTOM);
             }else {
-                // handleChange('showDailog', false)
-                // Alert.alert('Something went wrong!\n', 'You cannot delete message, try again later')
+                handleChange('showDailog', false)
+                Toast.showWithGravity('You cannot delete message, try again later', Toast.SHORT, Toast.BOTTOM);
             }
         })
     }
     const _onCopy = () => {
         Clipboard.setString(itemMessageEdit.message);
         handleChange('isShowActionMess', false)
-        Toast.showWithGravity('Message copied to clipboard.', Toast.LONG, Toast.BOTTOM);
-        // showToast("Message copied to clipboard.", 2000);
-        // Toast.show({
-        //     render: () => {
-        //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-        //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message copied to clipboard.</Text> 
-        //             </Box>;
-        //     }
-        // })
+        Toast.showWithGravity('Message copied to clipboard.', Toast.SHORT, Toast.BOTTOM);
     }
     const modalMessageAction = (isShowActionMess: any) => {
         return (
