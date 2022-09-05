@@ -1,7 +1,7 @@
 import moment from 'moment';
-import { Actionsheet, Box, HStack, useDisclose, VStack, theme, Toast } from 'native-base';
+import { Actionsheet, Box, HStack, useDisclose, VStack, theme } from 'native-base';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking,ScrollView } from 'react-native';
+import { Text, StyleSheet, View, Image, TouchableOpacity, TouchableWithoutFeedback, Keyboard, FlatList, RefreshControl, ImageBackground, KeyboardAvoidingView, Platform, PermissionsAndroid, ActivityIndicator, Alert, Clipboard, Linking,ScrollView,ToastAndroid } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { baseColor, boxColor, chatText, placeholderDarkTextColor, textColor, textSecondColor, whiteColor, whiteSmoke, textDesColor, borderDivider, offlineColor } from '../../config/colors';
 import { AlertBox, FlatListVertical, Footer, makeid, TextItem, UserAvatar } from '../../customs_items/Components';
@@ -16,7 +16,7 @@ import CameraRoll from '@react-native-community/cameraroll';
 import FastImage from 'react-native-fast-image';
 import Lottie from 'lottie-react-native';
 import ChatHeader from '../../components/ChatHeader';
-import base64File, { convertHMS, GET, POST,hasAndroidPermission,validURL } from '../../functions/BaseFuntion';
+import base64File, { convertHMS, GET, POST,hasAndroidPermission,validURL, showToast } from '../../functions/BaseFuntion';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Video from 'react-native-video'
 import { options } from '../../temp_data/Setting';
@@ -39,7 +39,7 @@ import { WebView } from 'react-native-webview';
 // import Pusher from 'pusher-js/react-native';
 import { loadData } from '../../functions/LoadData';
 import { Pusher, PusherChannel} from '@pusher/pusher-websocket-react-native';
-
+import Toast from 'react-native-simple-toast';
 
 var config = require('../../config/pusher.json');
 const pusher:any = Pusher.getInstance();
@@ -458,22 +458,22 @@ const ChatListScreen = (props: any) => {
             formdata.append('type',itemMessageEdit.type);
             formdata.append('chatroom_message_id', itemMessageEdit.id)
             chatData[state.currentindex].message = state.message;
-            setChatData(chatData)
             handleChange('isEdit', false)
             setItemMessageEdit(null)
             handleChange('message', '')
             POST('chatroom_message/update', formdata).then(async (result: any) => {
                 if(result.status){
                     Keyboard.dismiss()
-                    Toast.show({
-                        render: () => {
-                            return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-                                    <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message updated!</Text> 
-                                  </Box>;
-                        }
-                    })
+                    Toast.showWithGravity('Message updated!', Toast.LONG, Toast.BOTTOM);
+                    // Toast.show({
+                    //     render: () => {
+                    //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+                    //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message updated!</Text> 
+                    //               </Box>;
+                    //     }
+                    // })
                 }else {
-                    Alert.alert('Something went wrong!\n', 'You cannot edit message text, try again')
+                    // Alert.alert('Something went wrong!\n', 'You cannot edit message text, try again')
                 }
             })
 
@@ -1041,34 +1041,36 @@ const ChatListScreen = (props: any) => {
         const formdata = new FormData();
         formdata.append('chatroom_message_id', itemMessageEdit.id)
         _.remove(chatData, function(n:any) {return n.id == itemMessageEdit.id;})
-        setChatData(chatData)
         handleChange('showDailog', false)
         setItemMessageEdit(null)
         POST('chatroom_message/delete', formdata).then(async (result: any) => {
             if(result.status){
-                Toast.show({
-                    render: () => {
-                        return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-                                <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message deleted!</Text> 
-                            </Box>;
-                    }
-                })
+                Toast.showWithGravity('Message deleted!', Toast.LONG, Toast.BOTTOM);
+                // Toast.show({
+                //     render: () => {
+                //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+                //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message deleted!</Text> 
+                //             </Box>;
+                //     }
+                // })
             }else {
-                handleChange('showDailog', false)
-                Alert.alert('Something went wrong!\n', 'You cannot delete message, try again later')
+                // handleChange('showDailog', false)
+                // Alert.alert('Something went wrong!\n', 'You cannot delete message, try again later')
             }
         })
     }
     const _onCopy = () => {
         Clipboard.setString(itemMessageEdit.message);
         handleChange('isShowActionMess', false)
-        Toast.show({
-            render: () => {
-                return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
-                        <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message copied to clipboard.</Text> 
-                    </Box>;
-            }
-        })
+        Toast.showWithGravity('Message copied to clipboard.', Toast.LONG, Toast.BOTTOM);
+        // showToast("Message copied to clipboard.", 2000);
+        // Toast.show({
+        //     render: () => {
+        //         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
+        //                 <Text style={{fontSize: 12, fontFamily: 'Montserrat-Regular', color: whiteSmoke}}>Message copied to clipboard.</Text> 
+        //             </Box>;
+        //     }
+        // })
     }
     const modalMessageAction = (isShowActionMess: any) => {
         return (
@@ -1118,9 +1120,6 @@ const ChatListScreen = (props: any) => {
     const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
         return contentOffset.y == 0;
     };
-
-    reactotron.log(lastDoc)
-    reactotron.log(chatData)
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor,}}>
@@ -1158,10 +1157,10 @@ const ChatListScreen = (props: any) => {
                                         scrollEventThrottle={400}
                                         showsVerticalScrollIndicator={false}
                                         showsHorizontalScrollIndicator={false}
-                                        // onContentSizeChange={() => {
-                                        //     if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
-                                        //     }
-                                        // }
+                                        onContentSizeChange={() => {
+                                            if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
+                                            }
+                                        }
                                         onScroll={({ nativeEvent }) => {
                                             if (ifCloseToTop(nativeEvent)) {
                                                 getMore();
