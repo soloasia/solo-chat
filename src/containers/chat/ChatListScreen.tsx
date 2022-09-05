@@ -36,12 +36,13 @@ import FileViewer from "react-native-file-viewer";
 import { LanguageContext } from '../../utils/LangaugeManager';
 import translate from 'translate-google-api';
 import { WebView } from 'react-native-webview';
-import Pusher from 'pusher-js/react-native';
+// import Pusher from 'pusher-js/react-native';
 import { loadData } from '../../functions/LoadData';
-import messaging from '@react-native-firebase/messaging';
+import { Pusher, PusherChannel} from '@pusher/pusher-websocket-react-native';
 
 
 var config = require('../../config/pusher.json');
+const pusher:any = Pusher.getInstance();
 
 let lastDoc: any = 1;
 let PAGE_SIZE: any = 500;
@@ -62,7 +63,6 @@ const ChatListScreen = (props: any) => {
     const textsize = useSelector((state: any) => state.textSizeChange);
     const { chatItem, contactItem,last_message } = props.route.params;
     const { isOpen, onOpen, onClose } = useDisclose();
-    const [hasScrolled, setHasScrolled] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [ isLocalLoading, setLocalLoading] = useState<any>(null);
     const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages)?chatItem.chatroom_messages:chatItem.chatroom_messages.data);
@@ -95,41 +95,65 @@ const ChatListScreen = (props: any) => {
         isShowActionMess: false, 
         isEdit: false,
         showDailog: false,
-        vdoIdPlaying: null
+        vdoIdPlaying: null,
+        currentIndex: null
     });
     useEffect(() => (
         navigate.addListener('beforeRemove', (e:any) => {
             loadData(dispatch);
+            var last:any = Object.keys(chatData).pop();
+            seenMessage(chatData[last]);
         })
     ), [navigate]);
      useEffect(()=>{
         if(Platform.OS === 'android') hasAndroidPermission();
-        seenMessage(last_message);
-		var pusher = new Pusher(config.key, config);
-        var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-		orderChannel.bind('new-message', (newMessage:any) => {
-            if(chatItem.id == newMessage.data.data.chatroom_id){
-                scrollRef.current.scrollToEnd({animated: true})
-                setChatData((chatData:any) => [...chatData,newMessage.data.data]);
-                seenMessage(newMessage.data.data);
-            }
-		})
-        return () => {
-            pusher.unsubscribe(`App.User.${userInfo.id}`);
-        }
+        connect();
+        // let remove = _.remove(chatData, function(n:any) {return n.id == 0;});
+		// let pusher = new Pusher(config.key, config);
+        // let messageChannel = pusher.subscribe(`App.User.${userInfo.id}`); 
+		// messageChannel.bind('new-message', (newMessage:any) => {
+        //     reactotron.log(newMessage)
+        //     if(chatItem.id == newMessage.data.data.chatroom_id){
+        //         setChatData((chatData:any) => [...chatData,newMessage.data.data]);
+        //         scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
+        //         seenMessage(newMessage.data.data);
+        //     }
+		// })
+        // return () => {
+        //     pusher.unsubscribe(`App.User.${userInfo.id}`);
+        //     pusher.unbind('new-message');
+        // }
     },[chatData])
-
+    const connect = async () => {
+        try {
+          await pusher.init({
+            apiKey: config.key,
+            cluster:config.cluster,
+            onEvent
+          });
+          await pusher.connect();
+          await pusher.subscribe({ channelName: `App.User.${userInfo.id}`});
+        } catch (e) {
+        }
+    };
+    const onEvent = (event: any) => {
+        if(userInfo.id == JSON.parse(event.data).data.data.user_id) _.remove(chatData, function(n:any) {return n.id == 0;});
+        if(chatItem.id == JSON.parse(event.data).data.data.chatroom_id){
+            setChatData([...chatData,JSON.parse(event.data).data.data]);
+            scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
+        }
+    };
     useEffect(() => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
-                scrollRef.current.scrollToEnd({animated: true})
+                scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
             }
         );
         const keyboardDidHideListener = Keyboard.addListener(
             'keyboardDidHide',
             () => {
-                scrollRef.current.scrollToEnd({animated: true})
+                scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
             }
         );
         return () => {
@@ -393,38 +417,36 @@ const ChatListScreen = (props: any) => {
         formdata.append("type", state.type);
         formdata.append("file",state.type === 'text'?'':state.file);
         formdata.append("chatroom_id", chatItem.id);
-        // let body:any = {
-        //     id:0,
-        //     message:state.message,
-        //     type :state.type,
-        //     file_url : state.type === 'text'?'':state.file,
-        //     chatroom_id: chatItem.id,
-        //     user_id: userInfo.id,
-        //     created_by: userInfo.id,
-        //     updated_by: userInfo.id,
-        //     deleted_by:null,
-        //     created_at : moment().format('YYYY-MM-DD hh:mm:ss'),
-        //     updated_at: moment().format('YYYY-MM-DD hh:mm:ss'),
-        //     // localVideo:state.localVideo?state.localVideo:null,
-        //     deleted_at:null,
-        //     user:{
-        //         first_name:userInfo.first_name,
-        //         last_name:userInfo.last_name,
-        //         username:userInfo.username,
-        //         profile_photo:userInfo.profile_photo,
-        //     },
-        //     chatroom_messages_status:[]
-        // }
-        // let mergeArray = [...chatData,body]
-        // setChatData(mergeArray);
-        // setLocalLoading(chatData.length)
-        scrollRef.current.scrollToEnd({animated: true})
+        let body:any = {
+            id:0,
+            message:state.message,
+            type :state.type,
+            file_url : state.type === 'text'?'':state.file,
+            chatroom_id: chatItem.id,
+            user_id: userInfo.id,
+            created_by: userInfo.id,
+            updated_by: userInfo.id,
+            deleted_by:null,
+            created_at : moment().format('YYYY-MM-DD HH:mm:ss'),
+            updated_at: moment().format('YYYY-MM-DD HH:mm:ss'),
+            localVideo:state.localVideo?state.localVideo:null,
+            deleted_at:null,
+            user:{
+                first_name:userInfo.first_name,
+                last_name:userInfo.last_name,
+                username:userInfo.username,
+                profile_photo:userInfo.profile_photo,
+            },
+            chatroom_messages_status:[]
+        }
+        setChatData([...chatData,body]);
+        setLocalLoading(chatData.length)
+        scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
         handleChange('message', '');
         handleChange('singleFile', '');
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
-                seenMessage(result.data);
                 setLocalLoading(null)
             }
         })
@@ -435,19 +457,14 @@ const ChatListScreen = (props: any) => {
             formdata.append('message', state.message);
             formdata.append('type',itemMessageEdit.type);
             formdata.append('chatroom_message_id', itemMessageEdit.id)
+            chatData[state.currentindex].message = state.message;
+            setChatData(chatData)
+            handleChange('isEdit', false)
+            setItemMessageEdit(null)
+            handleChange('message', '')
             POST('chatroom_message/update', formdata).then(async (result: any) => {
                 if(result.status){
-                    handleChange('isEdit', false)
-                    const newState = chatData.map((obj:any) => {
-                        if (obj.id === itemMessageEdit.id) {
-                          return {...obj, message:state.message,};
-                        }
-                        return obj;
-                    });
-                    setChatData(newState)
                     Keyboard.dismiss()
-                    setItemMessageEdit(null)
-                    handleChange('message', '')
                     Toast.show({
                         render: () => {
                             return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
@@ -528,8 +545,9 @@ const ChatListScreen = (props: any) => {
         });
     }
 
-    const actionOnMessage =(mess:any)=> {
+    const actionOnMessage =(mess:any,index:any)=> {
         setItemMessageEdit(mess)
+        handleChange('currentindex', index)
         handleChange('isShowActionMess', true)
     }
     const _handleTranslateText = async (id : number, text : string) => {
@@ -606,7 +624,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null }  onPress={()=> navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess,index) :null }  onPress={()=> navigate.navigate('DisplayFullImg', { imgDisplay: mess.file_url })} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <FastImage style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}} source={{uri: mess.file_url}} resizeMode='cover' />
                     </TouchableOpacity> 
                     <View style={{position:'absolute',bottom:10,backgroundColor:placeholderDarkTextColor,borderRadius:20,padding:7,right: mess.created_by == userInfo.id? chatItem.type !='group' ? 10 : '15%' :10,}}>
@@ -659,9 +677,9 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess) :null } onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
+                    <TouchableOpacity onLongPress={()=> mess.created_by == userInfo.id ? actionOnMessage(mess,index) :null } onPress={()=>onFullVideo(mess.file_url)} style={{alignItems:'flex-end',width:'50%',justifyContent:'flex-end',backgroundColor:whiteSmoke,borderRadius:20,padding:2}}>
                         <View style={{width:'100%',height: deviceWidth/1.4,borderRadius:20}}>
-                            {/* {state.localVideo && isLocalLoading == index?
+                            {state.localVideo && isLocalLoading == index?
                                 
                                 <Video
                                     source={{uri:state.localVideo}}
@@ -671,7 +689,7 @@ const ChatListScreen = (props: any) => {
                                     paused={true}
                                     repeat={true}
                                 />
-                                : */}
+                                :
                                 <Video
                                     source={{uri:mess.file_url}}
                                     style={{height: deviceWidth/1.4,width:'100%',borderRadius:20}}
@@ -686,7 +704,7 @@ const ChatListScreen = (props: any) => {
                                     muted={isMute}
                                     repeat={true}
                                 />
-                            {/* } */}
+                            }
                         </View>
                         {state.vdoIdPlaying ==null || state.vdoIdPlaying != mess.id ?
                             <TouchableOpacity onPress={()=>onPlayVideo(mess,index)} style={{position:'absolute',bottom:'45%',right:'38%',backgroundColor:placeholderDarkTextColor,borderRadius:50,width:50,height:50,justifyContent:'center',alignItems:'center'}}>
@@ -745,7 +763,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				<TouchableOpacity onPress={()=>_onOpenFile(mess)} onLongPress={()=>actionOnMessage(mess,index)} style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -805,7 +823,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-				<TouchableOpacity onPress={() => openLinkChat(mess)} onLongPress={()=>actionOnMessage(mess)} style={[styles.chatBack,
+				<TouchableOpacity onPress={() => openLinkChat(mess)} onLongPress={()=>actionOnMessage(mess,index)} style={[styles.chatBack,
 				{
 					backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2' ,
 					borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -859,7 +877,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} 
+                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess,index)} disabled={mess.created_by == userInfo.id ?false :true} 
                         style={[styles.chatBack,
                             {
                                 backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? '#1A1A1A' : '#F0F0F2',
@@ -912,7 +930,7 @@ const ChatListScreen = (props: any) => {
                         :
                         <></>
                     }
-                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
+                    <TouchableOpacity onLongPress={()=>actionOnMessage(mess,index)} disabled={mess.created_by == userInfo.id ?false :true} style={[styles.chatBack,
                         {
                             backgroundColor: mess.created_by == userInfo.id? _.isEmpty(appearanceTheme)? baseColor : appearanceTheme.textColor: theme == 'dark' ? themeStyle[theme].primary :'#F0F0F2' ,
                             borderBottomRightRadius: mess.created_by == userInfo.id? 0 : 20,
@@ -1022,15 +1040,12 @@ const ChatListScreen = (props: any) => {
     const onConfirmDeleteMsg = () => {
         const formdata = new FormData();
         formdata.append('chatroom_message_id', itemMessageEdit.id)
+        _.remove(chatData, function(n:any) {return n.id == itemMessageEdit.id;})
+        setChatData(chatData)
+        handleChange('showDailog', false)
+        setItemMessageEdit(null)
         POST('chatroom_message/delete', formdata).then(async (result: any) => {
             if(result.status){
-                setChatData((current:any) =>
-                    current.filter((obj:any) => {
-                      return obj.id !== itemMessageEdit.id;
-                    }),
-                  );
-                handleChange('showDailog', false)
-                setItemMessageEdit(null)
                 Toast.show({
                     render: () => {
                         return <Box bg='#757575BE' px="3" py="3" rounded="sm" mb={5}>
@@ -1044,7 +1059,6 @@ const ChatListScreen = (props: any) => {
             }
         })
     }
-
     const _onCopy = () => {
         Clipboard.setString(itemMessageEdit.message);
         handleChange('isShowActionMess', false)
@@ -1104,6 +1118,9 @@ const ChatListScreen = (props: any) => {
     const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
         return contentOffset.y == 0;
     };
+
+    reactotron.log(lastDoc)
+    reactotron.log(chatData)
     return (
         <>
             <View style={{paddingTop: 40, flex: 1, backgroundColor : themeStyle[theme].backgroundColor,}}>
@@ -1141,10 +1158,10 @@ const ChatListScreen = (props: any) => {
                                         scrollEventThrottle={400}
                                         showsVerticalScrollIndicator={false}
                                         showsHorizontalScrollIndicator={false}
-                                        onContentSizeChange={() => {
-                                            if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
-                                            }
-                                        }
+                                        // onContentSizeChange={() => {
+                                        //     if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
+                                        //     }
+                                        // }
                                         onScroll={({ nativeEvent }) => {
                                             if (ifCloseToTop(nativeEvent)) {
                                                 getMore();

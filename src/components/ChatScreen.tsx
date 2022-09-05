@@ -51,41 +51,42 @@ const ChatScreen = () => {
 	const myChatList = useSelector((state: any) => state.myChatList);
 	const userInfo = useSelector((state: any) => state.user);
     const appState = useRef(AppState.currentState);
-	// useEffect(() => {
-	// 	if(userInfo){
-	// 		var pusher = new Pusher(config.key, config);
-	// 		var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
-	// 		orderChannel.bind(`new-message`, (data:any) => {
-	// 			getData();
-	// 		})
-	// 		// async function configPsher() {
-	// 		// 	await pusher.init({
-	// 		// 		apiKey: config.key,
-	// 		// 		cluster:config.cluster
-	// 		// 	})  
-	// 		// 	await pusher.subscribe(
-	// 		// 		{
-	// 		// 			channelName: `App.User.${userInfo.id}`,
-	// 		// 			onEvent: (event:any) => {
-	// 		// 				getData();
-	// 		// 			},
-	// 		// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
-	// 		// 				console.log(`Connection: ${currentState}`);
-	// 		// 			}
-	// 		// 		}
-	// 		// 	);
-	// 		// 	await pusher.connect();
-	// 		// }
-	// 		// configPsher();
-	// 		return () => {
-	// 			pusher.unsubscribe(`App.User.${userInfo.id}`);
-	// 		}
-	// 	}
-	// }, []);
+    const mobile_token = useSelector((state: any) => state.mobile_token);
+	useEffect(() => {
+		if(userInfo && mobile_token == null){
+			var pusher = new Pusher(config.key, config);
+			var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
+			orderChannel.bind(`new-message`, (data:any) => {
+				getData();
+			})
+			// async function configPsher() {
+			// 	await pusher.init({
+			// 		apiKey: config.key,
+			// 		cluster:config.cluster
+			// 	})  
+			// 	await pusher.subscribe(
+			// 		{
+			// 			channelName: `App.User.${userInfo.id}`,
+			// 			onEvent: (event:any) => {
+			// 				getData();
+			// 			},
+			// 			onConnectionStateChange:(currentState:string, previousState:string)=>{
+			// 				console.log(`Connection: ${currentState}`);
+			// 			}
+			// 		}
+			// 	);
+			// 	await pusher.connect();
+			// }
+			// configPsher();
+			return () => {
+				pusher.unsubscribe(`App.User.${userInfo.id}`);
+			}
+		}
+	}, []);
 	useEffect(() => {
 		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
 		const { data } = remoteMessage
-		onPushPublicNotification(data)
+		// onPushPublicNotification(data)
 		if(data.type =='create-group' || data.type =='new-message'){
 			getData();
 		}

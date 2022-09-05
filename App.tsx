@@ -14,7 +14,7 @@
 
  import { View } from 'react-native';
  import { Provider } from 'react-redux';
- import Route, { navigate } from './src/navigate/Route';
+ import Route from './src/navigate/Route';
  import store from './src/store';
  import { ThemeProvider } from './src/utils/ThemeManager';
  import LanguageManager from './src/utils/LangaugeManager';
