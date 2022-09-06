@@ -97,7 +97,6 @@ const Route = () => {
 
     if (no_connection) {
       clearInterval(inter);
-     
     }
   }, []);
 
@@ -238,12 +237,13 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          {no_connection ? <NoInternetScreen /> :
+        <NoInternetScreen />
+          {/* {no_connection ? <NoInternetScreen /> :
             splashscreen?
               <SplashScreen/>
               :
                 <MainStack />
-          }
+          } */}
         </NavigationContainer>
     </SafeAreaProvider>
   );
