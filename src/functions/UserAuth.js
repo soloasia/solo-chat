@@ -18,10 +18,7 @@ export const useAuth = () => {
 
 function useProvideAuth() {
   const dispatch = useDispatch();
-  useEffect(() => {
-    checkUser();
-  }, []);
-
+ 
   const [user, setUser] = useState(null);
   async function checkUser() {
     let token = await AsyncStorage.getItem('@token');
@@ -33,14 +30,19 @@ function useProvideAuth() {
         formdata.append("token",token);
         GET('me/detail',formdata)
         .then((result) => {
+          if(result.status){
             dispatch(loadUser(result.data));
             setUser(true)
+          }
         })
         .catch(() => {
           setUser(false);
         });
     }
   }
+  useEffect(() => {
+    checkUser();
+  }, []);
   return {
     user,
   };

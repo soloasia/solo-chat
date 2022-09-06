@@ -41,7 +41,8 @@ import { showToast, ToastStatus } from "../functions/BaseFuntion";
 import { Box, useToast } from "native-base";
 import { whiteSmoke } from "../config/colors";
 import Toast from 'react-native-simple-toast';
-
+import NoInternetScreen from "../components/NoInternetScreen";
+import _ from 'lodash'
 // import MemberScreen from "../containers/chat/MemberScreen";
 
 const Stack = createStackNavigator();
@@ -56,11 +57,11 @@ const Route = () => {
   const no_connection = useSelector( (state: {no_connection: any}) => state.no_connection);
   const auth:any = useAuth();
   const user = useSelector((state: any) => state.user);
+  const token = useSelector((state: any) => state.token);
+
   const [splashscreen,setSplash] = useState(true)
   const {theme} : any = useContext(ThemeContext);
   const {tr} : any = useContext(LanguageContext);
-  const id = "test-toast"
-  const toast = useToast()
   
   useEffect(() => {
     checkPermissionNotification();
@@ -86,10 +87,6 @@ const Route = () => {
         (state: {isConnected: any}) => {
           if (!state.isConnected) {
             dispatch({type: 'LOAD_NO_CONNECTION', value: true});
-            // Toast.showWithGravity('No Internet Connection', Toast.LONG, Toast.BOTTOM);
-          //  if(!toast.isActive(id)) {
-          //   showToast("No Internet Connection", 2000);
-          //   }
           } else {
             dispatch({type: 'LOAD_NO_CONNECTION', value: false});
           }
@@ -137,7 +134,7 @@ const Route = () => {
           // cardStyleInterpolator:
           //   CardStyleInterpolators.forFadeFromBottomAndroid,
         }}>
-        {auth.user ? 
+        {!_.isEmpty(token)? 
           <>
             <Stack.Screen name="Main" component={MainTab} />
             <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
@@ -241,10 +238,11 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-          {splashscreen?
-           <SplashScreen/>
-            :
-              <MainStack />
+          {no_connection ? <NoInternetScreen /> :
+            splashscreen?
+              <SplashScreen/>
+              :
+                <MainStack />
           }
         </NavigationContainer>
     </SafeAreaProvider>

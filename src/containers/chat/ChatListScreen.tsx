@@ -100,9 +100,9 @@ const ChatListScreen = (props: any) => {
     });
     useEffect(() => (
         navigate.addListener('beforeRemove', (e:any) => {
-            loadData(dispatch);
             var last:any = Object.keys(chatData).pop();
             seenMessage(chatData[last]);
+            loadData(dispatch);
         })
     ), [navigate]);
      useEffect(()=>{
@@ -447,6 +447,7 @@ const ChatListScreen = (props: any) => {
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
+                // seenMessage(result.data)
                 setLocalLoading(null)
             }
         })

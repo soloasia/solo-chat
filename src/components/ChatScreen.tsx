@@ -82,6 +82,7 @@ const ChatScreen = () => {
 				pusher.unsubscribe(`App.User.${userInfo.id}`);
 			}
 		}
+		
 	}, []);
 	useEffect(() => {
 		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {

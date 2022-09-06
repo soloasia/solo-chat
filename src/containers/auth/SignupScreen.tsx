@@ -72,9 +72,11 @@ const SignupScreen = (props: any) => {
             handleChange('validateLastname',true)
         }else if(isWhitespaceOrEmpty(state.username)){
             handleChange('validateUsername',true)
-        }else if(isWhitespaceOrEmpty(state.phonenumber)){
-            handleChange('phoneNumberError',true)
-        }else if(isWhitespaceOrEmpty(state.password)){
+        }
+        // else if(isWhitespaceOrEmpty(state.phonenumber)){
+        //     handleChange('phoneNumberError',true)
+        // }
+        else if(isWhitespaceOrEmpty(state.password)){
             handleChange('validatePassword',true)
         }else{
             handleChange('loading',true)
@@ -82,7 +84,7 @@ const SignupScreen = (props: any) => {
             formdata.append("first_name",state.firstname);
             formdata.append("last_name",state.lastname);
             formdata.append("username",state.username);
-            formdata.append("phone",formattedValue);
+            formdata.append("phone",'');
             formdata.append("password",state.password);
             formdata.append("profile_photo",state.profileAvatar);
             formdata.append("mobile_token",mobile_token);
@@ -206,7 +208,7 @@ const SignupScreen = (props: any) => {
                             placeholderTextColor={'#ADB9C6'}
                         />
                         {state.validateUsername?<Text style={[style.p,{fontSize:12,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your username</Text>:''}
-                        <PhoneInput
+                        {/* <PhoneInput
                             ref={phoneInputRef}
                             defaultValue={state.phonenumber}
                             defaultCode={getSystemLocale().split('_') == undefined?'EN':getSystemLocale().split('_')[1]}
@@ -223,7 +225,7 @@ const SignupScreen = (props: any) => {
                             containerStyle={{width:'100%',height:45,borderColor:state.phoneNumberError?offlineColor:borderColor,borderWidth:0.4,borderRadius:25,marginTop:20,backgroundColor:themeStyle[theme].primary}}
                             textInputStyle={[style.p,{height:45,color :themeStyle[theme].textColor}]}
                         />
-                        {state.phoneNumberError?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your phone number</Text>:''}
+                        {state.phoneNumberError?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your phone number</Text>:''} */}
                         <View style={{ marginTop: 20}}>
                             <TextInput 
                                 ref={passwordRef}
