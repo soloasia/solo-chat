@@ -99,10 +99,10 @@ const ChatListScreen = (props: any) => {
         currentIndex: null
     });
     useEffect(() => (
-        navigate.addListener('beforeRemove', (e: any) => {
-            loadData(dispatch);
-            var last: any = Object.keys(chatData).pop();
+        navigate.addListener('beforeRemove', (e:any) => {
+            var last:any = Object.keys(chatData).pop();
             seenMessage(chatData[last]);
+            loadData(dispatch);
         })
     ), [navigate]);
     useEffect(() => {
@@ -447,11 +447,12 @@ const ChatListScreen = (props: any) => {
         handleChange('message', '');
         handleChange('singleFile', '');
         POST('chatroom_message/create', formdata)
-            .then(async (result: any) => {
-                if (result.status) {
-                    setLocalLoading(null)
-                }
-            })
+        .then(async (result: any) => {
+            if(result.status){
+                // seenMessage(result.data)
+                setLocalLoading(null)
+            }
+        })
     }
     const onUpdateMsg = () => {
         if (state.message != itemMessageEdit.message) {
