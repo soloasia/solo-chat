@@ -18,7 +18,6 @@ import { HStack } from 'native-base';
 import { ThemeContext } from '../../utils/ThemeManager';
 import RNFS from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import Feather from 'react-native-vector-icons/Feather';
 import themeStyle from '../../styles/theme';
 import moment from 'moment';
@@ -28,27 +27,23 @@ import FastImage from 'react-native-fast-image';
 const listheadertext = ['Media', 'File', 'Link']
 let lastDoc: any = 1;
 let perPage: any = 10;
-// let selectedHeader = 'media';
 const MediaFilesScreen = (props: any) => {
     const { userChat } = props.route.params
-    const scrollRef:any = useRef();
     const [headerIdx, setHeaderIdx] = useState(0)
-    const [documents, setDocuments] = useState<any>([])
-    const [mediaData, setMediaData] = useState<any>([])
-
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
     const [hasScrolled, setHasScrolled] = useState(false);
     const [isRefresh, setIsRefresh] = useState(false);
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [selectedHeader, setSeletedHeader] = useState('media')
-    const [loading, setLoading] = useState(true)
+
+    const [state, setState] = useState<any>({ mediaData: [],documents:[], loading: true});
 
     useEffect(() => {
         requestDocumentAPI(selectedHeader)
     }, []);
     const onSetHeaderItem = ({ item, index }: any) => {
-        setLoading(true)
+        setState({loading:true})
         setSeletedHeader(item.toLowerCase())
         requestDocumentAPI(item.toLowerCase())
         setHeaderIdx(index)
@@ -58,13 +53,11 @@ const MediaFilesScreen = (props: any) => {
             .then(async (result: any) => {
                 if (result.status) {
                     const reverseDocData = result.data.data.reverse()
-                    selectedHeader == 'media' ? setMediaData(reverseDocData) :setDocuments(reverseDocData)
-                    setLoading(false)
-
+                    selectedHeader == 'media' ? setState({mediaData:reverseDocData,documents:[],loading:false}) :setState({mediaData:[], documents:reverseDocData,loading:false})
                 }
             })
             .catch(e => {
-                setLoading(false)
+                setState({mediaData:[],loading:false})
             });
     }
     const onFullVideo = (url: any) => {
@@ -129,14 +122,14 @@ const MediaFilesScreen = (props: any) => {
                     .then(async (result) => {
                         if (result.status) {
                             lastDoc += 1;
-                            let _data: any = documents;
+                            let _data: any = state.documents;
                             if (result.status && result.data.data.length !== 0) {
-                                selectedHeader == 'media' ? setMediaData([...result.data.data, _data]) :setDocuments([...result.data.data, _data])
+                                selectedHeader == 'media' ? setState({mediaData:[...result.data.data, _data]}) :setState({documents:[...result.data.data, _data]})
                                 _data.push(...result.data.data.reverse())
                             }
                             lastDoc = Math.ceil(_data.length / 20);
                             if (result.data.data !== undefined) {
-                                if (result.data.total <= documents.length) {
+                                if (result.data.total <= state.documents.length) {
                                     lastDoc = 0;
                                 }
                             }
@@ -151,7 +144,6 @@ const MediaFilesScreen = (props: any) => {
     };
 
     const _renderMedia = ({ item, index }: any) => {
-        reactotron.log(item)
         return (
             <TouchableOpacity onPress={() => item.type != 'mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)} style={{ backgroundColor: '#E9E9E99D', height: 140, width: '31.6%', margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?
@@ -219,8 +211,7 @@ const MediaFilesScreen = (props: any) => {
                 key='media'
                 listKey={makeid()}
                 showsVerticalScrollIndicator={false}
-                // inverted
-                data={mediaData}
+                data={state.mediaData}
                 renderItem={_renderMedia}
                 numColumns={3}
                 keyExtractor={(_, index) => index.toString()}
@@ -235,16 +226,13 @@ const MediaFilesScreen = (props: any) => {
                 }
                 onTouchMove={_onScroll}
                 onEndReached={() => {
-                    if (!isMoreLoading && documents.length > 8) {
+                    if (!isMoreLoading && state.mediaData.length > 8) {
                         getMore();
                     }
                 }}
             />
         )
     }
-    const ifCloseToTop = ({ layoutMeasurement, contentOffset, contentSize }:any) => {
-        return contentOffset.y == 0;
-    };
     return (
         <BaseComponent {...baseComponentData} title='Media, files & links'>
             <View style={{ flex: 1, paddingHorizontal: main_padding, marginTop: main_padding - 5 }}>
@@ -258,34 +246,19 @@ const MediaFilesScreen = (props: any) => {
 
                 <View style={{ paddingTop: main_padding - 5, flex: 1 }}>
                     {headerIdx == 0 ?
+                        _.isEmpty(state.mediaData)?
+                        <></>
+                        :
                         _mediaContainer()
-
-                        // <>
-                        //     {renderFooter()}
-                        //     <ScrollView contentContainerStyle={{width:'100%', flexWrap:'wrap'}}
-                        //         ref={scrollRef}
-                        //         scrollEventThrottle={400}
-                        //         showsVerticalScrollIndicator={false}
-                        //         showsHorizontalScrollIndicator={false}
-                                
-                        //         onScroll={({ nativeEvent }) => {
-                        //             if (ifCloseToTop(nativeEvent)) {
-                        //                 getMore();
-                        //             }
-                        //         }}
-                        //     >
-                        //         <View style={{ flexDirection: 'row', flexWrap: 'wrap'}}>
-                        //             {mediaData.map((item:any,index:any)=> _renderMedia({item,index}))}
-                        //         </View>
-                        //     </ScrollView>
-                        // </>
+                        :
+                        _.isEmpty(state.documents)?
+                        <></>
                         :
                         <FlatList
                             key='file'
                             listKey={makeid()}
                             showsVerticalScrollIndicator={false}
-                            data={documents}
-                            // inverted
+                            data={state.documents}
                             renderItem={_renderFileandLink}
                             keyExtractor={(_, index) => index.toString()}
                             refreshControl={
@@ -299,7 +272,7 @@ const MediaFilesScreen = (props: any) => {
                             }
                             onTouchMove={_onScroll}
                             onEndReached={() => {
-                                if (!isMoreLoading && documents.length > 8) {
+                                if (!isMoreLoading && state.documents.length > 8) {
                                     getMore();
                                 }
                             }}
@@ -307,7 +280,7 @@ const MediaFilesScreen = (props: any) => {
                 </View>
             </View>
             <CustomLoading
-                visible={loading}
+                visible={state.loading}
             />
         </BaseComponent>
     );

@@ -31,7 +31,7 @@ import reactotron from 'reactotron-react-native';
 import Entypo from 'react-native-vector-icons/Entypo';
 import LottieView from 'lottie-react-native'
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import RNFS from "react-native-fs";
+import RNFS, { stat } from "react-native-fs";
 import FileViewer from "react-native-file-viewer";
 import { LanguageContext } from '../../utils/LangaugeManager';
 import translate from 'translate-google-api';
@@ -73,7 +73,6 @@ const ChatListScreen = (props: any) => {
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
     const [isMute, setMute] = useState(false);
-    const [isBottomSheet, setBottomSheet] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
@@ -110,21 +109,6 @@ const ChatListScreen = (props: any) => {
         if (Platform.OS === 'android') hasAndroidPermission();
         connect();
         if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
-        // let remove = _.remove(chatData, function(n:any) {return n.id == 0;});
-        // let pusher = new Pusher(config.key, config);
-        // let messageChannel = pusher.subscribe(`App.User.${userInfo.id}`); 
-        // messageChannel.bind('new-message', (newMessage:any) => {
-        //     reactotron.log(newMessage)
-        //     if(chatItem.id == newMessage.data.data.chatroom_id){
-        //         setChatData((chatData:any) => [...chatData,newMessage.data.data]);
-        //         scrollRef.current != null? scrollRef.current.scrollToEnd({animated: true}):{}
-        //         seenMessage(newMessage.data.data);
-        //     }
-        // })
-        // return () => {
-        //     pusher.unsubscribe(`App.User.${userInfo.id}`);
-        //     pusher.unbind('new-message');
-        // }
     }, [chatData])
     const connect = async () => {
         try {
@@ -412,13 +396,6 @@ const ChatListScreen = (props: any) => {
         handleChange('message', text);
         handleChange('type', validURL(text) ? 'url' : 'text')
     }
-    // const onChangeMessage = useCallback(
-    //     (text: any) => {
-    //         handleChange('message', text);
-    //         handleChange('type', validURL(text) ? 'url' : 'text')
-    //     },
-    //     [state.message],
-    // );
     const _handleOpen = () => {
         onOpen()
     }
@@ -470,7 +447,6 @@ const ChatListScreen = (props: any) => {
             formdata.append('type', itemMessageEdit.type);
             formdata.append('chatroom_message_id', itemMessageEdit.id)
             chatData[state.currentindex].message = state.message;
-            // setChatData(chatData)
             handleChange('isEdit', false)
             setItemMessageEdit(null)
             handleChange('message', '')
