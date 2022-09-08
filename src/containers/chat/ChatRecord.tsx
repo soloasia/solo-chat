@@ -42,7 +42,6 @@ const ChatRecord = (props: any) => {
         // onClose()
         ImagePicker.openCamera({
             cropping: false,
-            mediaType:'video'
         }).then(response => {
             onChange(response);
         });
@@ -189,7 +188,7 @@ const ChatRecord = (props: any) => {
                             </TouchableOpacity>
                             :
                             <TouchableOpacity   style={[styles.icon]} onPress={onCamera}>
-                                <Entypo name="video-camera"  size={20} color={themeStyle[theme].textColor}/>
+                                <Entypo name="camera"  size={20} color={themeStyle[theme].textColor}/>
                             </TouchableOpacity>
 
                         }

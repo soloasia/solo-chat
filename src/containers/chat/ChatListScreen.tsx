@@ -49,11 +49,11 @@ let PAGE_SIZE: any = 500;
 let perPage: any = 30;
 let transDate: any = null;
 let audioRecorderPlayer: any = null;
+
 const ChatListScreen = (props: any) => {
     const msgRef = useRef<any>(null);
     const mycontact = useSelector((state: any) => state.mycontact);
     const sheetRefGallery = React.useRef<any>(null);
-    const ref = useRef<FlatList>(null);
     const scrollRef: any = useRef();
     const insets = useSafeAreaInsets()
     const navigate: any = useNavigation();
@@ -61,8 +61,8 @@ const ChatListScreen = (props: any) => {
     const appearanceTheme = useSelector((state: any) => state.appearance);
     const { theme }: any = useContext(ThemeContext);
     const textsize = useSelector((state: any) => state.textSizeChange);
-    const { chatItem, contactItem, last_message } = props.route.params;
-    const { isOpen, onOpen, onClose } = useDisclose();
+    const { chatItem, contactItem } = props.route.params;
+    const { onOpen } = useDisclose();
     const [isMoreLoading, setIsMoreLoading] = useState(false);
     const [isLocalLoading, setLocalLoading] = useState<any>(null);
     const [chatData, setChatData] = useState<any>(_.isEmpty(chatItem.chatroom_messages) ? chatItem.chatroom_messages : chatItem.chatroom_messages.data);
@@ -72,14 +72,14 @@ const ChatListScreen = (props: any) => {
     const [voiceId, setVoiceId] = useState(null);
     const [voiceDuration, setVoiceDuration] = useState(0);
     const [loadingVoice, setLoadingVoice] = useState(false);
-    const [isShowControl, setControll] = useState(true);
     const [isMute, setMute] = useState(false);
+    const [isBottomSheet, setBottomSheet] = useState(false);
     const [itemMessageEdit, setItemMessageEdit] = useState<any>(null)
     const [isTranslate, setIsTranslate] = useState<any>([]);
     const [nonTranslate, setNonTranslate] = useState<any>([]);
     const dispatch: any = useDispatch();
-
     let countTransDate: any = 0;
+
     const [state, setState] = useState<any>({
         message: '',
         loadSendMess: false,
@@ -103,11 +103,13 @@ const ChatListScreen = (props: any) => {
             var last:any = Object.keys(chatData).pop();
             seenMessage(chatData[last]);
             loadData(dispatch);
+            lastDoc = 1;
         })
     ), [navigate]);
     useEffect(() => {
         if (Platform.OS === 'android') hasAndroidPermission();
         connect();
+        if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
         // let remove = _.remove(chatData, function(n:any) {return n.id == 0;});
         // let pusher = new Pusher(config.key, config);
         // let messageChannel = pusher.subscribe(`App.User.${userInfo.id}`); 
@@ -147,12 +149,14 @@ const ChatListScreen = (props: any) => {
         const keyboardDidShowListener = Keyboard.addListener(
             'keyboardDidShow',
             () => {
+                sheetRefGallery.current.snapTo(2)
                 scrollRef.current != null ? scrollRef.current.scrollToEnd({ animated: true }) : {}
             }
         );
         const keyboardDidHideListener = Keyboard.addListener(
             'keyboardDidHide',
             () => {
+                sheetRefGallery.current.snapTo(2)
                 scrollRef.current != null ? scrollRef.current.scrollToEnd({ animated: true }) : {}
             }
         );
@@ -271,12 +275,15 @@ const ChatListScreen = (props: any) => {
                 }
                 )
         }
-        else if (type == 'Camera') {
+        else if (type == 'Record Video') {
             ImagePicker.openCamera({
                 cropping: false,
+                mediaType:'video'
             }).then(response => {
+                let localUrl = Platform.OS === 'ios' ? response.sourceURL : response.path
+                handleChange('localVideo', localUrl)
                 base64File(response.path).then((res: any) => {
-                    handleChange('type', 'png')
+                    handleChange('type', 'mp4')
                     handleChange('file', res)
                     onSend()
                 })
@@ -347,18 +354,16 @@ const ChatListScreen = (props: any) => {
         handleChange('image', '')
         handleChange('index', null)
         onSend()
-        sheetRefGallery.current.snapTo(2)
+        sheetRefGallery.current.snapTo(2);
     }
     const onShefGallery = () => {
         getPhotos();
-        sheetRefGallery.current.snapTo(0)
+        sheetRefGallery.current.snapTo(0);
         Keyboard.dismiss();
     }
     const onChange = (data: any) => {
-        let localUrl = Platform.OS === 'ios' ? data.sourceURL : data.path
-        handleChange('localVideo', localUrl)
         base64File(data.path).then((res: any) => {
-            handleChange('type', 'mp4')
+            handleChange('type', 'png')
             handleChange('file', res)
             onSend()
         })
@@ -403,13 +408,17 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     }
-    const onChangeMessage = useCallback(
-        (text: any) => {
-            handleChange('message', text);
-            handleChange('type', validURL(text) ? 'url' : 'text')
-        },
-        [state.message],
-    );
+    const onChangeMessage = (text: any) =>{
+        handleChange('message', text);
+        handleChange('type', validURL(text) ? 'url' : 'text')
+    }
+    // const onChangeMessage = useCallback(
+    //     (text: any) => {
+    //         handleChange('message', text);
+    //         handleChange('type', validURL(text) ? 'url' : 'text')
+    //     },
+    //     [state.message],
+    // );
     const _handleOpen = () => {
         onOpen()
     }
@@ -449,7 +458,7 @@ const ChatListScreen = (props: any) => {
         POST('chatroom_message/create', formdata)
         .then(async (result: any) => {
             if(result.status){
-                // seenMessage(result.data)
+                seenMessage(result.data)
                 setLocalLoading(null)
             }
         })
@@ -548,36 +557,27 @@ const ChatListScreen = (props: any) => {
         handleChange('isShowActionMess', true)
     }
     const _handleTranslateText = async (id: number, text: string) => {
-
         if (!isTranslate.includes(id)) {
-
             ///store translate chat index
             isTranslate.push(id);
             setIsTranslate(isTranslate);
-
             ///save original chat content
             nonTranslate.push({ key: id, value: text })
             setNonTranslate(nonTranslate);
-
             /// translate and set result to message
             const result = await translate(text, { to: language });
             const found = chatData.find((e: any) => e.id === id);
-
             found.message = result;
-
         } else {
-
             const indexTemp = isTranslate.indexOf(id, 0);
             if (indexTemp > -1) {
                 isTranslate.splice(indexTemp, 1);
             }
-
             var prevData = nonTranslate.find((e: any) => e.key == id);
             const found = chatData.find((e: any) => e.id === id);
             found.message = prevData.value;
-
         }
-
+        handleChange('currentindex', id)
         setChatData((chatData: any) => [...chatData]);
     }
     const onPlayVideo = (mess: any, index: any) => {
@@ -585,12 +585,10 @@ const ChatListScreen = (props: any) => {
     }
     const onFullVideo = (url: any) => {
         navigate.navigate('VideoFull', { videos: url });
-        setControll(true);
     }
     const onMuteVideo = () => {
         setMute(isMute => !isMute);
     }
-
     const renderFooter: any = () => {
         if (!isMoreLoading) return true;
         return (
@@ -853,7 +851,6 @@ const ChatListScreen = (props: any) => {
             </View>
         )
     };
-
     const messageVoice = (mess: any, index: any) => {
         return (
             <View style={[styles.chatBody, { alignItems: mess.created_by == userInfo.id ? "flex-end" : "flex-start" }]}>
@@ -939,7 +936,11 @@ const ChatListScreen = (props: any) => {
                         <Text style={{ fontSize: 10, color: mess.created_by == userInfo.id ? whiteColor : theme == 'dark' ? '#D1D1D1' : textColor, alignSelf: 'flex-end', paddingLeft: 100, fontFamily: 'Montserrat-Regular' }}>{moment(mess.created_at).format('HH:mm A')}</Text>
                         <TouchableOpacity onPress={() => _handleTranslateText(mess.id, mess.message)}>
                             {
-                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? <Text style={{ color: mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular' }}>Show Orignal</Text> : <Text style={{ color: mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular' }}>Translate</Text>
+                                !_.isEmpty(isTranslate) && isTranslate.includes(mess.id) ? 
+
+                                    <Text style={{ color: mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular' }}>Show Orignal</Text>    
+                                        : 
+                                            <Text style={{ color: mess.created_by == userInfo.id ? "white" : baseColor, fontSize: 11, fontFamily: 'Montserrat-Regular' }}>Translate</Text>
                             }
                         </TouchableOpacity>
                     </TouchableOpacity>
@@ -1143,10 +1144,10 @@ const ChatListScreen = (props: any) => {
                                         scrollEventThrottle={400}
                                         showsVerticalScrollIndicator={false}
                                         showsHorizontalScrollIndicator={false}
-                                        // onContentSizeChange={() => {
-                                        //     if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
-                                        //     }
-                                        // }
+                                        onContentSizeChange={() => {
+                                            if (lastDoc == 1 && isTranslate.length == 0) scrollRef.current.scrollToEnd({y:0,animated: true})
+                                            }
+                                        }
                                         onScroll={({ nativeEvent }) => {
                                             if (ifCloseToTop(nativeEvent)) {
                                                 getMore();
@@ -1235,8 +1236,6 @@ const styles = StyleSheet.create({
         transform: [{ scaleY: 1 }],
         flex: 1,
         justifyContent: 'flex-end',
-        // marginBottom: 10,
-        // paddingHorizontal: main_padding
     },
     chatBody: {
         transform: [{ scaleY: 1 }],

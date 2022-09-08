@@ -1,4 +1,4 @@
-import React, { useState, useContext,createRef } from 'react'
+import React, { useState, useContext,createRef, useEffect } from 'react'
 import { Platform, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 import { HStack, VStack } from 'native-base';
 import { textDesColor, startBtn, whiteSmoke, bgChat, borderColor, offlineColor, textColor } from '../../config/colors';
@@ -17,7 +17,7 @@ import { AlertBox, TextItem } from '../../customs_items/Components';
 import AsynceStorage from '@react-native-async-storage/async-storage'
 import { loadUser } from '../../actions/User';
 import { LanguageContext } from '../../utils/LangaugeManager';
-import reactotron from 'reactotron-react-native';
+import messaging from '@react-native-firebase/messaging';
 
 const LoginScreen = (props: any) => {
     const usernameRef = createRef<TextInput>();
@@ -25,7 +25,7 @@ const LoginScreen = (props: any) => {
     const navigate: any = useNavigation();
     const { theme }: any = useContext(ThemeContext);
     const { tr }: any = useContext(LanguageContext);
-    const mobile_token = useSelector((state: any) => state.mobile_token);
+    // const mobile_token = useSelector((state: any) => state.mobile_token);
     const [inputBorder, setborderColor] = useState<any>(borderColor);
     const [isOpen, setIsOpen] = React.useState(false);
     const dispatch: any = useDispatch();
@@ -35,8 +35,16 @@ const LoginScreen = (props: any) => {
         password: '',
         isSecure: true,
         isValidateForm: false,
-        loading: false
+        loading: false,
+        mobile_token:null
     });
+    useEffect(() => {
+        requestMobileToken();
+    }, []);
+    const requestMobileToken = async () => {
+        const token = await messaging().getToken();
+        handleChange('mobile_token', token);
+    };
     const handleChange = (stateName: string, value: any) => {
         state[`${stateName}`] = value;
         setState({ ...state });
@@ -55,7 +63,7 @@ const LoginScreen = (props: any) => {
             const formdata = new FormData();
             formdata.append("username", state.username);
             formdata.append("password", state.password);
-            formdata.append("mobile_token", mobile_token);
+            formdata.append("mobile_token", state.mobile_token);
             POST('user/login', formdata)
                 .then(async (result: any) => {
                     if (result.access_token) {
@@ -67,12 +75,11 @@ const LoginScreen = (props: any) => {
                             .then((res) => {
                                 if (res.status) {
                                     dispatch(loadUser(res.data))
-                                    
                                 }
-                            })
+                        })
                         navigate.reset({
                             index: 0,
-                            routes: [{ name: 'Main' }]
+                            routes: [{ name: "Main" }]
                         })
                         handleChange('loading', false);
                     } else {
@@ -135,9 +142,6 @@ const LoginScreen = (props: any) => {
                                 </TouchableOpacity>
                             </View>
                             {state.isValidateForm ? <Text style={[style.p, { fontSize: 13, color: 'red', paddingTop: 10, textAlign: 'left' }]}>* Please fill your password</Text> : <View />}
-                            {/* <TouchableOpacity style={{ marginTop: main_padding, alignItems: 'flex-end' }}>
-                                <Text style={[style.p, { color: startBtn }]}>Forgot password?</Text>
-                            </TouchableOpacity> */}
                         </View>
                     </TouchableWithoutFeedback>
                     <View style={{width: deviceWidth*.9,justifyContent: 'center',paddingBottom:Platform.OS ==='ios'? insets.bottom:20}}>
@@ -177,14 +181,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         minHeight: 45,
         borderWidth: 0.5,
-        // shadowColor: "#000",
-        // shadowOffset: {
-        //     width: 0,
-        //     height: 1,
-        // },
-        // shadowOpacity: 0.22,
-        // shadowRadius: 2,
-        // elevation: 2,
         borderRadius: 25
     },
     icon: {

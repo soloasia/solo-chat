@@ -1,10 +1,8 @@
-import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar, Text } from "react-native";
+import { SafeAreaView, useColorScheme, View, Platform, LogBox, StatusBar } from "react-native";
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { createNavigationContainerRef, NavigationContainer,  DefaultTheme, DarkTheme, ThemeProvider, CommonActions,} from "@react-navigation/native";
+import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
-import style, { deviceWidth } from "../styles";
-import NetInfo from '@react-native-community/netinfo';
+import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ChatScreen from "../components/ChatScreen";
@@ -25,6 +23,7 @@ import EditProfileScreen from "../containers/settings/EditProfileScreen";
 import ProfileNotification from "../containers/chat/ProfileNotification";
 import themeStyle from "../styles/theme";
 import { ThemeContext } from "../utils/ThemeManager";
+import NetInfo from '@react-native-community/netinfo';
 
 import { useDispatch, useSelector } from "react-redux";
 import { useAuth } from "../functions/UserAuth";
@@ -35,18 +34,10 @@ import { main_padding } from '../config/settings';
 import ScanQrScreen from "../containers/contact/ScanQrScreen";
 import MemberScreen from "../containers/chat/MemberScreen";
 import VideoFullScreen from "../containers/chat/VideoFullScreen";
-import reactotron from "reactotron-react-native";
 import { LanguageContext } from "../utils/LangaugeManager";
-import { showToast, ToastStatus } from "../functions/BaseFuntion";
-import { Box, useToast } from "native-base";
-import { whiteSmoke } from "../config/colors";
-import Toast from 'react-native-simple-toast';
 import NoInternetScreen from "../components/NoInternetScreen";
-import _ from 'lodash'
-// import MemberScreen from "../containers/chat/MemberScreen";
 
 const Stack = createStackNavigator();
-
 const Tab = createBottomTabNavigator();
 
 export const navigationRef: any = createNavigationContainerRef()
@@ -54,15 +45,13 @@ export const navigationRef: any = createNavigationContainerRef()
 
 const Route = () => {
   const dispatch = useDispatch();
-  const no_connection = useSelector( (state: {no_connection: any}) => state.no_connection);
   const auth:any = useAuth();
   const user = useSelector((state: any) => state.user);
-  const token = useSelector((state: any) => state.token);
-
+  const no_connection = useSelector( (state: {no_connection: any}) => state.no_connection);
   const [splashscreen,setSplash] = useState(true)
   const {theme} : any = useContext(ThemeContext);
   const {tr} : any = useContext(LanguageContext);
-  
+
   useEffect(() => {
     checkPermissionNotification();
     requestMobileToken();
@@ -80,7 +69,7 @@ const Route = () => {
       });
       }
   }, [user])
-
+  
   useEffect(() => {
     const inter = setInterval(() => {
       const unsubscribe = NetInfo.addEventListener(
@@ -99,8 +88,6 @@ const Route = () => {
       clearInterval(inter);
     }
   }, []);
-
- 
   const checkPermissionNotification = async () => {
     const check = await messaging().isDeviceRegisteredForRemoteMessages;
     if (Platform.OS === 'ios' || !check) {
@@ -133,7 +120,7 @@ const Route = () => {
           // cardStyleInterpolator:
           //   CardStyleInterpolators.forFadeFromBottomAndroid,
         }}>
-        {!_.isEmpty(token)? 
+        {auth.user ? 
           <>
             <Stack.Screen name="Main" component={MainTab} />
             <Stack.Screen name="AuthOption" component={AuthOptionScreen} />
@@ -237,7 +224,6 @@ const Route = () => {
     <SafeAreaProvider>
        <StatusBar barStyle = "dark-content" hidden = {false} translucent = {true}/>   
        <NavigationContainer>
-        {/* <NoInternetScreen /> */}
           {no_connection ? <NoInternetScreen /> :
             splashscreen?
               <SplashScreen/>
@@ -250,10 +236,3 @@ const Route = () => {
 };
 
 export default Route;
-
-
-
-function PublicNotification() {
-  throw new Error("Function not implemented.");
-}
-

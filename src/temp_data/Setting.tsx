@@ -59,8 +59,8 @@ export const options = [
         icon: 'videocam-outline',
    },
    {
-        name: 'Camera',
-        icon: 'ios-camera-outline',
+        name: 'Record Video',
+        icon: 'videocam',
     },
     {
         name: 'File',

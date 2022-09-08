@@ -53,7 +53,7 @@ const ChatScreen = () => {
     const appState = useRef(AppState.currentState);
     const mobile_token = useSelector((state: any) => state.mobile_token);
 	useEffect(() => {
-		if(userInfo && mobile_token == null){
+		if(userInfo){
 			var pusher = new Pusher(config.key, config);
 			var orderChannel = pusher.subscribe(`App.User.${userInfo.id}`);
 			orderChannel.bind(`new-message`, (data:any) => {
@@ -82,13 +82,12 @@ const ChatScreen = () => {
 				pusher.unsubscribe(`App.User.${userInfo.id}`);
 			}
 		}
-		
-	}, []);
+	}, [userInfo]);
 	useEffect(() => {
 		const unsubscribe = messaging().onMessage(async (remoteMessage:any) => {
 		const { data } = remoteMessage
 		// onPushPublicNotification(data)
-		if(data.type =='create-group' || data.type =='new-message'){
+		if(data.type =='create-group'){
 			getData();
 		}
 		});

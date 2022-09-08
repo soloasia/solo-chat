@@ -6,7 +6,6 @@ export function loadData(dispatch) {
     GET(`me/contact?page=1`)
     .then(async (result) => {
         if(result.status){
-            console.log('--------load data------')
             dispatch(loadContact(result.data.data))
         }
     })

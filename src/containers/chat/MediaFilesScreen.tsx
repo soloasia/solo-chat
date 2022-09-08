@@ -151,6 +151,7 @@ const MediaFilesScreen = (props: any) => {
     };
 
     const _renderMedia = ({ item, index }: any) => {
+        reactotron.log(item)
         return (
             <TouchableOpacity onPress={() => item.type != 'mp4' ? navigate.navigate('DisplayFullImg', { imgDisplay: item.file_url }) : onFullVideo(item.file_url)} style={{ backgroundColor: '#E9E9E99D', height: 140, width: '31.6%', margin: 3, borderRadius: 5, borderColor: borderDivider, borderWidth: 0.5 }}>
                 {item.type == 'mp4' ?

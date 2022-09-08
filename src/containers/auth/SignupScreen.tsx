@@ -11,7 +11,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import SelectImagePicker from '../../customs_items/SelectImagePicker';
 import { useNavigation } from '@react-navigation/native';
 import messaging from '@react-native-firebase/messaging';
-import PhoneInput from "react-native-phone-number-input";
 import { ThemeContext } from '../../utils/ThemeManager';
 import themeStyle from '../../styles/theme';
 import { useDispatch, useSelector } from 'react-redux';
@@ -27,11 +26,9 @@ const SignupScreen = (props: any) => {
     const lastNameRef = React.createRef<TextInput>();
     const passwordRef = React.createRef<TextInput>();
     const usernameRef = React.createRef<TextInput>();
-    const phoneInputRef = React.createRef<PhoneInput>();
     const navigate:any = useNavigation();
     const { isOpen, onOpen, onClose } = useDisclose();
     const [inputBorder, setborderColor] = useState<any>(borderColor);
-    const [formattedValue, setFormattedValue] = useState("");
     const mobile_token = useSelector((state: any) => state.mobile_token);
     const dispatch:any = useDispatch();
     const [isPopup, setIsOpen] = React.useState(false);
@@ -51,8 +48,18 @@ const SignupScreen = (props: any) => {
         validatePassword:false,
         validateUsername:false,
         phoneNumberError:false,
-        loading:false
+        loading:false,
+        mobile_token:null
 	});
+
+    useEffect(() => {
+        requestMobileToken();
+    }, []);
+    const requestMobileToken = async () => {
+        const token = await messaging().getToken();
+        handleChange('mobile_token', token);
+    };
+
     const handleChange = (stateName: string, value: any) => {
 		state[`${stateName}`] = value;
 		setState({...state});
@@ -73,9 +80,6 @@ const SignupScreen = (props: any) => {
         }else if(isWhitespaceOrEmpty(state.username)){
             handleChange('validateUsername',true)
         }
-        // else if(isWhitespaceOrEmpty(state.phonenumber)){
-        //     handleChange('phoneNumberError',true)
-        // }
         else if(isWhitespaceOrEmpty(state.password)){
             handleChange('validatePassword',true)
         }else{
@@ -87,7 +91,7 @@ const SignupScreen = (props: any) => {
             formdata.append("phone",'');
             formdata.append("password",state.password);
             formdata.append("profile_photo",state.profileAvatar);
-            formdata.append("mobile_token",mobile_token);
+            formdata.append("mobile_token", state.mobile_token);
             POST('user/register', formdata)
             .then(async (result: any) => {
               if (result.access_token) {
@@ -115,7 +119,6 @@ const SignupScreen = (props: any) => {
               handleChange('loading', false);
             });
         }
-        // navigate.navigate('Main')
     }
     const onChange = (data:any) =>{
         handleChange('profileAvatar', data.data);
@@ -208,24 +211,6 @@ const SignupScreen = (props: any) => {
                             placeholderTextColor={'#ADB9C6'}
                         />
                         {state.validateUsername?<Text style={[style.p,{fontSize:12,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your username</Text>:''}
-                        {/* <PhoneInput
-                            ref={phoneInputRef}
-                            defaultValue={state.phonenumber}
-                            defaultCode={getSystemLocale().split('_') == undefined?'EN':getSystemLocale().split('_')[1]}
-                            layout='second'
-                            onChangeText={(text) => {
-                                handleChange('phonenumber', text);
-                                handleChange('phoneNumberError',false)
-                            }}
-                            onChangeFormattedText={(text) => {
-                                setFormattedValue(text);
-                            }}
-                            placeholder="XX XXX XXXX"
-                            textContainerStyle={{backgroundColor:themeStyle[theme].primary,borderRadius:25}}
-                            containerStyle={{width:'100%',height:45,borderColor:state.phoneNumberError?offlineColor:borderColor,borderWidth:0.4,borderRadius:25,marginTop:20,backgroundColor:themeStyle[theme].primary}}
-                            textInputStyle={[style.p,{height:45,color :themeStyle[theme].textColor}]}
-                        />
-                        {state.phoneNumberError?<Text style={[style.p,{fontSize:13,color:'red',paddingTop:10,textAlign:'left'}]}>* Please fill your phone number</Text>:''} */}
                         <View style={{ marginTop: 20}}>
                             <TextInput 
                                 ref={passwordRef}
